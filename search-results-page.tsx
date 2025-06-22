@@ -4,12 +4,16 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, MapPin, Star, User, UserPlus, ChevronRight, Home, Building, Train } from "lucide-react"
+import { getPrefectureById } from "@/lib/getPrefectures"
 
 interface SearchResultsPageProps {
-  prefecture?: string
+  prefectureId?: string
 }
 
-export default function SearchResultsPage({ prefecture = "東京都" }: SearchResultsPageProps) {
+export default async function SearchResultsPage({ prefectureId }: SearchResultsPageProps) {
+  const prefectureData = prefectureId ? await getPrefectureById(prefectureId) : null
+  const prefectureName = prefectureData?.region ?? "都道府県未選択"
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -54,7 +58,7 @@ export default function SearchResultsPage({ prefecture = "東京都" }: SearchRe
             介護事務の求人
           </Link>
           <ChevronRight className="w-4 h-4 mx-1" />
-          <span>{prefecture}の介護事務求人</span>
+          <span>{prefectureName}の介護事務求人</span>
         </div>
       </div>
 
@@ -72,7 +76,7 @@ export default function SearchResultsPage({ prefecture = "東京都" }: SearchRe
             {/* Page Title */}
             <div className="mb-8">
               <h1 className="text-2xl font-bold text-gray-800 mb-2">
-                {prefecture}の介護事務求人・転職・就職・アルバイト情報
+                {prefectureName}の介護事務求人・転職・就職・アルバイト情報
               </h1>
               <div className="flex items-center space-x-4">
                 <span className="text-lg text-gray-600">
@@ -125,8 +129,8 @@ export default function SearchResultsPage({ prefecture = "東京都" }: SearchRe
             <div className="mb-8">
               <h2 className="text-lg font-semibold text-gray-800 mb-4">この条件で新着求人を受け取る</h2>
               <p className="text-sm text-gray-600 leading-relaxed">
-                {prefecture}の介護事務求人は269件が募集中。{prefecture}
-                では世田谷区、杉並区、足立区などの求人が人気です。{prefecture}
+                {prefectureName}の介護事務求人は269件が募集中。{prefectureName}
+                では世田谷区、杉並区、足立区などの求人が人気です。{prefectureName}
                 の介護事務の方の仕事選びの傾向としては、高時給を重視する方、主婦向けの多さ、残業時間の少なさを重視される方が多いです。もっと見る
               </p>
             </div>

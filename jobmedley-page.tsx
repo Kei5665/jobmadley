@@ -5,64 +5,10 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, MapPin, Star, User, UserPlus, ChevronRight, Home } from "lucide-react"
+import { getPrefectureGroups } from "@/lib/getPrefectures"
 
-export default function Component() {
-  const prefectures = {
-    関東: [
-      { name: "東京都", count: 2604 },
-      { name: "神奈川県", count: 1179 },
-      { name: "埼玉県", count: 1148 },
-      { name: "千葉県", count: 1067 },
-      { name: "茨城県", count: 234 },
-      { name: "栃木県", count: 234 },
-    ],
-    関西: [
-      { name: "大阪府", count: 1644 },
-      { name: "兵庫県", count: 896 },
-      { name: "京都府", count: 341 },
-      { name: "滋賀県", count: 217 },
-      { name: "奈良県", count: 244 },
-      { name: "和歌山県", count: 119 },
-    ],
-    東海: [
-      { name: "愛知県", count: 1148 },
-      { name: "静岡県", count: 753 },
-      { name: "岐阜県", count: 394 },
-      { name: "三重県", count: 167 },
-    ],
-    北海道東北: [
-      { name: "北海道", count: 654 },
-      { name: "宮城県", count: 225 },
-      { name: "岩手県", count: 178 },
-      { name: "福島県", count: 137 },
-      { name: "山形県", count: 127 },
-      { name: "秋田県", count: 139 },
-    ],
-    甲信越北陸: [
-      { name: "山梨県", count: 169 },
-      { name: "長野県", count: 243 },
-      { name: "新潟県", count: 243 },
-      { name: "富山県", count: 219 },
-      { name: "石川県", count: 219 },
-      { name: "福井県", count: 78 },
-    ],
-    中国四国: [
-      { name: "岡山県", count: 79 },
-      { name: "広島県", count: 225 },
-      { name: "山口県", count: 149 },
-      { name: "鳥取県", count: 114 },
-      { name: "島根県", count: 114 },
-      { name: "香川県", count: 225 },
-    ],
-    九州沖縄: [
-      { name: "福岡県", count: 649 },
-      { name: "佐賀県", count: 134 },
-      { name: "長崎県", count: 241 },
-      { name: "熊本県", count: 225 },
-      { name: "大分県", count: 49 },
-      { name: "宮崎県", count: 107 },
-    ],
-  }
+export default async function Component() {
+  const prefectures = await getPrefectureGroups()
 
   return (
     <div className="min-h-screen bg-white">
@@ -169,21 +115,18 @@ export default function Component() {
 
           <TabsContent value="prefecture">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-6">
-              {Object.entries(prefectures).map(([region, prefs]) => (
-                <div key={region} className="space-y-3">
-                  <h3 className="font-semibold text-gray-800 text-center">{region}</h3>
+              {Object.entries(prefectures).map(([area, prefs]) => (
+                <div key={area} className="space-y-3">
+                  <h3 className="font-semibold text-gray-800 text-center">{area}</h3>
                   <div className="space-y-2">
                     {prefs.map((pref) => (
                       <Link
-                        key={pref.name}
-                        href={`/search?prefecture=${encodeURIComponent(pref.name)}`}
+                        key={pref.id}
+                        href={`/search?prefecture=${encodeURIComponent(pref.id)}`}
                         className="flex items-center justify-between p-2 text-sm text-teal-600 hover:bg-teal-50 rounded transition-colors"
                       >
                         <span>{pref.name}</span>
-                        <div className="flex items-center">
-                          <span className="text-xs text-gray-500">({pref.count}件)</span>
-                          <ChevronRight className="w-3 h-3 ml-1" />
-                        </div>
+                        <ChevronRight className="w-3 h-3 ml-1" />
                       </Link>
                     ))}
                   </div>
