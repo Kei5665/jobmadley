@@ -5,6 +5,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, MapPin, Star, User, UserPlus, ChevronRight, Home, Building, Train } from "lucide-react"
 import { getPrefectureById } from "@/lib/getPrefectures"
+import { getMunicipalitiesByPrefectureId } from "@/lib/getMunicipalities"
+import MunicipalityDialog from "./components/municipality-dialog"
 
 interface SearchResultsPageProps {
   prefectureId?: string
@@ -13,6 +15,7 @@ interface SearchResultsPageProps {
 export default async function SearchResultsPage({ prefectureId }: SearchResultsPageProps) {
   const prefectureData = prefectureId ? await getPrefectureById(prefectureId) : null
   const prefectureName = prefectureData?.region ?? "都道府県未選択"
+  const municipalities = prefectureId ? await getMunicipalitiesByPrefectureId(prefectureId) : []
 
   return (
     <div className="min-h-screen bg-white">
@@ -90,12 +93,11 @@ export default async function SearchResultsPage({ prefectureId }: SearchResultsP
 
             {/* Search Options */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-              <Card className="cursor-pointer hover:bg-gray-50">
-                <CardContent className="p-6 text-center">
-                  <MapPin className="w-8 h-8 text-teal-600 mx-auto mb-2" />
-                  <span className="text-gray-800 font-medium">市区町村から選択</span>
-                </CardContent>
-              </Card>
+              <MunicipalityDialog
+                municipalities={municipalities}
+                prefectureId={prefectureId ?? ""}
+                prefectureName={prefectureName}
+              />
               <Card className="cursor-pointer hover:bg-gray-50">
                 <CardContent className="p-6 text-center">
                   <Train className="w-8 h-8 text-teal-600 mx-auto mb-2" />
