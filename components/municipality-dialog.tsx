@@ -12,8 +12,12 @@ import { Card, CardContent } from "@/components/ui/card"
 import { MapPin, ChevronRight } from "lucide-react"
 import type { Municipality } from "@/lib/getMunicipalities"
 
+interface MunicipalityWithCount extends Municipality {
+  jobCount: number
+}
+
 interface MunicipalityDialogProps {
-  municipalities: Municipality[]
+  municipalities: MunicipalityWithCount[]
   prefectureId: string
   prefectureName: string
 }
@@ -41,17 +45,19 @@ export default function MunicipalityDialog({
         {/* 市区町村リスト */}
         <div className="max-h-[60vh] overflow-y-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 divide-x">
-            {municipalities.map((m, idx) => (
-              <Link
-                key={m.id}
-                href={`/search?prefecture=${prefectureId}&municipality=${m.id}`}
-                className="flex items-center justify-between p-3 text-sm text-teal-600 hover:bg-teal-50 border-b"
-              >
-                <div className="flex items-center space-x-2">
-                  <span className="text-gray-800">{m.name}</span>
-                </div>
-                <ChevronRight className="w-3 h-3" />
-              </Link>
+            {municipalities.map((m) => (
+              <DialogClose asChild key={m.id}>
+                <Link
+                  href={`/search?prefecture=${prefectureId}&municipality=${m.id}`}
+                  className="flex items-center justify-between p-3 text-sm text-teal-600 hover:bg-teal-50 border-b"
+                >
+                  <div className="flex items-center space-x-2">
+                    <span className="text-gray-800">{m.name}</span>
+                    <span className="text-gray-500">({m.jobCount})</span>
+                  </div>
+                  <ChevronRight className="w-3 h-3" />
+                </Link>
+              </DialogClose>
             ))}
             {municipalities.length === 0 && (
               <p className="col-span-full text-sm text-gray-500 text-center py-4">
@@ -64,14 +70,6 @@ export default function MunicipalityDialog({
         {/* フッター */}
         <div className="flex items-center justify-between pt-4 border-t mt-4">
           <span className="text-sm text-gray-600">該当件数 {municipalities.length}件</span>
-          <DialogClose asChild>
-            <Link
-              href={`/search?prefecture=${prefectureId}`}
-              className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded"
-            >
-              検索する
-            </Link>
-          </DialogClose>
         </div>
       </DialogContent>
     </Dialog>

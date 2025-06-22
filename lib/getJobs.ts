@@ -1,0 +1,71 @@
+import { microcmsClient } from "./microcms"
+
+export type Job = {
+  id: string
+  title: string
+  /** 都道府県参照 */
+  prefecture?: {
+    id: string
+    region: string
+  }
+  /** 市区町村参照 */
+  municipality?: {
+    id: string
+    name: string
+  }
+  /** 任意のサムネイル URL */
+  imageUrl?: string
+  // 必要であれば今後フィールドを追加
+}
+
+interface GetJobsParams {
+  /** 都道府県 ID で絞り込み (optional) */
+  prefectureId?: string
+  /** 市区町村 ID で絞り込み (optional) */
+  municipalityId?: string
+  /** 取得件数 (default: 100) */
+  limit?: number
+}
+
+/**
+ * 求人一覧を microCMS から取得
+ *
+ * filters には [and] で条件を結合する[[memory:7889397435779635015]]
+ * microCMS の `limit` は 100 以下にする[[memory:1588031229221905914]]
+ */
+export const getJobs = async ({ prefectureId, municipalityId, limit = 100 }: GetJobsParams) => {
+  const filterParts: string[] = []
+  if (prefectureId) filterParts.push(`prefecture[equals]${prefectureId}`)
+  if (municipalityId) filterParts.push(`municipality[equals]${municipalityId}`)
+
+  const filters = filterParts.join("[and]")
+
+  const data = await microcmsClient.get<{ contents: Job[] }>({
+    endpoint: "jobs",
+    queries: {
+      limit,
+      ...(filters ? { filters } : {}),
+    },
+  })
+
+  return data.contents
+}
+
+/** 求人数だけを取得（limit=0） */
+export const getJobCount = async ({ prefectureId, municipalityId }: { prefectureId?: string; municipalityId?: string }) => {
+  const filterParts: string[] = []
+  if (prefectureId) filterParts.push(`prefecture[equals]${prefectureId}`)
+  if (municipalityId) filterParts.push(`municipality[equals]${municipalityId}`)
+
+  const filters = filterParts.join("[and]")
+
+  const data = await microcmsClient.get<{ totalCount: number }>({
+    endpoint: "jobs",
+    queries: {
+      limit: 0, // 件数のみ取得
+      ...(filters ? { filters } : {}),
+    },
+  })
+
+  return data.totalCount
+} 

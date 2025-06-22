@@ -4,13 +4,14 @@ import SearchResultsPage from "../../search-results-page"
 interface SearchPageProps {
   searchParams: {
     prefecture?: string // prefecture ID
+    municipality?: string // municipality ID optional
   }
 }
 
 export default function SearchPage({ searchParams }: SearchPageProps) {
   return (
     <Suspense fallback={<div>読み込み中...</div>}>
-      <SearchResultsPage prefectureId={searchParams.prefecture} />
+      <SearchResultsPage prefectureId={searchParams.prefecture} municipalityId={searchParams.municipality} />
     </Suspense>
   )
 }

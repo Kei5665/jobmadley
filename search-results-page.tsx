@@ -6,16 +6,27 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, MapPin, Star, User, UserPlus, ChevronRight, Home, Building, Train } from "lucide-react"
 import { getPrefectureById } from "@/lib/getPrefectures"
 import { getMunicipalitiesByPrefectureId } from "@/lib/getMunicipalities"
+import { getJobs, getJobCount } from "@/lib/getJobs"
 import MunicipalityDialog from "./components/municipality-dialog"
 
 interface SearchResultsPageProps {
   prefectureId?: string
+  municipalityId?: string
 }
 
-export default async function SearchResultsPage({ prefectureId }: SearchResultsPageProps) {
+export default async function SearchResultsPage({ prefectureId, municipalityId }: SearchResultsPageProps) {
   const prefectureData = prefectureId ? await getPrefectureById(prefectureId) : null
   const prefectureName = prefectureData?.region ?? "都道府県未選択"
-  const municipalities = prefectureId ? await getMunicipalitiesByPrefectureId(prefectureId) : []
+  const municipalitiesRaw = prefectureId ? await getMunicipalitiesByPrefectureId(prefectureId) : []
+  // 各市区町村の求人数を取得
+  const municipalities = await Promise.all(
+    municipalitiesRaw.map(async (m) => {
+      const count = await getJobCount({ municipalityId: m.id })
+      return { ...m, jobCount: count }
+    }),
+  )
+  const selectedMunicipality = municipalityId ? municipalities.find((m) => m.id === municipalityId) : null
+  const jobs = await getJobs({ prefectureId, municipalityId })
 
   return (
     <div className="min-h-screen bg-white">
@@ -61,7 +72,10 @@ export default async function SearchResultsPage({ prefectureId }: SearchResultsP
             介護事務の求人
           </Link>
           <ChevronRight className="w-4 h-4 mx-1" />
-          <span>{prefectureName}の介護事務求人</span>
+          <span>
+            {selectedMunicipality ? `${selectedMunicipality.name}（${prefectureName}）` : prefectureName}
+            の介護事務求人
+          </span>
         </div>
       </div>
 
@@ -79,11 +93,14 @@ export default async function SearchResultsPage({ prefectureId }: SearchResultsP
             {/* Page Title */}
             <div className="mb-8">
               <h1 className="text-2xl font-bold text-gray-800 mb-2">
-                {prefectureName}の介護事務求人・転職・就職・アルバイト情報
+                {selectedMunicipality
+                  ? `${selectedMunicipality.name}（${prefectureName}）`
+                  : prefectureName}
+                の介護事務求人・転職・就職・アルバイト情報
               </h1>
               <div className="flex items-center space-x-4">
                 <span className="text-lg text-gray-600">
-                  該当件数 <span className="font-bold text-red-500">269件</span>
+                  該当件数 <span className="font-bold text-red-500">{jobs.length}件</span>
                 </span>
                 <Link href="#" className="text-sm text-teal-600 hover:underline">
                   登録情報を変更する
@@ -146,226 +163,49 @@ export default async function SearchResultsPage({ prefectureId }: SearchResultsP
               </TabsList>
 
               <TabsContent value="recommended" className="mt-6">
-                <div className="space-y-6">
-                  {/* Job Card 1 */}
-                  <Card className="overflow-hidden">
-                    <div className="flex flex-col md:flex-row">
-                      <div className="md:w-1/3">
-                        <Image
-                          src="/placeholder.svg?height=200&width=300"
-                          alt="介護施設"
-                          width={300}
-                          height={200}
-                          className="w-full h-48 md:h-full object-cover"
-                        />
-                      </div>
-                      <div className="md:w-2/3 p-6">
-                        <div className="mb-4">
-                          <h3 className="text-lg font-semibold text-teal-600 mb-2">
-                            ドーミー中野弥生町【2025年02月01日オープン】の介護事務求人
-                          </h3>
-                          <p className="text-sm text-gray-600 mb-2">
-                            介護事務　全国にドーミーホテルを運営する会社直営の有料老人ホーム
-                          </p>
-                        </div>
+                {jobs.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">該当する求人がありません</div>
+                ) : (
+                  <div className="space-y-6">
+                    {jobs.map((job) => {
+                      const imageUrl =
+                        job.imageUrl ??
+                        `/placeholder.svg?height=200&width=300&text=${encodeURIComponent(job.title)}`
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
-                          <div>
-                            <div className="mb-2">
-                              <span className="font-medium text-gray-700">給与</span>
-                              <span className="ml-2 text-gray-600">正職員 月給 216,000円 から 250,000円</span>
+                      return (
+                        <Card key={job.id} className="overflow-hidden">
+                          <div className="flex flex-col md:flex-row">
+                            <div className="md:w-1/3">
+                              <Image
+                                src={imageUrl}
+                                alt={job.title}
+                                width={300}
+                                height={200}
+                                className="w-full h-48 md:h-full object-cover"
+                              />
                             </div>
-                            <div className="mb-2">
-                              <span className="font-medium text-gray-700">仕事内容</span>
-                              <span className="ml-2 text-gray-600">
-                                電話対応 来客対応 レセプト作成 入力業務 スタッフ勤務入力補助 お客様、ご家族様対応
-                                備品管理　等
-                              </span>
-                            </div>
-                            <div>
-                              <span className="font-medium text-gray-700">応募条件</span>
-                              <span className="ml-2 text-gray-600">
-                                資格不問
-                                経験、介護経験は不問　ただし事務経験者を優先させることがございます。Word（文書作成、社内外資料作成／基礎、中級程度、社内文書など）
-                              </span>
+                            <div className="md:w-2/3 p-6">
+                              <div className="mb-4">
+                                <h3 className="text-lg font-semibold text-teal-600 mb-2">{job.title}</h3>
+                                <p className="text-sm text-gray-600 mb-2">
+                                  {job.municipality?.name ?? ""}
+                                  {job.municipality ? "・" : ""}
+                                  {job.prefecture?.region ?? ""}
+                                </p>
+                              </div>
+
+                              <div className="flex space-x-3">
+                                <Link href={`/job/${job.id}`} className="flex-1">
+                                  <Button className="w-full bg-teal-600 hover:bg-teal-700">求人を見る</Button>
+                                </Link>
+                              </div>
                             </div>
                           </div>
-                          <div>
-                            <div>
-                              <span className="font-medium text-gray-700">住所</span>
-                              <span className="ml-2 text-gray-600">
-                                東京都中野区弥生町4丁目8から14 東京メトロ丸ノ内線 中野新橋駅より徒歩約5分
-                                東京メトロ丸ノ内線 中野新橋駅から徒歩約10分 東京メ...
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          <span className="bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded">職場の環境</span>
-                          <span className="bg-green-100 text-green-600 text-xs px-2 py-1 rounded">社会保険完備</span>
-                          <span className="bg-purple-100 text-purple-600 text-xs px-2 py-1 rounded">週休2日</span>
-                          <span className="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded">
-                            ボーナス・賞与あり
-                          </span>
-                          <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">交通費支給</span>
-                          <span className="bg-yellow-100 text-yellow-600 text-xs px-2 py-1 rounded">一般事務</span>
-                          <span className="bg-pink-100 text-pink-600 text-xs px-2 py-1 rounded">退職金あり</span>
-                        </div>
-
-                        <div className="flex space-x-3">
-                          <Button variant="outline" className="flex-1">
-                            <Star className="w-4 h-4 mr-1" />
-                            キープする
-                          </Button>
-                          <Link href="/job/1" className="flex-1">
-                            <Button className="w-full bg-teal-600 hover:bg-teal-700">求人を見る</Button>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-
-                  {/* Job Card 2 */}
-                  <Card className="overflow-hidden">
-                    <div className="flex flex-col md:flex-row">
-                      <div className="md:w-1/3">
-                        <Image
-                          src="/placeholder.svg?height=200&width=300"
-                          alt="介護施設"
-                          width={300}
-                          height={200}
-                          className="w-full h-48 md:h-full object-cover"
-                        />
-                      </div>
-                      <div className="md:w-2/3 p-6">
-                        <div className="mb-4">
-                          <h3 className="text-lg font-semibold text-teal-600 mb-2">
-                            みつばメソッド実施三鷹の管理事務スタッフ求人
-                          </h3>
-                          <p className="text-sm text-gray-600 mb-2">介護事務　地域密着型の介護施設で働きませんか</p>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
-                          <div>
-                            <div className="mb-2">
-                              <span className="font-medium text-gray-700">給与</span>
-                              <span className="ml-2 text-gray-600">正職員 月給 265,000円 から 315,000円</span>
-                            </div>
-                            <div className="mb-2">
-                              <span className="font-medium text-gray-700">仕事内容</span>
-                              <span className="ml-2 text-gray-600">
-                                高齢者介護、事務処理 介護記録などのパソコン入力業務 レセプト業務 電話対応
-                              </span>
-                            </div>
-                            <div>
-                              <span className="font-medium text-gray-700">応募条件</span>
-                              <span className="ml-2 text-gray-600">
-                                高校卒業 事務経験1年以上歓迎 PCスキル（Word、Excel基本操作）
-                              </span>
-                            </div>
-                          </div>
-                          <div>
-                            <div>
-                              <span className="font-medium text-gray-700">住所</span>
-                              <span className="ml-2 text-gray-600">
-                                埼玉県さいたま市大宮区三橋1丁目1609-1 JR線駅より徒歩約6分
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          <span className="bg-pink-100 text-pink-600 text-xs px-2 py-1 rounded">スピード返信</span>
-                          <span className="bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded">平日のみ</span>
-                          <span className="bg-green-100 text-green-600 text-xs px-2 py-1 rounded">未経験歓迎</span>
-                          <span className="bg-purple-100 text-purple-600 text-xs px-2 py-1 rounded">車通勤可</span>
-                          <span className="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded">昇給あり</span>
-                        </div>
-
-                        <div className="flex space-x-3">
-                          <Button variant="outline" className="flex-1">
-                            <Star className="w-4 h-4 mr-1" />
-                            キープする
-                          </Button>
-                          <Link href="/job/2" className="flex-1">
-                            <Button className="w-full bg-teal-600 hover:bg-teal-700">求人を見る</Button>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-
-                  {/* Job Card 3 */}
-                  <Card className="overflow-hidden">
-                    <div className="flex flex-col md:flex-row">
-                      <div className="md:w-1/3">
-                        <Image
-                          src="/placeholder.svg?height=200&width=300"
-                          alt="介護施設"
-                          width={300}
-                          height={200}
-                          className="w-full h-48 md:h-full object-cover"
-                        />
-                      </div>
-                      <div className="md:w-2/3 p-6">
-                        <div className="mb-4">
-                          <h3 className="text-lg font-semibold text-teal-600 mb-2">
-                            社会福祉法人つくみ福祉会 本部の介護事務求人
-                          </h3>
-                          <p className="text-sm text-gray-600 mb-2">介護事務　安定した法人での事務職募集</p>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
-                          <div>
-                            <div className="mb-2">
-                              <span className="font-medium text-gray-700">給与</span>
-                              <span className="ml-2 text-gray-600">正職員 月給 201,000円 から 305,300円</span>
-                            </div>
-                            <div className="mb-2">
-                              <span className="font-medium text-gray-700">仕事内容</span>
-                              <span className="ml-2 text-gray-600">
-                                はがき等、会計ソフトでの入力作業 ワード、エクセルなどのPC業務や電話対応
-                              </span>
-                            </div>
-                            <div>
-                              <span className="font-medium text-gray-700">応募条件</span>
-                              <span className="ml-2 text-gray-600">
-                                普通自動車運転免許証（AT限定可）64歳以下 PC基本操作
-                              </span>
-                            </div>
-                          </div>
-                          <div>
-                            <div>
-                              <span className="font-medium text-gray-700">住所</span>
-                              <span className="ml-2 text-gray-600">
-                                大分県津久見市平成町9-15 津久見市営業所駅より徒歩約7分
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          <span className="bg-pink-100 text-pink-600 text-xs px-2 py-1 rounded">スピード返信</span>
-                          <span className="bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded">車通勤可能</span>
-                          <span className="bg-green-100 text-green-600 text-xs px-2 py-1 rounded">未経験歓迎</span>
-                          <span className="bg-purple-100 text-purple-600 text-xs px-2 py-1 rounded">退職金制度</span>
-                          <span className="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded">賞与あり</span>
-                        </div>
-
-                        <div className="flex space-x-3">
-                          <Button variant="outline" className="flex-1">
-                            <Star className="w-4 h-4 mr-1" />
-                            キープする
-                          </Button>
-                          <Link href="/job/3" className="flex-1">
-                            <Button className="w-full bg-teal-600 hover:bg-teal-700">求人を見る</Button>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                </div>
+                        </Card>
+                      )
+                    })}
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="newest">
