@@ -3,7 +3,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Search, MapPin, Star, User, UserPlus, ChevronRight, Home, Building, Train } from "lucide-react"
+import { Search, MapPin, Star, User, UserPlus, ChevronRight, Home } from "lucide-react"
 import { getPrefectureById } from "@/lib/getPrefectures"
 import { getMunicipalitiesByPrefectureId } from "@/lib/getMunicipalities"
 import { getJobs, getJobCount } from "@/lib/getJobs"
@@ -116,24 +116,9 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
                 prefectureId={prefectureId ?? ""}
                 prefectureName={prefectureName}
               />
-              <Card className="cursor-pointer hover:bg-gray-50">
-                <CardContent className="p-6 text-center">
-                  <Train className="w-8 h-8 text-teal-600 mx-auto mb-2" />
-                  <span className="text-gray-800 font-medium">沿線から選択</span>
-                </CardContent>
-              </Card>
             </div>
 
             <div className="space-y-4 mb-8">
-              <Card className="cursor-pointer hover:bg-gray-50">
-                <CardContent className="p-4 flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Building className="w-5 h-5 text-teal-600 mr-3" />
-                    <span className="text-gray-800">雇用形態・給与から選択</span>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400" />
-                </CardContent>
-              </Card>
               <TagDialog
                 tags={tags}
                 selectedTagIds={tagIds}
