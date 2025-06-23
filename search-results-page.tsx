@@ -7,14 +7,17 @@ import { Search, MapPin, Star, User, UserPlus, ChevronRight, Home, Building, Tra
 import { getPrefectureById } from "@/lib/getPrefectures"
 import { getMunicipalitiesByPrefectureId } from "@/lib/getMunicipalities"
 import { getJobs, getJobCount } from "@/lib/getJobs"
+import { getTags } from "@/lib/getTags"
 import MunicipalityDialog from "./components/municipality-dialog"
+import TagDialog from "@/components/tags-dialog"
 
 interface SearchResultsPageProps {
   prefectureId?: string
   municipalityId?: string
+  tagIds?: string[]
 }
 
-export default async function SearchResultsPage({ prefectureId, municipalityId }: SearchResultsPageProps) {
+export default async function SearchResultsPage({ prefectureId, municipalityId, tagIds = [] }: SearchResultsPageProps) {
   const prefectureData = prefectureId ? await getPrefectureById(prefectureId) : null
   const prefectureName = prefectureData?.region ?? "都道府県未選択"
   const municipalitiesRaw = prefectureId ? await getMunicipalitiesByPrefectureId(prefectureId) : []
@@ -26,7 +29,9 @@ export default async function SearchResultsPage({ prefectureId, municipalityId }
     }),
   )
   const selectedMunicipality = municipalityId ? municipalities.find((m) => m.id === municipalityId) : null
-  const jobs = await getJobs({ prefectureId, municipalityId })
+  const jobs = await getJobs({ prefectureId, municipalityId, tagIds })
+
+  const tags = await getTags()
 
   return (
     <div className="min-h-screen bg-white">
@@ -47,10 +52,6 @@ export default async function SearchResultsPage({ prefectureId, municipalityId }
                 最近見た求人
               </Button>
               <Button variant="ghost" size="sm" className="text-teal-600">
-                <Star className="w-4 h-4 mr-1" />
-                キープ
-              </Button>
-              <Button variant="ghost" size="sm">
                 <User className="w-4 h-4 mr-1" />
                 ログイン
               </Button>
@@ -133,15 +134,12 @@ export default async function SearchResultsPage({ prefectureId, municipalityId }
                   <ChevronRight className="w-5 h-5 text-gray-400" />
                 </CardContent>
               </Card>
-              <Card className="cursor-pointer hover:bg-gray-50">
-                <CardContent className="p-4 flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Star className="w-5 h-5 text-teal-600 mr-3" />
-                    <span className="text-gray-800">特徴から選択</span>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400" />
-                </CardContent>
-              </Card>
+              <TagDialog
+                tags={tags}
+                selectedTagIds={tagIds}
+                prefectureId={prefectureId}
+                municipalityId={municipalityId}
+              />
             </div>
 
             {/* Description */}
@@ -192,6 +190,18 @@ export default async function SearchResultsPage({ prefectureId, municipalityId }
                                   {job.municipality ? "・" : ""}
                                   {job.prefecture?.region ?? ""}
                                 </p>
+                                {job.tags && job.tags.length > 0 && (
+                                  <div className="flex flex-wrap gap-2 mb-2">
+                                    {job.tags.map((tag) => (
+                                      <span
+                                        key={tag.id}
+                                        className="bg-teal-100 text-teal-600 text-xs px-2 py-0.5 rounded"
+                                      >
+                                        {tag.name}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
 
                               <div className="flex space-x-3">
