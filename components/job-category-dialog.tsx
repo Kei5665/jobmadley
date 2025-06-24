@@ -1,0 +1,84 @@
+"use client"
+
+import Link from "next/link"
+import { useState } from "react"
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogTitle,
+  DialogClose,
+} from "@/components/ui/dialog"
+import { Card, CardContent } from "@/components/ui/card"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Briefcase } from "lucide-react"
+import type { JobCategory } from "@/lib/getJobCategories"
+
+interface JobCategoryDialogProps {
+  jobCategories: JobCategory[]
+  selectedJobCategoryId?: string
+  prefectureId?: string
+  municipalityId?: string
+}
+
+export default function JobCategoryDialog({
+  jobCategories,
+  selectedJobCategoryId,
+  prefectureId,
+  municipalityId,
+}: JobCategoryDialogProps) {
+  const [selected, setSelected] = useState<string | undefined>(selectedJobCategoryId)
+
+  const applyHref = () => {
+    const params = new URLSearchParams()
+    if (prefectureId) params.set("prefecture", prefectureId)
+    if (municipalityId) params.set("municipality", municipalityId)
+    if (selected) params.set("jobCategory", selected)
+    return `/search?${params.toString()}`
+  }
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Card className="cursor-pointer hover:bg-gray-50">
+          <CardContent className="p-6 text-center">
+            <Briefcase className="w-8 h-8 text-teal-600 mx-auto mb-2" />
+            <span className="text-gray-800 font-medium">募集職種から選択</span>
+          </CardContent>
+        </Card>
+      </DialogTrigger>
+      <DialogContent className="max-w-3xl">
+        <DialogTitle className="text-lg font-semibold mb-4">募集職種を選択</DialogTitle>
+        <ScrollArea className="max-h-[60vh]">
+          <ul className="divide-y">
+            {jobCategories.map((jc) => (
+              <li
+                key={jc.id}
+                className={`p-3 text-sm cursor-pointer hover:bg-gray-50 flex items-center justify-between ${
+                  selected === jc.id ? "bg-teal-50" : ""
+                }`}
+                onClick={() => setSelected(jc.id)}
+              >
+                <span className="text-gray-800">{jc.name}</span>
+                {selected === jc.id && <span className="text-teal-600">✓</span>}
+              </li>
+            ))}
+            {jobCategories.length === 0 && (
+              <li className="p-4 text-sm text-gray-500 text-center">職種データがありません</li>
+            )}
+          </ul>
+        </ScrollArea>
+        <div className="flex justify-end pt-4 border-t mt-4 space-x-2">
+          <DialogClose asChild>
+            <button className="px-4 py-2 text-sm text-gray-600 rounded hover:bg-gray-100">キャンセル</button>
+          </DialogClose>
+          <DialogClose asChild>
+            <Link href={applyHref()} className="px-4 py-2 text-sm bg-teal-600 text-white rounded hover:bg-teal-700">
+              適用
+            </Link>
+          </DialogClose>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+} 

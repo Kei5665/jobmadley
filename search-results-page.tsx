@@ -8,16 +8,19 @@ import { getPrefectureById } from "@/lib/getPrefectures"
 import { getMunicipalitiesByPrefectureId } from "@/lib/getMunicipalities"
 import { getJobs, getJobCount } from "@/lib/getJobs"
 import { getTags } from "@/lib/getTags"
+import { getJobCategories } from "@/lib/getJobCategories"
 import MunicipalityDialog from "./components/municipality-dialog"
 import TagDialog from "@/components/tags-dialog"
+import JobCategoryDialog from "@/components/job-category-dialog"
 
 interface SearchResultsPageProps {
   prefectureId?: string
   municipalityId?: string
   tagIds?: string[]
+  jobCategoryId?: string
 }
 
-export default async function SearchResultsPage({ prefectureId, municipalityId, tagIds = [] }: SearchResultsPageProps) {
+export default async function SearchResultsPage({ prefectureId, municipalityId, tagIds = [], jobCategoryId }: SearchResultsPageProps) {
   const prefectureData = prefectureId ? await getPrefectureById(prefectureId) : null
   const prefectureName = prefectureData?.region ?? "都道府県未選択"
   const municipalitiesRaw = prefectureId ? await getMunicipalitiesByPrefectureId(prefectureId) : []
@@ -29,9 +32,10 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
     }),
   )
   const selectedMunicipality = municipalityId ? municipalities.find((m) => m.id === municipalityId) : null
-  const jobs = await getJobs({ prefectureId, municipalityId, tagIds })
+  const jobs = await getJobs({ prefectureId, municipalityId, tagIds, jobCategoryId })
 
   const tags = await getTags()
+  const jobCategories = await getJobCategories()
 
   return (
     <div className="min-h-screen bg-white">
@@ -115,6 +119,12 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
                 municipalities={municipalities}
                 prefectureId={prefectureId ?? ""}
                 prefectureName={prefectureName}
+              />
+              <JobCategoryDialog
+                jobCategories={jobCategories}
+                selectedJobCategoryId={jobCategoryId}
+                prefectureId={prefectureId}
+                municipalityId={municipalityId}
               />
             </div>
 
