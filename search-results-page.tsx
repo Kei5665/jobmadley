@@ -137,14 +137,27 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
               />
             </div>
 
-            {/* Description */}
+            {/* Search Condition Summary */}
             <div className="mb-8">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">この条件で新着求人を受け取る</h2>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                {prefectureName}の介護事務求人は269件が募集中。{prefectureName}
-                では世田谷区、杉並区、足立区などの求人が人気です。{prefectureName}
-                の介護事務の方の仕事選びの傾向としては、高時給を重視する方、主婦向けの多さ、残業時間の少なさを重視される方が多いです。もっと見る
-              </p>
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">検索条件</h2>
+              {(() => {
+                const tagNames = tags
+                  .filter((t) => tagIds.includes(t.id))
+                  .map((t) => t.name)
+                const jobCategoryName = jobCategories.find((c) => c.id === jobCategoryId)?.name
+
+                const parts: string[] = []
+                parts.push(prefectureName)
+                if (selectedMunicipality) parts.push(selectedMunicipality.name)
+                if (jobCategoryName) parts.push(jobCategoryName)
+                if (tagNames.length) parts.push(tagNames.join(", "))
+
+                return (
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {parts.join(" / ")} の求人を表示中
+                  </p>
+                )
+              })()}
             </div>
 
             {/* Job Listing Tabs */}
