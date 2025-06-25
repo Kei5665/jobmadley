@@ -30,6 +30,8 @@ interface GetJobsParams {
   municipalityId?: string
   /** タグ ID 配列で絞り込み (optional, 複数可) */
   tagIds?: string[]
+  /** 職種 ID で絞り込み (optional) */
+  jobCategoryId?: string
   /** 取得件数 (default: 100) */
   limit?: number
 }
@@ -40,7 +42,7 @@ interface GetJobsParams {
  * filters には [and] で条件を結合する[[memory:7889397435779635015]]
  * microCMS の `limit` は 100 以下にする[[memory:1588031229221905914]]
  */
-export const getJobs = async ({ prefectureId, municipalityId, tagIds = [], limit = 100 }: GetJobsParams) => {
+export const getJobs = async ({ prefectureId, municipalityId, tagIds = [], jobCategoryId, limit = 100 }: GetJobsParams) => {
   const filterParts: string[] = []
   if (prefectureId) filterParts.push(`prefecture[equals]${prefectureId}`)
   if (municipalityId) filterParts.push(`municipality[equals]${municipalityId}`)
@@ -49,6 +51,7 @@ export const getJobs = async ({ prefectureId, municipalityId, tagIds = [], limit
       filterParts.push(`tags[contains]${id}`)
     })
   }
+  if (jobCategoryId) filterParts.push(`jobcategory[equals]${jobCategoryId}`)
 
   const filters = filterParts.join("[and]")
 
