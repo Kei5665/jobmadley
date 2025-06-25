@@ -386,6 +386,23 @@ export default function JobDetailPage({ job }: JobDetailPageProps) {
                     {job.access && (
                       <p className="text-gray-700 whitespace-pre-wrap">{job.access}</p>
                     )}
+
+                    {/* Google Map */}
+                    {process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY && (job.addressPrefMuni || job.addressLine) && (
+                      <div className="h-64 w-full rounded-lg overflow-hidden">
+                        <iframe
+                          title="map"
+                          width="100%"
+                          height="100%"
+                          loading="lazy"
+                          style={{ border: 0 }}
+                          src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(
+                            `${job.addressPrefMuni ?? ""}${job.addressLine ?? ""}${job.addressBuilding ?? ""}`
+                          )}`}
+                          allowFullScreen
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
