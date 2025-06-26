@@ -3,13 +3,14 @@ import ApplicationFormPage from "../../../application-form-page"
 import { getJob } from "@/lib/getJob"
 
 interface ApplicationPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function ApplicationPage({ params }: ApplicationPageProps) {
-  const job = await getJob(params.id)
+  const { id } = await params
+  const job = await getJob(id)
   return (
     <Suspense fallback={<div>読み込み中...</div>}>
       <ApplicationFormPage job={job} />

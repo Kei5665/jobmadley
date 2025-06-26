@@ -23,6 +23,60 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
   const months = Array.from({ length: 12 }, (_, i) => i + 1)
   const days = Array.from({ length: 31 }, (_, i) => i + 1)
 
+  // フォーム状態
+  const [lastName, setLastName] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [lastNameKana, setLastNameKana] = useState("")
+  const [firstNameKana, setFirstNameKana] = useState("")
+  const [birthYear, setBirthYear] = useState("")
+  const [birthMonth, setBirthMonth] = useState("")
+  const [birthDay, setBirthDay] = useState("")
+  const [phone, setPhone] = useState("")
+  const [email, setEmail] = useState("")
+  const [address, setAddress] = useState("")
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    if (!birthYear || !birthMonth || !birthDay) {
+      alert("生年月日を選択してください")
+      return
+    }
+
+    const jobUrl = `${window.location.origin}/job/${job.id}`
+
+    const payload = {
+      last_name: lastName,
+      first_name: firstName,
+      last_name_kana: lastNameKana,
+      first_name_kana: firstNameKana,
+      birth_date: `${birthYear}-${String(birthMonth).padStart(2, "0")}-${String(birthDay).padStart(2, "0")}`,
+      phone,
+      email,
+      address,
+      companyName: job.companyName ?? "",
+      jobName: job.jobName ?? job.title ?? "",
+      jobUrl,
+    }
+
+    try {
+      const res = await fetch("/api/submit-application", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      })
+
+      if (!res.ok) throw new Error("送信に失敗しました")
+
+      alert("応募情報を送信しました。ご応募ありがとうございます！")
+    } catch (error) {
+      console.error(error)
+      alert("送信中にエラーが発生しました。時間をおいて再度お試しください。")
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -45,7 +99,7 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
           </h1>
         </div>
 
-        <form className="space-y-8">
+        <form className="space-y-8" onSubmit={handleSubmit}>
           {/* Basic Information Section */}
           <Card>
             <CardContent className="p-6">
@@ -58,8 +112,18 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
                     氏名 <span className="text-red-500">必須</span>
                   </Label>
                   <div className="grid grid-cols-2 gap-4 mt-2">
-                    <Input placeholder="姓" required />
-                    <Input placeholder="名" required />
+                    <Input
+                      placeholder="姓"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      required
+                    />
+                    <Input
+                      placeholder="名"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      required
+                    />
                   </div>
                 </div>
 
@@ -69,8 +133,18 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
                     ふりがな <span className="text-red-500">必須</span>
                   </Label>
                   <div className="grid grid-cols-2 gap-4 mt-2">
-                    <Input placeholder="せい" required />
-                    <Input placeholder="めい" required />
+                    <Input
+                      placeholder="せい"
+                      value={lastNameKana}
+                      onChange={(e) => setLastNameKana(e.target.value)}
+                      required
+                    />
+                    <Input
+                      placeholder="めい"
+                      value={firstNameKana}
+                      onChange={(e) => setFirstNameKana(e.target.value)}
+                      required
+                    />
                   </div>
                 </div>
 
@@ -80,7 +154,7 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
                     生年月日 <span className="text-red-500">必須</span>
                   </Label>
                   <div className="grid grid-cols-3 gap-4 mt-2">
-                    <Select required>
+                    <Select value={birthYear} onValueChange={setBirthYear} required>
                       <SelectTrigger>
                         <SelectValue placeholder="西暦" />
                       </SelectTrigger>
@@ -92,7 +166,7 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
                         ))}
                       </SelectContent>
                     </Select>
-                    <Select required>
+                    <Select value={birthMonth} onValueChange={setBirthMonth} required>
                       <SelectTrigger>
                         <SelectValue placeholder="月" />
                       </SelectTrigger>
@@ -104,7 +178,7 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
                         ))}
                       </SelectContent>
                     </Select>
-                    <Select required>
+                    <Select value={birthDay} onValueChange={setBirthDay} required>
                       <SelectTrigger>
                         <SelectValue placeholder="日" />
                       </SelectTrigger>
@@ -124,7 +198,14 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
                   <Label className="text-sm font-medium text-gray-700">
                     電話番号 <span className="text-red-500">必須</span>
                   </Label>
-                  <Input type="tel" placeholder="例：09012345678" className="mt-2" required />
+                  <Input
+                    type="tel"
+                    placeholder="例：09012345678"
+                    className="mt-2"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                  />
                 </div>
 
                 {/* Email */}
@@ -132,7 +213,14 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
                   <Label className="text-sm font-medium text-gray-700">
                     メールアドレス <span className="text-red-500">必須</span>
                   </Label>
-                  <Input type="email" placeholder="例：example@email.com" className="mt-2" required />
+                  <Input
+                    type="email"
+                    placeholder="例：example@email.com"
+                    className="mt-2"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
                 </div>
 
                 {/* Address */}
@@ -140,7 +228,13 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
                   <Label className="text-sm font-medium text-gray-700">
                     住所 <span className="text-red-500">必須</span>
                   </Label>
-                  <Input placeholder="例：東京都渋谷区○○1-2-3" className="mt-2" required />
+                  <Input
+                    placeholder="例：東京都渋谷区○○1-2-3"
+                    className="mt-2"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    required
+                  />
                 </div>
 
               </div>

@@ -2,22 +2,24 @@ import { Suspense } from "react"
 import SearchResultsPage from "../../search-results-page"
 
 interface SearchPageProps {
-  searchParams: {
+  searchParams: Promise<{
     prefecture?: string // prefecture ID
     municipality?: string // municipality ID optional
     tags?: string // カンマ区切りのタグ ID 文字列 (optional)
     jobCategory?: string // 職種 ID (optional)
-  }
+  }>
 }
 
-export default function SearchPage({ searchParams }: SearchPageProps) {
+export default async function SearchPage({ searchParams }: SearchPageProps) {
+  const params = await searchParams
+
   return (
     <Suspense fallback={<div>読み込み中...</div>}>
       <SearchResultsPage
-        prefectureId={searchParams.prefecture}
-        municipalityId={searchParams.municipality}
-        tagIds={searchParams.tags ? searchParams.tags.split(",") : undefined}
-        jobCategoryId={searchParams.jobCategory}
+        prefectureId={params.prefecture}
+        municipalityId={params.municipality}
+        tagIds={params.tags ? params.tags.split(",") : undefined}
+        jobCategoryId={params.jobCategory}
       />
     </Suspense>
   )
