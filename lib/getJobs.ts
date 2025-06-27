@@ -15,6 +15,10 @@ export type Job = {
   }
   /** 任意のサムネイル URL */
   imageUrl?: string
+  /** 複数画像 */
+  images?: {
+    url: string
+  }[]
   /** タグ参照 (複数) */
   tags?: {
     id: string

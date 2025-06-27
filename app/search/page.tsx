@@ -7,6 +7,7 @@ interface SearchPageProps {
     municipality?: string // municipality ID optional
     tags?: string // カンマ区切りのタグ ID 文字列 (optional)
     jobCategory?: string // 職種 ID (optional)
+    page?: string // ページ番号 (optional)
   }>
 }
 
@@ -20,6 +21,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         municipalityId={params.municipality}
         tagIds={params.tags ? params.tags.split(",") : undefined}
         jobCategoryId={params.jobCategory}
+        page={params.page ? Number(params.page) : undefined}
       />
     </Suspense>
   )

@@ -6,9 +6,20 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, MapPin, Star, User, UserPlus, ChevronRight, Home } from "lucide-react"
 import { getPrefectureGroups } from "@/lib/getPrefectures"
+import { getJobCount } from "@/lib/getJobs"
 
 export default async function Component() {
   const prefectures = await getPrefectureGroups()
+
+  // 各都道府県の求人数を取得
+  const prefList = Object.values(prefectures).flat()
+  const countEntries = await Promise.all(
+    prefList.map(async (pref) => {
+      const count = await getJobCount({ prefectureId: pref.id })
+      return [pref.id, count] as const
+    })
+  )
+  const countMap = Object.fromEntries(countEntries) as Record<string, number>
 
   return (
     <div className="min-h-screen bg-white">
@@ -125,7 +136,10 @@ export default async function Component() {
                         href={`/search?prefecture=${encodeURIComponent(pref.id)}`}
                         className="flex items-center justify-between p-2 text-sm text-teal-600 hover:bg-teal-50 rounded transition-colors"
                       >
-                        <span>{pref.name}</span>
+                        <span>
+                          {pref.name}
+                          <span className="ml-1 text-xs text-gray-500">({countMap[pref.id] ?? 0})</span>
+                        </span>
                         <ChevronRight className="w-3 h-3 ml-1" />
                       </Link>
                     ))}

@@ -3,7 +3,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Search, MapPin, Star, User, UserPlus, ChevronRight, Home } from "lucide-react"
+import { Search, MapPin, Star, User, UserPlus, ChevronRight, Home, ChevronLeft } from "lucide-react"
 import { getPrefectureById } from "@/lib/getPrefectures"
 import { getMunicipalitiesByPrefectureId } from "@/lib/getMunicipalities"
 import { getJobs, getJobCount } from "@/lib/getJobs"
@@ -12,15 +12,17 @@ import { getJobCategories } from "@/lib/getJobCategories"
 import MunicipalityDialog from "./components/municipality-dialog"
 import TagDialog from "@/components/tags-dialog"
 import JobCategoryDialog from "@/components/job-category-dialog"
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis } from "@/components/ui/pagination"
 
 interface SearchResultsPageProps {
   prefectureId?: string
   municipalityId?: string
   tagIds?: string[]
   jobCategoryId?: string
+  page?: number
 }
 
-export default async function SearchResultsPage({ prefectureId, municipalityId, tagIds = [], jobCategoryId }: SearchResultsPageProps) {
+export default async function SearchResultsPage({ prefectureId, municipalityId, tagIds = [], jobCategoryId, page = 1 }: SearchResultsPageProps) {
   const prefectureData = prefectureId ? await getPrefectureById(prefectureId) : null
   const prefectureName = prefectureData?.region ?? "都道府県未選択"
   const municipalitiesRaw = prefectureId ? await getMunicipalitiesByPrefectureId(prefectureId) : []
@@ -34,8 +36,23 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
   const selectedMunicipality = municipalityId ? municipalities.find((m) => m.id === municipalityId) : null
   const jobs = await getJobs({ prefectureId, municipalityId, tagIds, jobCategoryId })
 
+  const PAGE_SIZE = 10
+  const totalPages = Math.ceil(jobs.length / PAGE_SIZE)
+  const currentPage = Math.min(Math.max(page, 1), totalPages || 1)
+  const pagedJobs = jobs.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+
   const tags = await getTags()
   const jobCategories = await getJobCategories()
+
+  const buildPageHref = (p: number) => {
+    const params = new URLSearchParams()
+    if (prefectureId) params.set("prefecture", prefectureId)
+    if (municipalityId) params.set("municipality", municipalityId)
+    if (tagIds.length) params.set("tags", tagIds.join(","))
+    if (jobCategoryId) params.set("jobCategory", jobCategoryId)
+    if (p > 1) params.set("page", String(p))
+    return `/search?${params.toString()}`
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -169,12 +186,13 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
               </TabsList>
 
               <TabsContent value="recommended" className="mt-6">
-                {jobs.length === 0 ? (
+                {pagedJobs.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">該当する求人がありません</div>
                 ) : (
                   <div className="space-y-6">
-                    {jobs.map((job) => {
+                    {pagedJobs.map((job) => {
                       const imageUrl =
+                        job.images?.[0]?.url ??
                         job.imageUrl ??
                         `/placeholder.svg?height=200&width=300&text=${encodeURIComponent(job.title)}`
 
@@ -234,6 +252,66 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
                 <div className="text-center py-8 text-gray-500">自宅に近い順の求人一覧がここに表示されます</div>
               </TabsContent>
             </Tabs>
+
+            {/* Pagination (under job list) */}
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-8 mb-8">
+                <Pagination>
+                  <PaginationContent>
+                    {/* Prev */}
+                    <PaginationItem>
+                      {currentPage > 1 ? (
+                        <PaginationLink href={buildPageHref(currentPage - 1)} className="px-6 py-2 border text-gray-700 flex items-center gap-1">
+                          <ChevronLeft className="w-4 h-4" /> 前へ
+                        </PaginationLink>
+                      ) : (
+                        <span className="px-6 py-2 border bg-gray-100 text-gray-400 cursor-not-allowed flex items-center gap-1">
+                          <ChevronLeft className="w-4 h-4" /> 前へ
+                        </span>
+                      )}
+                    </PaginationItem>
+
+                    {/* Page numbers */}
+                    {(() => {
+                      const elements: (number | "ellipsis")[] = []
+                      if (totalPages <= 5) {
+                        for (let i = 1; i <= totalPages; i++) elements.push(i)
+                      } else {
+                        elements.push(1, 2, "ellipsis", totalPages)
+                      }
+                      return elements.map((elm, idx) => (
+                        <PaginationItem key={idx}>
+                          {elm === "ellipsis" ? (
+                            <PaginationEllipsis />
+                          ) : (
+                            <PaginationLink
+                              href={buildPageHref(elm)}
+                              isActive={elm === currentPage}
+                              className={elm === currentPage ? "bg-teal-600 text-white" : ""}
+                            >
+                              {elm}
+                            </PaginationLink>
+                          )}
+                        </PaginationItem>
+                      ))
+                    })()}
+
+                    {/* Next */}
+                    <PaginationItem>
+                      {currentPage < totalPages ? (
+                        <PaginationLink href={buildPageHref(currentPage + 1)} className="px-6 py-2 border text-teal-600 flex items-center gap-1">
+                          次へ <ChevronRight className="w-4 h-4" />
+                        </PaginationLink>
+                      ) : (
+                        <span className="px-6 py-2 border bg-gray-100 text-gray-400 cursor-not-allowed flex items-center gap-1">
+                          次へ <ChevronRight className="w-4 h-4" />
+                        </span>
+                      )}
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
