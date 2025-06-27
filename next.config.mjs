@@ -14,10 +14,9 @@ const nextConfig = {
         hostname: 'images.microcms-assets.io',
         pathname: '/**',
       },
-      // 念のためサブドメインが付くケースも許可
       {
         protocol: 'https',
-        hostname: '**.microcms-assets.io',
+        hostname: '*.microcms-assets.io',
         pathname: '/**',
       },
     ],

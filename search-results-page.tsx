@@ -104,7 +104,13 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
       {/* Hero Image */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
         <div className="relative h-48 rounded-lg overflow-hidden">
-          <Image src="/placeholder.svg?height=200&width=800" alt="東京駅" fill className="object-cover" />
+          <Image
+            src="/placeholder.svg"
+            alt=""
+            fill
+            sizes="100vw"
+            className="object-cover"
+          />
         </div>
       </div>
 
@@ -194,7 +200,7 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
                       const imageUrl =
                         job.images?.[0]?.url ??
                         job.imageUrl ??
-                        `/placeholder.svg?height=200&width=300&text=${encodeURIComponent(job.title)}`
+                        "/placeholder.svg"
 
                       return (
                         <Card key={job.id} className="overflow-hidden">
@@ -202,7 +208,7 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
                             <div className="md:w-1/3">
                               <Image
                                 src={imageUrl}
-                                alt={job.title}
+                                alt=""
                                 width={300}
                                 height={200}
                                 className="w-full h-48 md:h-full object-cover"
@@ -408,7 +414,7 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
             {/* Article 1 */}
             <Card className="overflow-hidden">
               <Image
-                src="/placeholder.svg?height=150&width=300"
+                src="/placeholder.svg"
                 alt="養護老人ホーム"
                 width={300}
                 height={150}
@@ -428,8 +434,8 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
             {/* Article 2 */}
             <Card className="overflow-hidden">
               <Image
-                src="/placeholder.svg?height=150&width=300"
-                alt="年末調整"
+                src="/placeholder.svg"
+                alt=""
                 width={300}
                 height={150}
                 className="w-full h-36 object-cover"
@@ -448,8 +454,8 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
             {/* Article 3 */}
             <Card className="overflow-hidden">
               <Image
-                src="/placeholder.svg?height=150&width=300"
-                alt="転職面接"
+                src="/placeholder.svg"
+                alt=""
                 width={300}
                 height={150}
                 className="w-full h-36 object-cover"
@@ -468,7 +474,7 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
             {/* Article 4 */}
             <Card className="overflow-hidden">
               <Image
-                src="/placeholder.svg?height=150&width=300"
+                src="/placeholder.svg"
                 alt="コロナ対策"
                 width={300}
                 height={150}
