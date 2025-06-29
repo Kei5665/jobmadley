@@ -3,11 +3,11 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, MapPin, Star, User, UserPlus, ChevronRight, Home } from "lucide-react"
 import { getPrefectureGroups } from "@/lib/getPrefectures"
 import { getJobCount, getJobs } from "@/lib/getJobs"
 import { microcmsClient2 } from "@/lib/microcms"
+import PrefectureTabsSection from "@/components/prefecture-tabs"
 
 interface BlogArticle {
   id: string;
@@ -85,6 +85,8 @@ export default async function Component() {
         </Card>
       </div>
 
+      <PrefectureTabsSection prefectures={prefectures} countMap={countMap} />
+      <div className="border-b border-gray-200 my-8" />
 
       {/* Pickup Jobs Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">

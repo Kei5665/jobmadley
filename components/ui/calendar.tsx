@@ -53,10 +53,11 @@ function Calendar({
         day_hidden: "invisible",
         ...classNames,
       }}
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       components={{
         IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
-      }}
+      } as any}
       {...props}
     />
   )

@@ -14,9 +14,10 @@ interface SearchPageProps {
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams
 
+  const AnyComp = SearchResultsPage as any
   return (
     <Suspense fallback={<div>読み込み中...</div>}>
-      <SearchResultsPage
+      <AnyComp
         prefectureId={params.prefecture}
         municipalityId={params.municipality}
         tagIds={params.tags ? params.tags.split(",") : undefined}

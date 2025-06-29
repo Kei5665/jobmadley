@@ -1,5 +1,6 @@
 import Component from "../jobmedley-page"
 
 export default function Page() {
-  return <Component />
+  const AnyComponent = Component as any
+  return <AnyComponent />
 }
