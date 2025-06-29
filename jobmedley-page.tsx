@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, MapPin, Star, User, UserPlus, ChevronRight, Home } from "lucide-react"
 import { getPrefectureGroups } from "@/lib/getPrefectures"
-import { getJobCount } from "@/lib/getJobs"
+import { getJobCount, getJobs } from "@/lib/getJobs"
 
 export default async function Component() {
   const prefectures = await getPrefectureGroups()
@@ -21,6 +21,9 @@ export default async function Component() {
   )
   const countMap = Object.fromEntries(countEntries) as Record<string, number>
 
+  // 最新 4 件の求人を取得
+  const latestJobs = await getJobs({ limit: 4 })
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -32,26 +35,6 @@ export default async function Component() {
                 <div className="text-2xl font-bold text-teal-500">ジョブメドレー</div>
               </Link>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-sm text-gray-600">LINEで仕事探し 履歴書添削 ご利用ガイド 求人掲載をお考えの方へ</div>
-              <Search className="w-5 h-5 text-gray-400" />
-              <Button variant="ghost" size="sm" className="text-teal-600">
-                <MapPin className="w-4 h-4 mr-1" />
-                最近見た求人
-              </Button>
-              <Button variant="ghost" size="sm" className="text-teal-600">
-                <Star className="w-4 h-4 mr-1" />
-                キープ
-              </Button>
-              <Button variant="ghost" size="sm">
-                <User className="w-4 h-4 mr-1" />
-                ログイン
-              </Button>
-              <Button variant="ghost" size="sm">
-                <UserPlus className="w-4 h-4 mr-1" />
-                会員登録
-              </Button>
-            </div>
           </div>
         </div>
       </header>
@@ -61,7 +44,7 @@ export default async function Component() {
         <div className="flex items-center text-sm text-gray-600">
           <Home className="w-4 h-4 mr-1" />
           <ChevronRight className="w-4 h-4 mx-1" />
-          <span>求人トップタクシー運転手
+          <span>タクシー運転手の求人</span>
         </div>
       </div>
 
@@ -71,13 +54,13 @@ export default async function Component() {
           <CardContent className="p-0">
             <div className="flex items-center bg-gradient-to-r from-blue-50 to-purple-50">
               <div className="flex-1 p-8">
-                <h1 className="text-2xl font-bold text-gray-800 mb-2">介護事務の</h1>
+                <h1 className="text-2xl font-bold text-gray-800 mb-2">タクシー運転手の</h1>
                 <p className="text-lg text-gray-600">求人 転職 就職 アルバイト募集情報</p>
               </div>
               <div className="flex-1">
                 <Image
-                  src="/taxi.png"
-                  alt="介護士の女性"
+                  src="/images/taxi.png"
+                  alt="タクシー運転手"
                   width={400}
                   height={200}
                   className="w-full h-full object-cover"
@@ -88,371 +71,57 @@ export default async function Component() {
         </Card>
       </div>
 
-      {/* Search Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-        {/* Search History */}
-        <Card className="mb-6">
-          <CardContent className="p-6">
-            <div className="flex items-center mb-4">
-              <div className="w-6 h-6 rounded-full bg-teal-100 flex items-center justify-center mr-3">
-                <Search className="w-4 h-4 text-teal-600" />
-              </div>
-              <h2 className="text-lg font-semibold text-gray-800">検索履歴から選択</h2>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-teal-600">検索履歴をもっと見る</span>
-              <Link href="/search?prefecture=神奈川県" className="flex items-center text-gray-700 hover:text-teal-600">
-                <span>神奈川県</span>
-                <ChevronRight className="w-4 h-4 ml-2" />
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Main Search Tabs */}
-        <Tabs defaultValue="prefecture" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="prefecture" className="flex items-center">
-              <MapPin className="w-4 h-4 mr-2" />
-              都道府県から選択
-            </TabsTrigger>
-            <TabsTrigger value="employment" className="flex items-center">
-              雇用形態 給与から選択
-            </TabsTrigger>
-            <TabsTrigger value="features" className="flex items-center">
-              特徴から選択
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="prefecture">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-6">
-              {Object.entries(prefectures).map(([area, prefs]) => (
-                <div key={area} className="space-y-3">
-                  <h3 className="font-semibold text-gray-800 text-center">{area}</h3>
-                  <div className="space-y-2">
-                    {prefs.map((pref) => (
-                      <Link
-                        key={pref.id}
-                        href={`/search?prefecture=${encodeURIComponent(pref.id)}`}
-                        className="flex items-center justify-between p-2 text-sm text-teal-600 hover:bg-teal-50 rounded transition-colors"
-                      >
-                        <span>
-                          {pref.name}
-                          <span className="ml-1 text-xs text-gray-500">({countMap[pref.id] ?? 0})</span>
-                        </span>
-                        <ChevronRight className="w-3 h-3 ml-1" />
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="employment">
-            <div className="text-center py-8 text-gray-500">雇用形態 給与の選択肢がここに表示されます</div>
-          </TabsContent>
-
-          <TabsContent value="features">
-            <div className="text-center py-8 text-gray-500">特徴の選択肢がここに表示されます</div>
-          </TabsContent>
-        </Tabs>
-
-        {/* Location Search */}
-        <Card className="mt-8 mb-8">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-center">
-              <div className="w-6 h-6 rounded-full bg-teal-100 flex items-center justify-center mr-3">
-                <MapPin className="w-4 h-4 text-teal-600" />
-              </div>
-              <Button variant="ghost" className="text-teal-600 font-semibold">
-                自宅周辺から探す
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Keyword Search */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="flex-1">
-                <Input type="text" placeholder="キーワードで検索する" className="w-full" />
-              </div>
-              <Button className="bg-teal-600 hover:bg-teal-700 text-white px-6">
-                <Search className="w-4 h-4 mr-2" />
-                検索
-              </Button>
-              <Button variant="outline" className="text-teal-600 border-teal-600">
-                職種を変更
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Pickup Jobs Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
-            {/* Banner Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-              <div className="bg-gradient-to-r from-teal-400 to-teal-500 rounded-lg p-6 text-white flex items-center">
-                <div className="flex-1">
-                  <div className="text-lg font-bold mb-1">スカウト経由だと</div>
-                  <div className="text-2xl font-bold mb-2">内定率17倍!!</div>
-                  <div className="text-sm">スカウトしてもらいましょう</div>
-                </div>
-                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center ml-4">
-                  <div className="text-2xl">📧</div>
-                </div>
-              </div>
-              <div className="bg-gradient-to-r from-pink-400 to-pink-500 rounded-lg p-6 text-white">
-                <div className="text-xl font-bold mb-2">スピード選考優遇!</div>
-                <div className="text-sm">平均2.4倍早くPRに選考する事業所の求人をもとに優遇します</div>
-              </div>
-            </div>
 
             {/* Job Listings */}
             <div className="mb-8">
-              <h2 className="text-xl font-bold text-gray-800 mb-6">スピード返信の介護事務の求人</h2>
+              <h2 className="text-xl font-bold text-gray-800 mb-6">最新の求人</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Job Card 1 */}
-                <Card className="overflow-hidden">
-                  <div className="relative">
-                    <Image
-                      src="/placeholder.svg?height=200&width=300"
-                      alt="オフィスワーク"
-                      width={300}
-                      height={200}
-                      className="w-full h-48 object-cover"
-                    />
-                    <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">NEW</span>
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-gray-800 mb-2">ケアプランナー記録業務中心の介護事務求人</h3>
-                    <div className="space-y-1 text-sm text-gray-600 mb-4">
-                      <div>
-                        <span className="font-medium">給与:</span> 正職員 月給 243,000円 から 303,000円
+                {latestJobs.map((job) => {
+                  const imageUrl = job.images?.[0]?.url ?? job.imageUrl ?? "/placeholder.svg"
+                  return (
+                    <Card key={job.id} className="overflow-hidden">
+                      <div className="relative">
+                        <Image
+                          src={imageUrl}
+                          alt=""
+                          width={300}
+                          height={200}
+                          className="w-full h-48 object-cover"
+                        />
+                        <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">NEW</span>
                       </div>
-                      <div>
-                        <span className="font-medium">仕事:</span> 高齢者の方の受付 事務業務 経験浅めの求人
-                      </div>
-                      <div>
-                        <span className="font-medium">内容:</span> 業務（マニュアルあり）身体的な負担が少ない
-                      </div>
-                      <div>
-                        <span className="font-medium">応募:</span> 未経験者歓迎経験 学歴不問 未経験でも安心
-                      </div>
-                      <div>
-                        <span className="font-medium">勤務:</span> 高齢者介護施設 経験者のPCスキルが必要
-                      </div>
-                      <div>
-                        <span className="font-medium">住所:</span> 愛知県名古屋市千種区 最寄駅は地下鉄東山線
-                        覚王山駅より徒歩約10分
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2 mb-4">
-                      <span className="bg-pink-100 text-pink-600 text-xs px-2 py-1 rounded">スピード返信</span>
-                      <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">正職員のみ</span>
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button variant="outline" className="flex-1">
-                        <Star className="w-4 h-4 mr-1" />
-                        キープする
-                      </Button>
-                      <Link href="/job/1" className="flex-1">
-                        <Button className="w-full bg-teal-600 hover:bg-teal-700">求人を見る</Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Job Card 2 */}
-                <Card className="overflow-hidden">
-                  <div className="relative">
-                    <Image
-                      src="/placeholder.svg?height=200&width=300"
-                      alt="チームミーティング"
-                      width={300}
-                      height={200}
-                      className="w-full h-48 object-cover"
-                    />
-                    <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">NEW</span>
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-gray-800 mb-2">みつばメソッド実施三鷹の管理事務スタッフ求人</h3>
-                    <div className="space-y-1 text-sm text-gray-600 mb-4">
-                      <div>
-                        <span className="font-medium">給与:</span> 正職員 月給 265,000円 から 315,000円
-                      </div>
-                      <div>
-                        <span className="font-medium">仕事:</span> 高齢者介護 事務処理 未経験者歓迎の求人
-                      </div>
-                      <div>
-                        <span className="font-medium">内容:</span> 介護記録などのパソコン入力業務
-                      </div>
-                      <div>
-                        <span className="font-medium">応募:</span> 高校卒業 事務経験1年以上歓迎のPCスキル
-                      </div>
-                      <div>
-                        <span className="font-medium">勤務:</span> 介護施設運営での業務経験 平日のみ
-                      </div>
-                      <div>
-                        <span className="font-medium">住所:</span> 埼玉県さいたま市大宮区三橋1丁目1609-1
-                        みつばメソッド実施三鷹 JR線駅より徒歩約6分
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2 mb-4">
-                      <span className="bg-pink-100 text-pink-600 text-xs px-2 py-1 rounded">スピード返信</span>
-                      <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">1日の求人</span>
-                      <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">未経験</span>
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button variant="outline" className="flex-1">
-                        <Star className="w-4 h-4 mr-1" />
-                        キープする
-                      </Button>
-                      <Link href="/job/2" className="flex-1">
-                        <Button className="w-full bg-teal-600 hover:bg-teal-700">求人を見る</Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Job Card 3 */}
-                <Card className="overflow-hidden">
-                  <div className="relative">
-                    <Image
-                      src="/placeholder.svg?height=200&width=300"
-                      alt="介護施設"
-                      width={300}
-                      height={200}
-                      className="w-full h-48 object-cover"
-                    />
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-gray-800 mb-2">社会福祉法人つくみ福祉会 本部の介護事務求人</h3>
-                    <div className="space-y-1 text-sm text-gray-600 mb-4">
-                      <div>
-                        <span className="font-medium">給与:</span> 正職員 月給 201,000円 から 305,300円
-                      </div>
-                      <div>
-                        <span className="font-medium">仕事:</span> はがき等 会計ソフトでの入力作業（未経験）
-                      </div>
-                      <div>
-                        <span className="font-medium">内容:</span> ワード エクセルなどのPC業務や電話対応
-                      </div>
-                      <div>
-                        <span className="font-medium">応募:</span> 普通自動車運転免許証（AT限定可）64歳以下
-                      </div>
-                      <div>
-                        <span className="font-medium">勤務:</span> 生活相談員として勤務（介護 福祉 社会）
-                      </div>
-                      <div>
-                        <span className="font-medium">住所:</span> 大分県津久見市平成町9-15
-                        津久見市営業所駅より徒歩約7分
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2 mb-4">
-                      <span className="bg-pink-100 text-pink-600 text-xs px-2 py-1 rounded">スピード返信</span>
-                      <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">車通勤可能</span>
-                      <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">未経験</span>
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button variant="outline" className="flex-1">
-                        <Star className="w-4 h-4 mr-1" />
-                        キープする
-                      </Button>
-                      <Link href="/job/3" className="flex-1">
-                        <Button className="w-full bg-teal-600 hover:bg-teal-700">求人を見る</Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Job Card 4 */}
-                <Card className="overflow-hidden">
-                  <div className="relative">
-                    <Image
-                      src="/placeholder.svg?height=200&width=300"
-                      alt="給与アップ"
-                      width={300}
-                      height={200}
-                      className="w-full h-48 object-cover"
-                    />
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-gray-800 mb-2">ALSOK介護 本社の事務事務スタッフ求人</h3>
-                    <div className="space-y-1 text-sm text-gray-600 mb-4">
-                      <div>
-                        <span className="font-medium">給与:</span> 正職員 月給 195,600円 から
-                      </div>
-                      <div>
-                        <span className="font-medium">仕事:</span> 介護保険を運営しているALSOK介護事業
-                      </div>
-                      <div>
-                        <span className="font-medium">内容:</span> 社での仕事業務です（1）文書作成 電話の対応
-                      </div>
-                      <div>
-                        <span className="font-medium">応募:</span> 普通自動車運転免許証（経験者優遇）65歳以下
-                      </div>
-                      <div>
-                        <span className="font-medium">勤務:</span> 1）未経験者でもOK（研究者目標1年/定年まで）
-                      </div>
-                      <div>
-                        <span className="font-medium">住所:</span> 埼玉県さいたま市大宮区三橋1丁目796番地
-                        JR大宮駅より約7分 西武バス（大宮駅西口）
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2 mb-4">
-                      <span className="bg-pink-100 text-pink-600 text-xs px-2 py-1 rounded">スピード返信</span>
-                      <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">車通勤可能</span>
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button variant="outline" className="flex-1">
-                        <Star className="w-4 h-4 mr-1" />
-                        キープする
-                      </Button>
-                      <Link href="/job/4" className="flex-1">
-                        <Button className="w-full bg-teal-600 hover:bg-teal-700">求人を見る</Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
+                      <CardContent className="p-4">
+                        <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2">{job.title}</h3>
+                        <p className="text-xs text-gray-600 mb-4 line-clamp-2">
+                          {job.municipality?.name ?? ""}
+                          {job.municipality ? "・" : ""}
+                          {job.prefecture?.region ?? ""}
+                        </p>
+                        <div className="flex space-x-2">
+                          <Button variant="outline" className="flex-1">
+                            <Star className="w-4 h-4 mr-1" />
+                            キープする
+                          </Button>
+                          <Link href={`/job/${job.id}`} className="flex-1">
+                            <Button className="w-full bg-teal-600 hover:bg-teal-700">求人を見る</Button>
+                          </Link>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
               </div>
             </div>
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Recent Jobs */}
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="font-semibold text-gray-800 mb-4">最近見た求人</h3>
-                <div className="flex items-center space-x-3 mb-4">
-                  <Image
-                    src="/placeholder.svg?height=60&width=80"
-                    alt="介護施設"
-                    width={80}
-                    height={60}
-                    className="rounded"
-                  />
-                  <div className="flex-1">
-                    <h4 className="text-sm font-medium text-gray-800">コンフォートガーデンあさひ野の介護事務求人</h4>
-                    <p className="text-xs text-gray-600">正職員 月給 191,500円 から</p>
-                    <p className="text-xs text-gray-600">神奈川県横浜市旭区あさひ野1丁目24-6</p>
-                    <span className="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded mt-1">
-                      車通勤可能
-                    </span>
-                  </div>
-                </div>
-                <Button variant="ghost" className="w-full text-teal-600">
-                  求人をもっと見る
-                </Button>
-              </CardContent>
-            </Card>
 
             {/* Job Experience Stories */}
             <Card>

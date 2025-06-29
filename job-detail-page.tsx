@@ -105,7 +105,7 @@ export default function JobDetailPage({ job }: JobDetailPageProps) {
           <Home className="w-4 h-4 mr-1" />
           <ChevronRight className="w-4 h-4 mx-1" />
           <Link href="/" className="hover:text-teal-600">
-            介護事務の求人
+            タクシー運転手の求人
           </Link>
           <ChevronRight className="w-4 h-4 mx-1" />
           <Link href="/search?prefecture=東京都" className="hover:text-teal-600">
