@@ -16,4 +16,17 @@ if (!process.env.MICROCMS_API_KEY) {
 export const microcmsClient = createClient({
   serviceDomain: process.env.NEXT_PUBLIC_MICROCMS_SERVICE_DOMAIN,
   apiKey: process.env.MICROCMS_API_KEY,
+})
+
+// === 第２サービス: タクシー運転手メディア ===
+if (!process.env.NEXT_PUBLIC_MICROCMS_SERVICE_DOMAIN_2) {
+  throw new Error("NEXT_PUBLIC_MICROCMS_SERVICE_DOMAIN_2 が環境変数に設定されていません")
+}
+if (!process.env.MICROCMS_API_KEY_2) {
+  throw new Error("MICROCMS_API_KEY_2 が環境変数に設定されていません")
+}
+
+export const microcmsClient2 = createClient({
+  serviceDomain: process.env.NEXT_PUBLIC_MICROCMS_SERVICE_DOMAIN_2,
+  apiKey: process.env.MICROCMS_API_KEY_2,
 }) 

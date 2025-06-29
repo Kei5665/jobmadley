@@ -9,11 +9,19 @@ import { Search, MapPin, Star, User, UserPlus, ChevronRight, Home, ChevronLeft }
 import { useState, useEffect, useRef } from "react"
 import type { JobDetail } from "@/lib/getJob"
 
-interface JobDetailPageProps {
-  job: JobDetail
+interface BlogArticle {
+  id: string;
+  title: string;
+  slug?: string;
+  eyecatch?: { url: string };
 }
 
-export default function JobDetailPage({ job }: JobDetailPageProps) {
+interface JobDetailPageProps {
+  job: JobDetail
+  articles: BlogArticle[]
+}
+
+export default function JobDetailPage({ job, articles }: JobDetailPageProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const images =
     job.images && (job.images as any[]).length > 0
@@ -545,85 +553,31 @@ export default function JobDetailPage({ job }: JobDetailPageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">なるほど！ジョブメドレー新着記事</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {/* Article 1 */}
-            <Card className="overflow-hidden">
-              <Image
-                src="/placeholder.svg?height=150&width=300"
-                alt="養護老人ホーム"
-                width={300}
-                height={150}
-                className="w-full h-36 object-cover"
-              />
-              <CardContent className="p-4">
-                <h3 className="text-sm font-medium text-gray-800 mb-2 line-clamp-2">
-                  養護老人ホームとは？特養との違いや仕事内容を紹介
-                </h3>
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span className="bg-teal-100 text-teal-600 px-2 py-1 rounded">職種を知る</span>
-                  <span>2024/08/13</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Article 2 */}
-            <Card className="overflow-hidden">
-              <Image
-                src="/placeholder.svg?height=150&width=300"
-                alt="年末調整"
-                width={300}
-                height={150}
-                className="w-full h-36 object-cover"
-              />
-              <CardContent className="p-4">
-                <h3 className="text-sm font-medium text-gray-800 mb-2 line-clamp-2">
-                  【2024年変更点あり】年末調整とは？対象者や書き方、確定...
-                </h3>
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded">仕事お役立ち情報</span>
-                  <span>2023/10/04</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Article 3 */}
-            <Card className="overflow-hidden">
-              <Image
-                src="/placeholder.svg?height=150&width=300"
-                alt="転職面接"
-                width={300}
-                height={150}
-                className="w-full h-36 object-cover"
-              />
-              <CardContent className="p-4">
-                <h3 className="text-sm font-medium text-gray-800 mb-2 line-clamp-2">
-                  異業種への転職は難しい？失敗しないための転職活動の...
-                </h3>
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span className="bg-green-100 text-green-600 px-2 py-1 rounded">求人の見方・転職ガイド</span>
-                  <span>2023/06/19</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Article 4 */}
-            <Card className="overflow-hidden">
-              <Image
-                src="/placeholder.svg?height=150&width=300"
-                alt="コロナ対策"
-                width={300}
-                height={150}
-                className="w-full h-36 object-cover"
-              />
-              <CardContent className="p-4">
-                <h3 className="text-sm font-medium text-gray-800 mb-2 line-clamp-2">
-                  コロナ5類移行「面会制限やや緩和」50％以上 医療・介護従...
-                </h3>
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span className="bg-purple-100 text-purple-600 px-2 py-1 rounded">コラム</span>
-                  <span>2023/05/30</span>
-                </div>
-              </CardContent>
-            </Card>
+            {articles.map((article) => {
+              const img = article.eyecatch?.url ?? "/placeholder.jpg"
+              return (
+                <Card key={article.id} className="overflow-hidden">
+                  <Image src={img} alt="" width={300} height={150} className="w-full h-36 object-cover" />
+                  <CardContent className="p-4">
+                    <h3 className="text-sm font-medium text-gray-800 mb-2 line-clamp-2">
+                      {article.title}
+                    </h3>
+                    <div className="flex items-center justify-between text-xs text-gray-500">
+                      {/* カテゴリなどあればここに */}
+                      <span></span>
+                      <Link
+                        href={`https://ridejob-cms.vercel.app/blogs/${article.slug ?? article.id}`}
+                        className="text-teal-600 hover:underline"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        詳細を見る
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
 
           <div className="text-center">
