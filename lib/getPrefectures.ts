@@ -24,7 +24,8 @@ export const getPrefectureGroups = async (): Promise<PrefectureGroup> => {
     if (!groups[area]) {
       groups[area] = []
     }
-    groups[area].push({ id: pref.id, name: pref.region })
+    const displayName = (pref as any).name ?? pref.region
+    groups[area].push({ id: pref.id, name: displayName })
   })
 
   return groups
