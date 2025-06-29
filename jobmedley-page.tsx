@@ -61,7 +61,7 @@ export default async function Component() {
         <div className="flex items-center text-sm text-gray-600">
           <Home className="w-4 h-4 mr-1" />
           <ChevronRight className="w-4 h-4 mx-1" />
-          <span>介護事務求人トップ</span>
+          <span>求人トップタクシー運転手
         </div>
       </div>
 
@@ -76,7 +76,7 @@ export default async function Component() {
               </div>
               <div className="flex-1">
                 <Image
-                  src="/placeholder.svg?height=200&width=400"
+                  src="/taxi.png"
                   alt="介護士の女性"
                   width={400}
                   height={200}
