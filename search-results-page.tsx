@@ -3,7 +3,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Search, MapPin, Star, User, UserPlus, ChevronRight, Home, ChevronLeft } from "lucide-react"
+import { Search, Star, User, UserPlus, ChevronRight, Home, ChevronLeft } from "lucide-react"
 import { getPrefectureById } from "@/lib/getPrefectures"
 import { getMunicipalitiesByPrefectureId } from "@/lib/getMunicipalities"
 import { getJobs, getJobCount } from "@/lib/getJobs"
@@ -13,6 +13,7 @@ import MunicipalityDialog from "./components/municipality-dialog"
 import TagDialog from "@/components/tags-dialog"
 import JobCategoryDialog from "@/components/job-category-dialog"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis } from "@/components/ui/pagination"
+import MediaArticlesSection from "@/components/media-articles-section"
 
 interface SearchResultsPageProps {
   prefectureId?: string
@@ -44,6 +45,18 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
   const tags = await getTags()
   const jobCategories = await getJobCategories()
 
+  // 選択された職種名を取得（未選択の場合はデフォルトでタクシー運転手とする）
+  const jobCategoryName = jobCategoryId
+    ? jobCategories.find((c) => c.id === jobCategoryId)?.name ?? "タクシー運転手"
+    : "タクシー運転手"
+
+  // 職種ごとのヒーロー画像を決定
+  const heroImageSrc = (() => {
+    if (jobCategoryName.includes("タクシー")) return "/images/taxi.png"
+    if (jobCategoryName.includes("看護") || jobCategoryName.includes("介護")) return "/images/nurse-hero.png"
+    return "/placeholder.svg"
+  })()
+
   const buildPageHref = (p: number) => {
     const params = new URLSearchParams()
     if (prefectureId) params.set("prefecture", prefectureId)
@@ -65,22 +78,6 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
                 <div className="text-2xl font-bold text-teal-500">ジョブメドレー</div>
               </Link>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-sm text-gray-600">LINEで仕事探し 履歴書添削 ご利用ガイド 求人掲載をお考えの方へ</div>
-              <Search className="w-5 h-5 text-gray-400" />
-              <Button variant="ghost" size="sm" className="text-teal-600">
-                <MapPin className="w-4 h-4 mr-1" />
-                最近見た求人
-              </Button>
-              <Button variant="ghost" size="sm" className="text-teal-600">
-                <User className="w-4 h-4 mr-1" />
-                ログイン
-              </Button>
-              <Button variant="ghost" size="sm">
-                <UserPlus className="w-4 h-4 mr-1" />
-                会員登録
-              </Button>
-            </div>
           </div>
         </div>
       </header>
@@ -91,12 +88,12 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
           <Home className="w-4 h-4 mr-1" />
           <ChevronRight className="w-4 h-4 mx-1" />
           <Link href="/" className="hover:text-teal-600">
-            介護事務の求人
+            {jobCategoryName}の求人
           </Link>
           <ChevronRight className="w-4 h-4 mx-1" />
           <span>
             {selectedMunicipality ? `${selectedMunicipality.name}（${prefectureName}）` : prefectureName}
-            の介護事務求人
+            の{jobCategoryName}求人
           </span>
         </div>
       </div>
@@ -105,8 +102,8 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
         <div className="relative h-48 rounded-lg overflow-hidden">
           <Image
-            src="/placeholder.svg"
-            alt=""
+            src={heroImageSrc}
+            alt="hero-image"
             fill
             sizes="100vw"
             className="object-cover"
@@ -124,7 +121,7 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
                 {selectedMunicipality
                   ? `${selectedMunicipality.name}（${prefectureName}）`
                   : prefectureName}
-                の介護事務求人・転職・就職・アルバイト情報
+                の{jobCategoryName}の求人情報
               </h1>
               <div className="flex items-center space-x-4">
                 <span className="text-lg text-gray-600">
@@ -167,7 +164,9 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
                 const tagNames = tags
                   .filter((t) => tagIds.includes(t.id))
                   .map((t) => t.name)
-                const jobCategoryName = jobCategories.find((c) => c.id === jobCategoryId)?.name
+                const jobCategoryName = jobCategoryId
+                  ? jobCategories.find((c) => c.id === jobCategoryId)?.name
+                  : "タクシー運転手"
 
                 const parts: string[] = []
                 parts.push(prefectureName)
@@ -323,14 +322,6 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Location Search */}
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center mb-4">
-                  <MapPin className="w-5 h-5 text-teal-600 mr-2" />
-                  <h3 className="font-semibold text-gray-800">地域から求人を探す</h3>
-                </div>
-              </CardContent>
-            </Card>
 
             {/* Job Search Tips */}
             <Card>
@@ -407,98 +398,7 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
       </div>
 
       {/* News Section */}
-      <div className="bg-gray-50 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">なるほど！ジョブメドレー新着記事</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {/* Article 1 */}
-            <Card className="overflow-hidden">
-              <Image
-                src="/placeholder.svg"
-                alt="養護老人ホーム"
-                width={300}
-                height={150}
-                className="w-full h-36 object-cover"
-              />
-              <CardContent className="p-4">
-                <h3 className="text-sm font-medium text-gray-800 mb-2 line-clamp-2">
-                  養護老人ホームとは？特養との違いや仕事内容を紹介
-                </h3>
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span className="bg-teal-100 text-teal-600 px-2 py-1 rounded">職種を知る</span>
-                  <span>2024/08/13</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Article 2 */}
-            <Card className="overflow-hidden">
-              <Image
-                src="/placeholder.svg"
-                alt=""
-                width={300}
-                height={150}
-                className="w-full h-36 object-cover"
-              />
-              <CardContent className="p-4">
-                <h3 className="text-sm font-medium text-gray-800 mb-2 line-clamp-2">
-                  【2024年変更点あり】年末調整とは？対象者や書き方、確定...
-                </h3>
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded">仕事お役立ち情報</span>
-                  <span>2023/10/04</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Article 3 */}
-            <Card className="overflow-hidden">
-              <Image
-                src="/placeholder.svg"
-                alt=""
-                width={300}
-                height={150}
-                className="w-full h-36 object-cover"
-              />
-              <CardContent className="p-4">
-                <h3 className="text-sm font-medium text-gray-800 mb-2 line-clamp-2">
-                  異業種への転職は難しい？失敗しないための転職活動の...
-                </h3>
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span className="bg-green-100 text-green-600 px-2 py-1 rounded">求人の見方・転職ガイド</span>
-                  <span>2023/06/19</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Article 4 */}
-            <Card className="overflow-hidden">
-              <Image
-                src="/placeholder.svg"
-                alt="コロナ対策"
-                width={300}
-                height={150}
-                className="w-full h-36 object-cover"
-              />
-              <CardContent className="p-4">
-                <h3 className="text-sm font-medium text-gray-800 mb-2 line-clamp-2">
-                  コロナ5類移行「面会制限やや緩和」50％以上 医療・介護従...
-                </h3>
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span className="bg-purple-100 text-purple-600 px-2 py-1 rounded">コラム</span>
-                  <span>2023/05/30</span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="text-center">
-            <Button variant="outline" className="text-teal-600 border-teal-600 hover:bg-teal-50">
-              なるほど！ジョブメドレーをもっと見る
-            </Button>
-          </div>
-        </div>
-      </div>
+      <MediaArticlesSection />
 
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 py-12">

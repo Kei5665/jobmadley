@@ -5,9 +5,10 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Search, MapPin, Star, User, UserPlus, ChevronRight, Home, ChevronLeft } from "lucide-react"
+import { Star, ChevronRight, Home, ChevronLeft } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import type { JobDetail } from "@/lib/getJob"
+import type { Job } from "@/lib/getJobs"
 
 interface BlogArticle {
   id: string;
@@ -19,9 +20,10 @@ interface BlogArticle {
 interface JobDetailPageProps {
   job: JobDetail
   articles: BlogArticle[]
+  relatedJobs: Job[]
 }
 
-export default function JobDetailPage({ job, articles }: JobDetailPageProps) {
+export default function JobDetailPage({ job, articles, relatedJobs }: JobDetailPageProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const images =
     job.images && (job.images as any[]).length > 0
@@ -83,53 +85,48 @@ export default function JobDetailPage({ job, articles }: JobDetailPageProps) {
                 <div className="text-2xl font-bold text-teal-500">ジョブメドレー</div>
               </Link>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-sm text-gray-600">LINEで仕事探し 履歴書添削 ご利用ガイド 求人掲載をお考えの方へ</div>
-              <Search className="w-5 h-5 text-gray-400" />
-              <Button variant="ghost" size="sm" className="text-teal-600">
-                <MapPin className="w-4 h-4 mr-1" />
-                最近見た求人
-              </Button>
-              <Button variant="ghost" size="sm" className="text-teal-600">
-                <Star className="w-4 h-4 mr-1" />
-                キープ
-              </Button>
-              <Button variant="ghost" size="sm">
-                <User className="w-4 h-4 mr-1" />
-                ログイン
-              </Button>
-              <Button variant="ghost" size="sm">
-                <UserPlus className="w-4 h-4 mr-1" />
-                会員登録
-              </Button>
-            </div>
           </div>
         </div>
       </header>
 
       {/* Breadcrumb */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex items-center text-sm text-gray-600">
-          <Home className="w-4 h-4 mr-1" />
-          <ChevronRight className="w-4 h-4 mx-1" />
-          <Link href="/" className="hover:text-teal-600">
-            タクシー運転手の求人
-          </Link>
-          <ChevronRight className="w-4 h-4 mx-1" />
-          <Link href="/search?prefecture=東京都" className="hover:text-teal-600">
-            東京都
-          </Link>
-          <ChevronRight className="w-4 h-4 mx-1" />
-          <Link href="/search?prefecture=東京都" className="hover:text-teal-600">
-            東京都の求人
-          </Link>
-          <ChevronRight className="w-4 h-4 mx-1" />
-          <Link href="/search?prefecture=東京都&city=中野区" className="hover:text-teal-600">
-            中野区
-          </Link>
-          <ChevronRight className="w-4 h-4 mx-1" />
-          <span>リブウェル足立入谷の介護事務求人</span>
-        </div>
+        {(() => {
+          const jobCategoryName = job.jobCategory?.name ?? "職種未設定"
+          const prefectureId = job.prefecture?.id ?? ""
+          const prefectureName = job.prefecture?.region ?? ""
+          const municipalityId = job.municipality?.id ?? ""
+          const municipalityName = job.municipality?.name ?? ""
+          const companyName = job.companyName ?? "会社名未設定"
+
+          return (
+            <div className="flex items-center text-sm text-gray-600">
+              <Home className="w-4 h-4 mr-1" />
+              <ChevronRight className="w-4 h-4 mx-1" />
+              <Link href="/" className="hover:text-teal-600">
+                {jobCategoryName}の求人
+              </Link>
+              {prefectureId && (
+                <>
+                  <ChevronRight className="w-4 h-4 mx-1" />
+                  <Link href={`/search?prefecture=${prefectureId}`} className="hover:text-teal-600">
+                    {prefectureName}
+                  </Link>
+                </>
+              )}
+              {municipalityId && (
+                <>
+                  <ChevronRight className="w-4 h-4 mx-1" />
+                  <Link href={`/search?prefecture=${prefectureId}&municipality=${municipalityId}`} className="hover:text-teal-600">
+                    {municipalityName}
+                  </Link>
+                </>
+              )}
+              <ChevronRight className="w-4 h-4 mx-1" />
+              <span>{`${companyName}の${jobCategoryName}求人`}</span>
+            </div>
+          )
+        })()}
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -467,81 +464,53 @@ export default function JobDetailPage({ job, articles }: JobDetailPageProps) {
           <div className="space-y-6">
             <Card>
               <CardContent className="p-4">
-                <h3 className="font-semibold text-gray-800 mb-4">東京都の介護事務の新着求人</h3>
-                <div className="space-y-4">
-                  {/* Related Job 1 */}
-                  <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
-                    <Image
-                      src="/placeholder.svg?height=60&width=80"
-                      alt="ホームケアまき"
-                      width={80}
-                      height={60}
-                      className="rounded"
-                    />
-                    <div className="flex-1">
-                      <h4 className="text-sm font-medium text-gray-800 mb-1">ホームケアまきの介護事務求人</h4>
-                      <p className="text-xs text-gray-600 mb-1">正職員 月給 231,000円 ～ 245,000円</p>
-                      <p className="text-xs text-gray-600 mb-2">東京都文京区千駄木3-42-5 セントラルガーデン</p>
-                      <Badge variant="secondary" className="text-xs">
-                        職場の環境
-                      </Badge>
-                    </div>
+                <h3 className="font-semibold text-gray-800 mb-4">新着求人</h3>
+                {relatedJobs.length === 0 ? (
+                  <p className="text-sm text-gray-500">該当する求人がありません</p>
+                ) : (
+                  <div className="space-y-4">
+                    {relatedJobs.map((rj) => {
+                      const imageUrl =
+                        rj.images?.[0]?.url ?? rj.imageUrl ?? "/placeholder.svg"
+                      const locationText = `${rj.municipality?.name ?? ""}${rj.municipality ? "・" : ""}${rj.prefecture?.region ?? ""}`
+                      return (
+                        <Link
+                          key={rj.id}
+                          href={`/job/${rj.id}`}
+                          className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50"
+                        >
+                          <Image
+                            src={`${imageUrl}?height=60&width=80`}
+                            alt=""
+                            width={80}
+                            height={60}
+                            className="rounded object-cover"
+                          />
+                          <div className="flex-1">
+                            <h4 className="text-sm font-medium text-gray-800 mb-1 line-clamp-2">
+                              {rj.title}
+                            </h4>
+                            <p className="text-xs text-gray-600 mb-1 line-clamp-1">
+                              {locationText}
+                            </p>
+                          </div>
+                        </Link>
+                      )
+                    })}
                   </div>
+                )}
 
-                  {/* Related Job 2 */}
-                  <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
-                    <Image
-                      src="/placeholder.svg?height=60&width=80"
-                      alt="SmartWorX"
-                      width={80}
-                      height={60}
-                      className="rounded"
-                    />
-                    <div className="flex-1">
-                      <h4 className="text-sm font-medium text-gray-800 mb-1">株式会社SmartWorXの外資系求人</h4>
-                      <p className="text-xs text-gray-600 mb-1">正職員 月給 250,000円 ～ 300,000円</p>
-                      <p className="text-xs text-gray-600 mb-2">東京都中田区谷中大手町7丁目2-5 ダイヤモンド</p>
-                      <div className="flex space-x-1">
-                        <Badge variant="secondary" className="text-xs">
-                          職場の環境
-                        </Badge>
-                        <Badge variant="secondary" className="text-xs">
-                          1日の求人
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Related Job 3 */}
-                  <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
-                    <Image
-                      src="/placeholder.svg?height=60&width=80"
-                      alt="PDハウス中野日高"
-                      width={80}
-                      height={60}
-                      className="rounded"
-                    />
-                    <div className="flex-1">
-                      <h4 className="text-sm font-medium text-gray-800 mb-1">
-                        PDハウス中野日高（医療）/ 株式会社サンウェルズ
-                      </h4>
-                      <p className="text-xs text-gray-600 mb-1">正職員 月給 220,000円 ～</p>
-                      <p className="text-xs text-gray-600 mb-2">東京都中野区谷中二丁目1番地東京予定</p>
-                      <div className="flex space-x-1">
-                        <Badge variant="secondary" className="text-xs">
-                          車通勤可能
-                        </Badge>
-                        <Badge variant="secondary" className="text-xs">
-                          オープン3年以内
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
+                <div className="mt-4">
+                  <Link
+                    href={job.municipality
+                      ? `/search?prefecture=${job.prefecture?.id}&municipality=${job.municipality.id}`
+                      : `/search?prefecture=${job.prefecture?.id}`}
+                  >
+                    <Button variant="ghost" className="w-full text-teal-600">
+                      求人をもっと見る
+                    </Button>
+                  </Link>
                 </div>
-
-                <Button variant="ghost" className="w-full text-teal-600 mt-4">
-                  求人をもっと見る
-                </Button>
               </CardContent>
             </Card>
           </div>
