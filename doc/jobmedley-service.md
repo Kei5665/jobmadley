@@ -39,7 +39,33 @@
 | `imageUrl` | サムネ URL | テキストフィールド | No | 外部画像 URL を直接入力する場合に使用 |
 | `images` | 画像 | 画像 (複数) | No | ギャラリー用画像 |
 | `tags` | タグ | コンテンツ参照 (`tag`) <br/>複数可 | No | 特徴タグ |
-| ... | ... | ... | ... | 詳細フィールドは `JobDetail` 型を参照 |
+| `companyName` | 会社名 | テキストフィールド | No | 事業所／法人名 |
+| `jobName` | 職種名 | テキストフィールド | No | 募集職種 |
+| `catchCopy` | キャッチコピー | テキストフィールド | No | PR 見出し |
+| `employmentType` | 雇用形態 | セレクトフィールド | No | 正職員・パートなど |
+| `wageType` | 給与形態 | セレクトフィールド | No | 月給・時給など |
+| `salaryMin` | 最低給与 | 数値フィールド | No | 下限金額 |
+| `salaryMax` | 最高給与 | 数値フィールド | No | 上限金額 |
+| `workStyle` | 勤務形態 | テキストフィールド | No | 日勤のみ・夜勤あり等 |
+| `jobCategory` | 職種カテゴリ | コンテンツ参照 (`jobcategories`) | No | |
+| `addressZip` | 郵便番号 | テキストフィールド | No | 例: 123-4567 |
+| `addressPrefMuni` | 住所（都道府県市区） | テキストフィールド | No | |
+| `addressLine` | 住所（番地） | テキストフィールド | No | |
+| `addressBuilding` | 建物名等 | テキストフィールド | No | |
+| `avgScheduledHour` | 平均所定労働時間 | 数値フィールド | No | 週平均労働時間(h) |
+| `socialInsurance` | 社会保険 | テキストフィールド | No | 加入保険 |
+| `ssReason` | 社会保険適用差異 | テキストフィールド | No | |
+| `salaryNote` | 給与備考 | テキストフィールド | No | |
+| `descriptionAppeal` | アピールポイント | リッチエディタ | No | |
+| `descriptionWork` | 仕事内容詳細 | リッチエディタ | No | |
+| `descriptionPerson` | 求める人材 | リッチエディタ | No | |
+| `descriptionBenefits` | 福利厚生備考 | リッチエディタ | No | |
+| `workHours` | 勤務時間 | テキストフィールド | No | |
+| `holidays` | 休日 | テキストフィールド | No | |
+| `descriptionOther` | その他備考 | リッチエディタ | No | |
+| `access` | 通勤アクセス | テキストフィールド | No | 最寄駅など |
+| `dlNote` | 勤務地補足メモ | テキストフィールド | No | Google Map 補足 |
+| `createdAt` / `updatedAt` / `publishedAt` / `revisedAt` | API メタ | 自動付与 | - | microCMS システムフィールド |
 
 ### 3.2 タグ (`tag`)
 
