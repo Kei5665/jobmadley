@@ -150,7 +150,8 @@ export default async function Component() {
                 {latestJobs.map((job) => {
                   const imageUrl = job.images?.[0]?.url ?? job.imageUrl ?? "/placeholder.svg"
                   return (
-                    <Card key={job.id} className="rounded-lg shadow-md bg-white overflow-hidden">
+                    <Link key={job.id} href={`/job/${job.id}`} className="block group">
+                      <Card className="rounded-lg shadow-md bg-white overflow-hidden transition-transform group-hover:-translate-y-1 group-hover:shadow-lg">
                       <div className="relative">
                         <Image
                           src={imageUrl}
@@ -195,7 +196,7 @@ export default async function Component() {
                         )}
                       </CardContent>
                     </Card>
-                  )
+                  </Link>
                 })}
               </div>
       </section>
