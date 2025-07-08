@@ -2,7 +2,9 @@ import { Suspense } from "react"
 import JobDetailPage from "../../../job-detail-page"
 import { getJob } from "@/lib/getJob"
 import { getJobs } from "@/lib/getJobs"
-import { microcmsClient2 } from "@/lib/microcms"
+import SiteHeader from "@/components/site-header"
+import SiteFooter from "@/components/site-footer"
+import RidejobMediaSection from "@/components/ridejob-media-section"
 
 interface BlogArticle {
   id: string
@@ -29,15 +31,15 @@ export default async function JobPage({ params }: JobPageProps) {
   })
   const relatedJobs = relatedJobsRaw.filter((j) => j.id !== job.id).slice(0, 4)
 
-  const articleData = await microcmsClient2.get<{ contents: BlogArticle[] }>({
-    endpoint: "blogs",
-    queries: { limit: 4, orders: "-publishedAt" },
-  })
-  const articles = articleData.contents
-
   return (
-    <Suspense fallback={<div>読み込み中...</div>}>
-      <JobDetailPage job={job} articles={articles} relatedJobs={relatedJobs} />
-    </Suspense>
+    <>
+      <SiteHeader />
+      <Suspense fallback={<div>読み込み中...</div>}>
+        <JobDetailPage job={job} relatedJobs={relatedJobs} />
+      </Suspense>
+      {/* News Section */}
+      <RidejobMediaSection />
+      <SiteFooter />
+    </>
   )
 }

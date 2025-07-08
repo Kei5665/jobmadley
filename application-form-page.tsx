@@ -1,6 +1,8 @@
 "use client"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import SiteHeader from "@/components/site-header"
+import SiteFooter from "@/components/site-footer"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
@@ -78,17 +80,9 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="text-center">
-            <Link href="/" className="inline-block">
-              <div className="text-2xl font-bold text-teal-500">ジョブメドレー</div>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <SiteHeader />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Title */}
@@ -279,16 +273,7 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 py-8 mt-12">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Link href="/" className="inline-block mb-4">
-            <div className="text-xl font-bold text-teal-500">ジョブメドレー</div>
-          </Link>
-          <p className="text-xs text-gray-500">
-            医療介護従事者のための転職支援サービス 求人サイト「ジョブメドレー」を運営しています。
-          </p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }

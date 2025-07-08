@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Star, ChevronRight, Home, ChevronLeft } from "lucide-react"
+import { Star, Home, ChevronRight, ChevronLeft } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import type { JobDetail } from "@/lib/getJob"
 import type { Job } from "@/lib/getJobs"
@@ -19,11 +19,11 @@ interface BlogArticle {
 
 interface JobDetailPageProps {
   job: JobDetail
-  articles: BlogArticle[]
   relatedJobs: Job[]
+  articles?: BlogArticle[]
 }
 
-export default function JobDetailPage({ job, articles, relatedJobs }: JobDetailPageProps) {
+export default function JobDetailPage({ job, relatedJobs }: JobDetailPageProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const images =
     job.images && (job.images as any[]).length > 0
@@ -76,19 +76,6 @@ export default function JobDetailPage({ job, articles, relatedJobs }: JobDetailP
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <Link href="/" className="flex items-center">
-                <div className="text-2xl font-bold text-teal-500">ジョブメドレー</div>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Breadcrumb */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {(() => {
@@ -516,128 +503,6 @@ export default function JobDetailPage({ job, articles, relatedJobs }: JobDetailP
           </div>
         </div>
       </div>
-
-      {/* News Section */}
-      <div className="bg-gray-50 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">なるほど！ジョブメドレー新着記事</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {articles.map((article) => {
-              const img = article.eyecatch?.url ?? "/placeholder.jpg"
-              return (
-                <Card key={article.id} className="overflow-hidden">
-                  <Image src={img} alt="" width={300} height={150} className="w-full h-36 object-cover" />
-                  <CardContent className="p-4">
-                    <h3 className="text-sm font-medium text-gray-800 mb-2 line-clamp-2">
-                      {article.title}
-                    </h3>
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      {/* カテゴリなどあればここに */}
-                      <span></span>
-                      <Link
-                        href={`https://ridejob-cms.vercel.app/blogs/${article.slug ?? article.id}`}
-                        className="text-teal-600 hover:underline"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        詳細を見る
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
-
-          <div className="text-center">
-            <Button variant="outline" className="text-teal-600 border-teal-600 hover:bg-teal-50">
-              なるほど！ジョブメドレーをもっと見る
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-start justify-between mb-8">
-            <div className="flex items-center">
-              <div className="text-2xl font-bold text-teal-500">ジョブメドレー</div>
-            </div>
-            <Button variant="ghost" size="sm" className="text-gray-600">
-              <ChevronRight className="w-4 h-4 rotate-[-90deg]" />
-            </Button>
-          </div>
-
-          <div className="mb-8">
-            <p className="text-sm text-gray-600 leading-relaxed">
-              介護事務の求人をお探しならジョブメドレー。あなたにぴったりの求人が見つかります。ジョブメドレーは、医療介護従事者が転職をする際に転職・就職・復職を支援する求人サイトです。ほぼすべての医療介護職種を取り扱っており、介護事務の求人を含む、全国306万件の事業所の正社員、アルバイト・パート募集情報を掲載しています（2025年6月19日現在）。求人の応募から入職まで、専任のキャリアサポートが転職をサポートします。また、会員登録をしていただくと、希望条件に合った新着求人や、スカウトメッセージを受け取ることができます。介護事務の転職、就職なら医療介護求人サイト「ジョブメドレー」にお任せください。
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Column 1 */}
-            <div>
-              <h3 className="font-semibold text-gray-800 mb-4">ジョブメドレーについて</h3>
-              <div className="space-y-2">
-                <Link href="#" className="block text-sm text-teal-600 hover:underline">
-                  ご利用ガイド
-                </Link>
-                <Link href="#" className="block text-sm text-teal-600 hover:underline">
-                  ご利用規約
-                </Link>
-                <Link href="#" className="block text-sm text-teal-600 hover:underline">
-                  外部送信ポリシー
-                </Link>
-                <Link href="#" className="block text-sm text-teal-600 hover:underline">
-                  ヘルプ
-                </Link>
-                <Link href="#" className="block text-sm text-teal-600 hover:underline">
-                  ミッション
-                </Link>
-                <Link href="#" className="block text-sm text-teal-600 hover:underline">
-                  なるほど！ジョブメドレー
-                </Link>
-                <Link href="#" className="block text-sm text-teal-600 hover:underline">
-                  転職体験談
-                </Link>
-                <Link href="#" className="block text-sm text-teal-600 hover:underline">
-                  お知らせ
-                </Link>
-                <Link href="#" className="block text-sm text-teal-600 hover:underline">
-                  運営会社情報
-                </Link>
-              </div>
-            </div>
-
-            {/* Column 2 */}
-            <div>
-              <h3 className="font-semibold text-gray-800 mb-4">採用担当者様へ</h3>
-              <div className="space-y-2">
-                <Link href="#" className="block text-sm text-teal-600 hover:underline">
-                  求人掲載をお考えの企業様
-                </Link>
-                <Link href="#" className="block text-sm text-teal-600 hover:underline">
-                  リンク設置について
-                </Link>
-                <Link href="#" className="block text-sm text-teal-600 hover:underline">
-                  採用担当ログイン
-                </Link>
-              </div>
-            </div>
-
-            {/* Column 3 */}
-            <div>
-              <h3 className="font-semibold text-gray-800 mb-4">お困りの方はこちら</h3>
-              <div className="space-y-2">
-                <Link href="#" className="block text-sm text-teal-600 hover:underline">
-                  各種ご相談・お問い合わせ窓口
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
 
       <div ref={footerRef} />
 
