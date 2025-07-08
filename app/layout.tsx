@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { StagewiseToolbar } from "@stagewise/toolbar-next"
-import { ReactPlugin } from "@stagewise-plugins/react"
+import ReactPlugin from "@stagewise-plugins/react"
 
 export const metadata: Metadata = {
   title: 'v0 App',

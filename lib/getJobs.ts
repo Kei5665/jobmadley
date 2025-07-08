@@ -24,6 +24,12 @@ export type Job = {
     id: string
     name: string
   }[]
+  /** 職種名 */
+  jobName?: string
+  /** 最低給与 */
+  salaryMin?: number
+  /** 最高給与 */
+  salaryMax?: number
   // 必要であれば今後フィールドを追加
 }
 
