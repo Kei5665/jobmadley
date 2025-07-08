@@ -5,8 +5,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, Star, User, UserPlus, ChevronRight, Home, ChevronLeft } from "lucide-react"
 import { getPrefectureById } from "@/lib/getPrefectures"
-import { getMunicipalitiesByPrefectureId } from "@/lib/getMunicipalities"
-import { getJobs, getJobCount } from "@/lib/getJobs"
+import { getJobsPaged } from "@/lib/getJobs"
+import { microcmsClient } from "@/lib/microcms"
+import type { Municipality } from "@/lib/getMunicipalities"
 import { getTags } from "@/lib/getTags"
 import { getJobCategories } from "@/lib/getJobCategories"
 import MunicipalityDialog from "./components/municipality-dialog"
@@ -26,21 +27,32 @@ interface SearchResultsPageProps {
 export default async function SearchResultsPage({ prefectureId, municipalityId, tagIds = [], jobCategoryId, page = 1 }: SearchResultsPageProps) {
   const prefectureData = prefectureId ? await getPrefectureById(prefectureId) : null
   const prefectureName = prefectureData?.region ?? "都道府県未選択"
-  const municipalitiesRaw = prefectureId ? await getMunicipalitiesByPrefectureId(prefectureId) : []
-  // 各市区町村の求人数を取得
-  const municipalities = await Promise.all(
-    municipalitiesRaw.map(async (m) => {
-      const count = await getJobCount({ municipalityId: m.id })
-      return { ...m, jobCount: count }
-    }),
-  )
-  const selectedMunicipality = municipalityId ? municipalities.find((m) => m.id === municipalityId) : null
-  const jobs = await getJobs({ prefectureId, municipalityId, tagIds, jobCategoryId })
+  let selectedMunicipality: Municipality | null = null
+  if (municipalityId) {
+    try {
+      selectedMunicipality = await microcmsClient.get<Municipality>({
+        endpoint: "municipalities",
+        contentId: municipalityId,
+      })
+    } catch (err) {
+      console.error("Failed to fetch municipality", err)
+    }
+  }
 
   const PAGE_SIZE = 10
-  const totalPages = Math.ceil(jobs.length / PAGE_SIZE)
+  const offset = (page - 1) * PAGE_SIZE
+  const { contents: jobs, totalCount } = await getJobsPaged({
+    prefectureId,
+    municipalityId,
+    tagIds,
+    jobCategoryId,
+    limit: PAGE_SIZE,
+    offset,
+  })
+
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE)
   const currentPage = Math.min(Math.max(page, 1), totalPages || 1)
-  const pagedJobs = jobs.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+  const pagedJobs = jobs
 
   const tags = await getTags()
   const jobCategories = await getJobCategories()
@@ -125,7 +137,7 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
               </h1>
               <div className="flex items-center space-x-4">
                 <span className="text-lg text-gray-600">
-                  該当件数 <span className="font-bold text-red-500">{jobs.length}件</span>
+                  該当件数 <span className="font-bold text-red-500">{totalCount}件</span>
                 </span>
                 <Link href="#" className="text-sm text-teal-600 hover:underline">
                   登録情報を変更する
@@ -135,11 +147,12 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
 
             {/* Search Options */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-              <MunicipalityDialog
-                municipalities={municipalities}
-                prefectureId={prefectureId ?? ""}
-                prefectureName={prefectureName}
-              />
+              {prefectureId && (
+                <MunicipalityDialog
+                  prefectureId={prefectureId}
+                  prefectureName={prefectureName}
+                />
+              )}
               <JobCategoryDialog
                 jobCategories={jobCategories}
                 selectedJobCategoryId={jobCategoryId}

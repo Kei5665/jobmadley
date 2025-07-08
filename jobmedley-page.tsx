@@ -152,51 +152,43 @@ export default async function Component() {
                   return (
                     <Link key={job.id} href={`/job/${job.id}`} className="block group">
                       <Card className="rounded-lg shadow-md bg-white overflow-hidden transition-transform group-hover:-translate-y-1 group-hover:shadow-lg">
-                      <div className="relative">
-                        <Image
-                          src={imageUrl}
-                          alt=""
-                          width={300}
-                          height={160}
-                          className="w-full h-40 object-cover"
-                        />
-                        <span className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded">NEW</span>
-                      </div>
-                      <CardContent className="p-4 space-y-2">
-                        <p className="text-sm font-semibold text-gray-900 line-clamp-2">{job.title}</p>
+                        <div className="relative">
+                          <Image src={imageUrl} alt="" width={300} height={160} className="w-full h-40 object-cover" />
+                          <span className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded">NEW</span>
+                        </div>
+                        <CardContent className="p-4 space-y-2">
+                          <p className="text-sm font-semibold text-gray-900 line-clamp-2">{job.title}</p>
 
-                        {/* 場所 */}
-                        {job.municipality?.name && (
-                          <div className="flex items-center text-xs text-gray-600 gap-1 border-t border-gray-200 pt-2">
-                            <MapPin className="w-4 h-4 text-indigo-600" />
-                            <span>
-                              {job.prefecture?.region ?? ""} {job.municipality.name}
-                            </span>
-                          </div>
-                        )}
+                          {job.municipality?.name && (
+                            <div className="flex items-center text-xs text-gray-600 gap-1 border-t border-gray-200 pt-2">
+                              <MapPin className="w-4 h-4 text-indigo-600" />
+                              <span>
+                                {job.prefecture?.region ?? ""} {job.municipality.name}
+                              </span>
+                            </div>
+                          )}
 
-                        {/* 給与 */}
-                        {(job.salaryMin || job.salaryMax) && (
-                          <div className="flex items-center text-xs text-gray-600 gap-1 border-t border-gray-200 pt-2">
-                            <Wallet className="w-4 h-4 text-indigo-600" />
-                            <span>
-                              月給
-                              {job.salaryMin ? ` ${job.salaryMin.toLocaleString()}` : ""}
-                              {job.salaryMax ? `〜${job.salaryMax.toLocaleString()}` : "〜"}
-                            </span>
-                          </div>
-                        )}
+                          {(job.salaryMin || job.salaryMax) && (
+                            <div className="flex items-center text-xs text-gray-600 gap-1 border-t border-gray-200 pt-2">
+                              <Wallet className="w-4 h-4 text-indigo-600" />
+                              <span>
+                                月給
+                                {job.salaryMin ? ` ${job.salaryMin.toLocaleString()}` : ""}
+                                {job.salaryMax ? `〜${job.salaryMax.toLocaleString()}` : "〜"}
+                              </span>
+                            </div>
+                          )}
 
-                        {/* 職種 */}
-                        {job.jobName && (
-                          <div className="flex items-center text-xs text-gray-600 gap-1 border-t border-gray-200 pt-2">
-                            <Briefcase className="w-4 h-4 text-indigo-600" />
-                            <span>{job.jobName}</span>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </Link>
+                          {job.jobName && (
+                            <div className="flex items-center text-xs text-gray-600 gap-1 border-t border-gray-200 pt-2">
+                              <Briefcase className="w-4 h-4 text-indigo-600" />
+                              <span>{job.jobName}</span>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  )
                 })}
               </div>
       </section>

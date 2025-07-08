@@ -10,25 +10,41 @@ import {
 } from "@/components/ui/dialog"
 import { Card, CardContent } from "@/components/ui/card"
 import { MapPin, ChevronRight } from "lucide-react"
+import { useEffect, useState } from "react"
 import type { Municipality } from "@/lib/getMunicipalities"
 
-interface MunicipalityWithCount extends Municipality {
-  jobCount: number
-}
-
 interface MunicipalityDialogProps {
-  municipalities: MunicipalityWithCount[]
   prefectureId: string
   prefectureName: string
 }
 
-export default function MunicipalityDialog({
-  municipalities,
-  prefectureId,
-  prefectureName,
-}: MunicipalityDialogProps) {
+export default function MunicipalityDialog({ prefectureId, prefectureName }: MunicipalityDialogProps) {
+  const [open, setOpen] = useState(false)
+  const [municipalities, setMunicipalities] = useState<Municipality[]>([])
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (!open || municipalities.length > 0) return
+
+    const fetchMunicipalities = async () => {
+      setLoading(true)
+      try {
+        const res = await fetch(`/api/municipalities?prefecture=${prefectureId}`)
+        if (!res.ok) throw new Error("failed")
+        const data: Municipality[] = await res.json()
+        setMunicipalities(data)
+      } catch (e) {
+        console.error(e)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchMunicipalities()
+  }, [open, municipalities.length, prefectureId])
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Card className="cursor-pointer hover:bg-gray-50">
           <CardContent className="p-6 text-center">
@@ -44,32 +60,28 @@ export default function MunicipalityDialog({
 
         {/* 市区町村リスト */}
         <div className="max-h-[60vh] overflow-y-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 divide-x">
-            {municipalities.map((m) => (
-              <DialogClose asChild key={m.id}>
-                <Link
-                  href={`/search?prefecture=${prefectureId}&municipality=${m.id}`}
-                  className="flex items-center justify-between p-3 text-sm text-teal-600 hover:bg-teal-50 border-b"
-                >
-                  <div className="flex items-center space-x-2">
+          {loading ? (
+            <p className="text-center text-sm text-gray-500 py-4">読み込み中...</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 divide-x">
+              {municipalities.map((m) => (
+                <DialogClose asChild key={m.id}>
+                  <Link
+                    href={`/search?prefecture=${prefectureId}&municipality=${m.id}`}
+                    className="flex items-center justify-between p-3 text-sm text-teal-600 hover:bg-teal-50 border-b"
+                  >
                     <span className="text-gray-800">{m.name}</span>
-                    <span className="text-gray-500">({m.jobCount})</span>
-                  </div>
-                  <ChevronRight className="w-3 h-3" />
-                </Link>
-              </DialogClose>
-            ))}
-            {municipalities.length === 0 && (
-              <p className="col-span-full text-sm text-gray-500 text-center py-4">
-                市区町村データがありません
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* フッター */}
-        <div className="flex items-center justify-between pt-4 border-t mt-4">
-          <span className="text-sm text-gray-600">該当件数 {municipalities.length}件</span>
+                    <ChevronRight className="w-3 h-3" />
+                  </Link>
+                </DialogClose>
+              ))}
+              {municipalities.length === 0 && !loading && (
+                <p className="col-span-full text-sm text-gray-500 text-center py-4">
+                  市区町村データがありません
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

@@ -94,4 +94,41 @@ export const getJobCount = async ({ prefectureId, municipalityId }: { prefecture
   })
 
   return data.totalCount
+}
+
+/**
+ * ページネーション用: limit と offset を指定して求人を取得
+ * microCMS の totalCount を併せて返す
+ */
+export const getJobsPaged = async ({
+  prefectureId,
+  municipalityId,
+  tagIds = [],
+  jobCategoryId,
+  limit = 10,
+  offset = 0,
+}: GetJobsParams & { offset?: number }) => {
+  const filterParts: string[] = []
+  if (prefectureId) filterParts.push(`prefecture[equals]${prefectureId}`)
+  if (municipalityId) filterParts.push(`municipality[equals]${municipalityId}`)
+  if (tagIds.length > 0) {
+    tagIds.forEach((id) => {
+      filterParts.push(`tags[contains]${id}`)
+    })
+  }
+  if (jobCategoryId) filterParts.push(`jobcategory[equals]${jobCategoryId}`)
+
+  const filters = filterParts.join("[and]")
+
+  const data = await microcmsClient.get<{ contents: Job[]; totalCount: number }>({
+    endpoint: "jobs",
+    queries: {
+      limit,
+      offset,
+      depth: 1,
+      ...(filters ? { filters } : {}),
+    },
+  })
+
+  return { contents: data.contents, totalCount: data.totalCount }
 } 
