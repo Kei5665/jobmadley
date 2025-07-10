@@ -399,52 +399,6 @@ export default function JobDetailPage({ job, relatedJobs }: JobDetailPageProps) 
                 </div>
               </div>
             </div>
-
-            {/* FAQ Section */}
-            <div className="border rounded-lg p-6 mt-12">
-              <h3 className="text-lg font-semibold text-gray-800 mb-6">応募に関するよくある質問</h3>
-
-              <div className="space-y-6">
-                <div>
-                  <h4 className="font-medium text-gray-800 mb-2">応募情報はどのように事業所に伝わりますか？</h4>
-                  <p className="text-gray-700 text-sm leading-relaxed">
-                    応募いただいた情報は、ジョブメドレーから安全に事業所へ連携されます。また、スカウト機能を「受け取る」に設定していただくと、それまでのプロフィールを見た事業所から直接スカウトが届くことがあります。ご希望の方は、プライバシーポリシーをご確認ください。
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="font-medium text-gray-800 mb-2">
-                    応募する前に事業所に質問したいときはどうすればよいですか？
-                  </h4>
-                  <p className="text-gray-700 text-sm leading-relaxed">
-                    事業所の詳細な情報を知りたい場合や、応募前に質問したいことがある場合は、ページ下の「お問い合わせ」からご連絡ください。
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="font-medium text-gray-800 mb-2">求人内容について電話で質問することはできますか？</h4>
-                  <p className="text-gray-700 text-sm leading-relaxed">
-                    応募前、ジョブメドレーにご登録いただいた方には電話でのご連絡も可能です。事業所に直接お電話いただくことも可能です。
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="font-medium text-gray-800 mb-2">応募を検討する</h4>
-                  <p className="text-gray-700 text-sm leading-relaxed">
-                    電話で応募したいときはどうすればよいですか？
-                    「電話で応募」ボタンから直接お電話いただくか、お電話番号をお調べいただき、お電話ください。
-                    お電話の際はジョブメドレーを見たとお伝えいただくとスムーズです。
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <Link href="#" className="text-teal-600 hover:underline">
-                  事業所へお問い合わせする
-                </Link>
-              </div>
-            </div>
-
           </div>
 
           {/* Sidebar */}
