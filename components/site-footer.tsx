@@ -28,7 +28,7 @@ export default function SiteFooter() {
               <li><Link href="#" className="hover:underline">ミッション</Link></li>
               <li><Link href="#" className="hover:underline">転職体験談</Link></li>
               <li><Link href="/privacy" className="hover:underline">プライバシーポリシー</Link></li>
-              <li><Link href="#" className="hover:underline">運営会社情報</Link></li>
+              <li><Link href="https://pmagent.jp/" target="_blank" rel="noopener noreferrer" className="hover:underline">運営会社情報</Link></li>
               <li><Link href="#" className="hover:underline">お問い合わせ</Link></li>
             </ul>
           </div>
