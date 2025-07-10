@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     siteName: 'ライドジョブ',
     images: [
       {
-        url: '/OGP.png',
+        url: '/images/OGP.png',
         width: 1200,
         height: 630,
         alt: 'ライドジョブ',
@@ -29,12 +29,12 @@ export const metadata: Metadata = {
     title: 'ライドジョブ | タクシー運転手の求人・転職サイト',
     description:
       'タクシー運転手専門の求人・転職情報を掲載する「ライドジョブ」。全国の最新求人をスピード検索。応募もオンラインで簡単！',
-    images: ['/OGP.png'],
+    images: ['/images/OGP.png'],
   },
   icons: {
-    icon: '/favicon.png',
-    shortcut: '/favicon.png',
-    apple: '/favicon.png',
+    icon: '/images/favicon.png',
+    shortcut: '/images/favicon.png',
+    apple: '/images/favicon.png',
   },
 }
 
