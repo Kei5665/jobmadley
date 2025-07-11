@@ -1,12 +1,10 @@
 import Image from "next/image"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import SiteHeader from "@/components/site-header"
 import SiteFooter from "@/components/site-footer"
 import RidejobMediaSection from "@/components/ridejob-media-section"
-import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Search, Star, User, UserPlus, ChevronRight, Home, ChevronLeft } from "lucide-react"
+import { ChevronRight, Home, ChevronLeft } from "lucide-react"
 import { getPrefectureById } from "@/lib/getPrefectures"
 import { getJobsPaged } from "@/lib/getJobs"
 import { microcmsClient } from "@/lib/microcms"
@@ -17,6 +15,7 @@ import MunicipalityDialog from "./components/municipality-dialog"
 import TagDialog from "@/components/tags-dialog"
 import JobCategoryDialog from "@/components/job-category-dialog"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis } from "@/components/ui/pagination"
+import JobCard from "@/components/job-card"
 
 interface SearchResultsPageProps {
   prefectureId?: string
@@ -116,9 +115,9 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-3">
+          <div>
             {/* Page Title */}
             <div className="mb-8">
               <h1 className="text-2xl font-bold text-gray-800 mb-2">
@@ -201,54 +200,7 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
                 ) : (
                   <div className="space-y-6">
                     {pagedJobs.map((job) => {
-                      const imageUrl =
-                        job.images?.[0]?.url ??
-                        job.imageUrl ??
-                        "/placeholder.svg"
-
-                      return (
-                        <Card key={job.id} className="overflow-hidden">
-                          <div className="flex flex-col md:flex-row">
-                            <div className="md:w-1/3">
-                              <Image
-                                src={imageUrl}
-                                alt=""
-                                width={300}
-                                height={200}
-                                className="w-full h-48 md:h-full object-cover"
-                              />
-                            </div>
-                            <div className="md:w-2/3 p-6">
-                              <div className="mb-4">
-                                <h3 className="text-lg font-semibold text-teal-600 mb-2">{job.title}</h3>
-                                <p className="text-sm text-gray-600 mb-2">
-                                  {job.municipality?.name ?? ""}
-                                  {job.municipality ? "・" : ""}
-                                  {job.prefecture?.region ?? ""}
-                                </p>
-                                {job.tags && job.tags.length > 0 && (
-                                  <div className="flex flex-wrap gap-2 mb-2">
-                                    {job.tags.map((tag) => (
-                                      <span
-                                        key={tag.id}
-                                        className="bg-teal-100 text-teal-600 text-xs px-2 py-0.5 rounded"
-                                      >
-                                        {tag.name}
-                                      </span>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-
-                              <div className="flex space-x-3">
-                                <Link href={`/job/${job.id}`} className="flex-1">
-                                  <Button className="w-full bg-teal-600 hover:bg-teal-700">求人を見る</Button>
-                                </Link>
-                              </div>
-                            </div>
-                          </div>
-                        </Card>
-                      )
+                      return <JobCard key={job.id} job={job} horizontal />
                     })}
                   </div>
                 )}
@@ -324,81 +276,7 @@ export default async function SearchResultsPage({ prefectureId, municipalityId, 
             )}
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Location Search */}
-
-            {/* Job Search Tips */}
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="font-semibold text-gray-800 mb-4">必ず役立つ仕事探し術</h3>
-                <div className="space-y-3">
-                  <Link href="#" className="flex items-center text-sm text-teal-600 hover:underline">
-                    <span className="mr-2">💼</span>
-                    ぴったりな仕事を探すには
-                  </Link>
-                  <Link href="#" className="flex items-center text-sm text-teal-600 hover:underline">
-                    <span className="mr-2">✈️</span>
-                    応募の仕方
-                  </Link>
-                  <Link href="#" className="flex items-center text-sm text-teal-600 hover:underline">
-                    <span className="mr-2">📝</span>
-                    履歴書の書き方
-                  </Link>
-                  <Link href="#" className="flex items-center text-sm text-teal-600 hover:underline">
-                    <span className="mr-2">📧</span>
-                    メールやメッセージの書き方
-                  </Link>
-                  <Link href="#" className="flex items-center text-sm text-teal-600 hover:underline">
-                    <span className="mr-2">📱</span>
-                    初回勤務までの準備
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Popular Columns */}
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="font-semibold text-gray-800 mb-4">人気のコラムランキング</h3>
-                <div className="space-y-4">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center flex-shrink-0 text-white text-sm font-bold">
-                      1位
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-800">
-                        失業手当（失業保険）はいくらもらえる？改正された失業給付条件や申請方法を...
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center flex-shrink-0 text-white text-sm font-bold">
-                      2位
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-800">
-                        年間休日の平均や内訳は？123日・120日・110日・105日って実際どのくらい休み...
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center flex-shrink-0 text-white text-sm font-bold">
-                      3位
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-800">
-                        バイタルサインとは？おさえておきたい正常値や異常値の目安、正確な測定方法
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <Button variant="ghost" className="w-full text-teal-600 mt-4">
-                  コラムをもっと見る
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+          {/* Sidebar removed */}
         </div>
       </div>
 

@@ -117,9 +117,9 @@ export default function JobDetailPage({ job, relatedJobs }: JobDetailPageProps) 
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2">
+          <div>
             {/* Image Carousel */}
             <div className="relative mb-8">
               <div className="relative h-96 rounded-lg overflow-hidden">
@@ -200,7 +200,7 @@ export default function JobDetailPage({ job, relatedJobs }: JobDetailPageProps) 
                   : "給与情報なし"}
               </div>
               {job.updatedAt && (
-                <p className="text-sm text-gray-500">最終更新日 {new Date(job.updatedAt).toLocaleDateString()}</p>
+                <p className="text-sm text-gray-500">最終更新日 {new Date(job.updatedAt).toLocaleDateString("ja-JP")}</p>
               )}
             </div>
 
@@ -401,60 +401,7 @@ export default function JobDetailPage({ job, relatedJobs }: JobDetailPageProps) 
             </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="font-semibold text-gray-800 mb-4">新着求人</h3>
-                {relatedJobs.length === 0 ? (
-                  <p className="text-sm text-gray-500">該当する求人がありません</p>
-                ) : (
-                  <div className="space-y-4">
-                    {relatedJobs.map((rj) => {
-                      const imageUrl =
-                        rj.images?.[0]?.url ?? rj.imageUrl ?? "/placeholder.svg"
-                      const locationText = `${rj.municipality?.name ?? ""}${rj.municipality ? "・" : ""}${rj.prefecture?.region ?? ""}`
-                      return (
-                        <Link
-                          key={rj.id}
-                          href={`/job/${rj.id}`}
-                          className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50"
-                        >
-                          <Image
-                            src={`${imageUrl}?height=60&width=80`}
-                            alt=""
-                            width={80}
-                            height={60}
-                            className="rounded object-cover"
-                          />
-                          <div className="flex-1">
-                            <h4 className="text-sm font-medium text-gray-800 mb-1 line-clamp-2">
-                              {rj.title}
-                            </h4>
-                            <p className="text-xs text-gray-600 mb-1 line-clamp-1">
-                              {locationText}
-                            </p>
-                          </div>
-                        </Link>
-                      )
-                    })}
-                  </div>
-                )}
-
-                <div className="mt-4">
-                  <Link
-                    href={job.municipality
-                      ? `/search?prefecture=${job.prefecture?.id}&municipality=${job.municipality.id}`
-                      : `/search?prefecture=${job.prefecture?.id}`}
-                  >
-                    <Button variant="ghost" className="w-full text-teal-600">
-                      求人をもっと見る
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          {/* Sidebar removed */}
         </div>
       </div>
 
