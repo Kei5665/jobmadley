@@ -2,12 +2,12 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
-import { Search, MapPin, Briefcase, Wallet, ChevronRight, Home } from "lucide-react"
+import { Search, ChevronRight, Home } from "lucide-react"
 import { getPrefectureGroups } from "@/lib/getPrefectures"
 import { getJobCount, getJobs } from "@/lib/getJobs"
 import { microcmsClient2 } from "@/lib/microcms"
 import RegionSearchSection from "@/components/prefecture-region-section"
+import JobCard from "@/components/job-card"
 
 interface BlogArticle {
   id: string;
@@ -147,49 +147,9 @@ export default async function Component() {
           最新の求人
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {latestJobs.map((job) => {
-                  const imageUrl = job.images?.[0]?.url ?? job.imageUrl ?? "/placeholder.svg"
-                  return (
-                    <Link key={job.id} href={`/job/${job.id}`} className="block group">
-                      <Card className="rounded-lg shadow-md bg-white overflow-hidden transition-transform group-hover:-translate-y-1 group-hover:shadow-lg">
-                        <div className="relative">
-                          <Image src={imageUrl} alt="" width={300} height={160} className="w-full h-40 object-cover" />
-                          <span className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded">NEW</span>
-                        </div>
-                        <CardContent className="p-4 space-y-2">
-                          <p className="text-sm font-semibold text-gray-900 line-clamp-2">{job.title}</p>
-
-                          {job.municipality?.name && (
-                            <div className="flex items-center text-xs text-gray-600 gap-1 border-t border-gray-200 pt-2">
-                              <MapPin className="w-4 h-4 text-indigo-600" />
-                              <span>
-                                {job.prefecture?.region ?? ""} {job.municipality.name}
-                              </span>
-                            </div>
-                          )}
-
-                          {(job.salaryMin || job.salaryMax) && (
-                            <div className="flex items-center text-xs text-gray-600 gap-1 border-t border-gray-200 pt-2">
-                              <Wallet className="w-4 h-4 text-indigo-600" />
-                              <span>
-                                月給
-                                {job.salaryMin ? ` ${job.salaryMin.toLocaleString()}` : ""}
-                                {job.salaryMax ? `〜${job.salaryMax.toLocaleString()}` : "〜"}
-                              </span>
-                            </div>
-                          )}
-
-                          {job.jobName && (
-                            <div className="flex items-center text-xs text-gray-600 gap-1 border-t border-gray-200 pt-2">
-                              <Briefcase className="w-4 h-4 text-indigo-600" />
-                              <span>{job.jobName}</span>
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  )
-                })}
+                {latestJobs.map((job) => (
+                  <JobCard key={job.id} job={job} />
+                ))}
               </div>
       </section>
 
