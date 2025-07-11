@@ -44,6 +44,8 @@ interface GetJobsParams {
   jobCategoryId?: string
   /** 取得件数 (default: 100) */
   limit?: number
+  /** 並び順 (microCMS orders 文字列, optional) */
+  orders?: string
 }
 
 /**
@@ -52,7 +54,7 @@ interface GetJobsParams {
  * filters には [and] で条件を結合する[[memory:7889397435779635015]]
  * microCMS の `limit` は 100 以下にする[[memory:1588031229221905914]]
  */
-export const getJobs = async ({ prefectureId, municipalityId, tagIds = [], jobCategoryId, limit = 100 }: GetJobsParams) => {
+export const getJobs = async ({ prefectureId, municipalityId, tagIds = [], jobCategoryId, limit = 100, orders }: GetJobsParams) => {
   const filterParts: string[] = []
   if (prefectureId) filterParts.push(`prefecture[equals]${prefectureId}`)
   if (municipalityId) filterParts.push(`municipality[equals]${municipalityId}`)
@@ -70,6 +72,7 @@ export const getJobs = async ({ prefectureId, municipalityId, tagIds = [], jobCa
     queries: {
       limit,
       depth: 1, // タグの名前も取得
+      ...(orders ? { orders } : {}),
       ...(filters ? { filters } : {}),
     },
   })
@@ -107,6 +110,7 @@ export const getJobsPaged = async ({
   jobCategoryId,
   limit = 10,
   offset = 0,
+  orders,
 }: GetJobsParams & { offset?: number }) => {
   const filterParts: string[] = []
   if (prefectureId) filterParts.push(`prefecture[equals]${prefectureId}`)
@@ -126,6 +130,7 @@ export const getJobsPaged = async ({
       limit,
       offset,
       depth: 1,
+      ...(orders ? { orders } : {}),
       ...(filters ? { filters } : {}),
     },
   })

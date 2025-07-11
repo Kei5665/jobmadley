@@ -30,7 +30,7 @@ export default async function Component() {
   const countMap = Object.fromEntries(countEntries) as Record<string, number>
 
   // 最新 4 件の求人を取得
-  const latestJobs = await getJobs({ limit: 4 })
+  const latestJobs = await getJobs({ limit: 4, orders: "-publishedAt" })
 
   // ブログ記事をカテゴリ別に取得
   interface BlogArticleExt extends BlogArticle {
