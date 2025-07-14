@@ -13,6 +13,7 @@ import JobImageCarousel from "../components/job-image-carousel"
 import JobTitleActions from "../components/job-title-actions"
 import JobDescription from "../components/job-description"
 import RelatedJobs from "../components/related-jobs"
+import { getMediaArticles } from "@/lib/getMediaArticles"
 
 interface JobPageProps {
   params: Promise<{ id: string }>
@@ -53,6 +54,11 @@ async function JobDetailPage({ jobId }: { jobId: string }) {
     )
     const relatedJobs = relatedJobsRaw.filter((j) => j.id !== job.id).slice(0, 4)
 
+    const { companyArticles, interviewArticles } = await withErrorHandling(
+      () => getMediaArticles(),
+      "getMediaArticles"
+    )
+
     return (
       <div className="min-h-screen bg-white">
         <SiteHeader />
@@ -77,7 +83,7 @@ async function JobDetailPage({ jobId }: { jobId: string }) {
           </div>
         </div>
 
-        <RidejobMediaSection />
+        <RidejobMediaSection companyArticles={companyArticles} interviewArticles={interviewArticles} />
         <SiteFooter />
       </div>
     )
@@ -103,6 +109,7 @@ export default async function JobPage({ params }: JobPageProps) {
 
   return (
     <Suspense fallback={<Loading message="求人詳細を読み込み中..." />}>
+      {/* @ts-expect-error Async Server Component */}
       <JobDetailPage jobId={id} />
     </Suspense>
   )

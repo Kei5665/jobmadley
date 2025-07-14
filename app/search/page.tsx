@@ -7,6 +7,7 @@ import { getJobsPaged } from "@/lib/getJobs"
 import { getMunicipalityById } from "@/lib/getMunicipalities"
 import { getTags } from "@/lib/getTags"
 import { getJobCategories } from "@/lib/getJobCategories"
+import { getMediaArticles } from "@/lib/getMediaArticles"
 import { buildSearchQuery } from "@/lib/utils"
 import { withErrorHandling } from "@/lib/error-handling"
 import { Loading } from "@/components/ui/loading"
@@ -42,6 +43,7 @@ async function SearchResultsPage({
       { contents: jobs, totalCount },
       tags,
       jobCategories,
+      mediaArticles,
     ] = await Promise.all([
       prefectureId ? withErrorHandling(
         () => getPrefectureById(prefectureId),
@@ -64,7 +66,10 @@ async function SearchResultsPage({
       ),
       withErrorHandling(() => getTags(), "getTags"),
       withErrorHandling(() => getJobCategories(), "getJobCategories"),
+      withErrorHandling(() => getMediaArticles(), "getMediaArticles"),
     ])
+
+    const { companyArticles, interviewArticles } = mediaArticles
 
     const prefectureName = prefectureData?.region ?? "都道府県未選択"
     const totalPages = Math.ceil(totalCount / 10)
@@ -139,7 +144,7 @@ async function SearchResultsPage({
           </div>
         </div>
 
-        <RidejobMediaSection />
+        <RidejobMediaSection companyArticles={companyArticles} interviewArticles={interviewArticles} />
         <SiteFooter />
       </div>
     )
@@ -173,6 +178,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   return (
     <Suspense fallback={<Loading message="検索結果を読み込み中..." />}>
+      {/* @ts-expect-error Async Server Component */}
       <SearchResultsPage {...searchProps} />
     </Suspense>
   )

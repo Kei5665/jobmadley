@@ -34,7 +34,7 @@ export const getImagePriority = (position: 'hero' | 'above-fold' | 'below-fold')
  * 画像のsizesプロパティを生成
  */
 export const generateImageSizes = (
-  type: 'responsive' | 'fixed' | 'card' | 'thumbnail'
+  type: 'responsive' | 'fixed' | 'card' | 'thumbnail' | 'detail'
 ): string => {
   switch (type) {
     case 'responsive':
@@ -43,6 +43,8 @@ export const generateImageSizes = (
       return "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 300px"
     case 'thumbnail':
       return "150px"
+    case 'detail':
+      return "800px"
     case 'fixed':
       return "100vw"
     default:

@@ -2,31 +2,14 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ChevronRight } from "lucide-react"
-import { microcmsClient2 } from "@/lib/microcms"
+import type { BlogArticle } from "@/lib/types"
 
-interface BlogArticle {
-  id: string
-  title: string
-  slug?: string
-  eyecatch?: { url: string }
-  publishedAt?: string
-  company?: string
+interface RidejobMediaSectionProps {
+  companyArticles: BlogArticle[]
+  interviewArticles: BlogArticle[]
 }
 
-export default async function RidejobMediaSection() {
-  const fetchArticles = async (categoryId: string) => {
-    const data = await microcmsClient2.get<{ contents: BlogArticle[] }>({
-      endpoint: "blogs",
-      queries: { filters: `category[equals]${categoryId}`, limit: 3, orders: "-publishedAt" },
-    })
-    return data.contents
-  }
-
-  const [companyArticles, interviewArticles] = await Promise.all([
-    fetchArticles("2"),
-    fetchArticles("5"),
-  ])
-
+export default function RidejobMediaSection({ companyArticles, interviewArticles }: RidejobMediaSectionProps) {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-24">
       <h2 className="text-xl md:text-3xl font-bold mb-8 flex items-center">

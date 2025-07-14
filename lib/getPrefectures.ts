@@ -30,7 +30,6 @@ export const getPrefectureGroups = async (): Promise<PrefectureGroup> => {
       id: pref.id,
       region: pref.region,
       area: pref.area,
-      name: pref.region // 表示用の名前
     })
   })
   
