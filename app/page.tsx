@@ -96,7 +96,6 @@ async function HomePageContent() {
 export default async function HomePage() {
   return (
     <Suspense fallback={<Loading message="ページを読み込み中..." />}>
-      {/* @ts-expect-error Async Server Component */}
       <HomePageContent />
     </Suspense>
   )

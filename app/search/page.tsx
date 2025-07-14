@@ -178,7 +178,6 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   return (
     <Suspense fallback={<Loading message="検索結果を読み込み中..." />}>
-      {/* @ts-expect-error Async Server Component */}
       <SearchResultsPage {...searchProps} />
     </Suspense>
   )
