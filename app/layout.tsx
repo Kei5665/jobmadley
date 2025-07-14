@@ -1,55 +1,57 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
+import { Inter } from 'next/font/google'
 import './globals.css'
-import { StagewiseToolbar } from "@stagewise/toolbar-next"
-import ReactPlugin from "@stagewise-plugins/react"
+import { baseMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
-  title: 'ライドジョブ | タクシー運転手の求人・転職サイト',
-  description:
-    'タクシー運転手専門の求人・転職情報を掲載する「ライドジョブ」。全国の最新求人をスピード検索。応募もオンラインで簡単！',
-  openGraph: {
-    title: 'ライドジョブ | タクシー運転手の求人・転職サイト',
-    description:
-      'タクシー運転手専門の求人・転職情報を掲載する「ライドジョブ」。全国の最新求人をスピード検索。応募もオンラインで簡単！',
-    url: 'https://ridejob-cms.online/ssw/ja',
-    siteName: 'ライドジョブ',
-    images: [
-      {
-        url: '/images/OGP.png',
-        width: 1200,
-        height: 630,
-        alt: 'ライドジョブ',
-      },
-    ],
-    locale: 'ja_JP',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'ライドジョブ | タクシー運転手の求人・転職サイト',
-    description:
-      'タクシー運転手専門の求人・転職情報を掲載する「ライドジョブ」。全国の最新求人をスピード検索。応募もオンラインで簡単！',
-    images: ['/images/OGP.png'],
-  },
-  icons: {
-    icon: '/images/favicon.png',
-    shortcut: '/images/favicon.png',
-    apple: '/images/favicon.png',
-  },
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+})
+
+export const metadata: Metadata = baseMetadata
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#ffffff' },
+  ],
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
-    <html lang="ja">
-      <body>
+    <html lang="ja" className={inter.className}>
+      <head>
+        {/* DNS Prefetch for external domains */}
+        <link rel="dns-prefetch" href="//images.microcms-assets.io" />
+        <link rel="dns-prefetch" href="//ridejob.jp" />
+        
+        {/* Preconnect for critical resources */}
+        <link rel="preconnect" href="//fonts.googleapis.com" />
+        <link rel="preconnect" href="//fonts.gstatic.com" crossOrigin="anonymous" />
+        
+        {/* Critical resource hints */}
+        <link rel="preload" href="/images/logo-ridejob.png" as="image" type="image/png" />
+        
+        {/* Favicon */}
+        <link rel="icon" href="/images/favicon.png" sizes="any" />
+        <link rel="apple-touch-icon" href="/images/favicon.png" />
+        
+        {/* Performance and Security */}
+        <meta httpEquiv="X-Content-Type-Options" content="nosniff" />
+        <meta httpEquiv="X-Frame-Options" content="DENY" />
+        <meta httpEquiv="X-XSS-Protection" content="1; mode=block" />
+      </head>
+      <body className="antialiased">
         {children}
-        {process.env.NODE_ENV === "development" && (
-          <StagewiseToolbar config={{ plugins: [ReactPlugin] }} />
-        )}
       </body>
     </html>
   )

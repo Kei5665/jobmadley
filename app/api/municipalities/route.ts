@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getMunicipalitiesByPrefectureId } from "@/lib/getMunicipalities"
+import { getMunicipalities } from "@/lib/getMunicipalities"
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const municipalities = await getMunicipalitiesByPrefectureId(prefectureId)
+    const municipalities = await getMunicipalities(prefectureId)
     // 最低限の情報だけ返す
     const payload = municipalities.map((m) => ({ id: m.id, name: m.name }))
     return NextResponse.json(payload, { status: 200 })

@@ -2,33 +2,14 @@ import Image from "next/image"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Wallet, Briefcase, MapPin } from "lucide-react"
-import type { Job } from "@/lib/getJobs"
-
-interface JobCardProps {
-  job: Job
-  horizontal?: boolean
-}
+import { formatSalary, formatAddress, getJobImageUrl, isNew } from "@/lib/utils"
+import type { JobCardProps } from "@/lib/types"
 
 export default function JobCard({ job, horizontal = false }: JobCardProps) {
-  const imageUrl = job.images?.[0]?.url ?? job.imageUrl ?? "/placeholder.svg"
-
-  // ＮＥＷ バッジは公開日または作成日が 7 日以内の場合に表示（createdAt は depth=1 では取得できないが保険で判定）
-  const publishedDateStr = (job as any).publishedAt ?? (job as any).createdAt
-  const isNew = publishedDateStr
-    ? Date.now() - new Date(publishedDateStr).getTime() < 7 * 24 * 60 * 60 * 1000
-    : false
-
-  const salaryText = (() => {
-    if (job.salaryMin && job.salaryMax)
-      return `月給 ${job.salaryMin.toLocaleString()}円 ~ ${job.salaryMax.toLocaleString()}円`
-    if (job.salaryMin) return `月給 ${job.salaryMin.toLocaleString()}円〜`
-    if (job.salaryMax) return `月給 〜${job.salaryMax.toLocaleString()}円`
-    return "給与情報なし"
-  })()
-
-  const addressText = [job.municipality?.name, job.prefecture?.region]
-    .filter(Boolean)
-    .join(" ")
+  const imageUrl = getJobImageUrl(job.images, job.imageUrl)
+  const isNewJob = isNew(job.publishedAt, job.createdAt)
+  const salaryText = formatSalary(job.salaryMin, job.salaryMax)
+  const addressText = formatAddress(job.municipality?.name, job.prefecture?.region)
 
   return (
     <Link href={`/job/${job.id}`} className="block group">
@@ -44,7 +25,7 @@ export default function JobCard({ job, horizontal = false }: JobCardProps) {
                 sizes="192px"
                 className="object-cover"
               />
-              {isNew && (
+              {isNewJob && (
                 <span className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded">
                   NEW
                 </span>
@@ -59,8 +40,8 @@ export default function JobCard({ job, horizontal = false }: JobCardProps) {
               </h2>
 
               {/* 会社名 */}
-              {(job as any).companyName && (
-                <p className="text-xs text-gray-600">{(job as any).companyName}</p>
+              {job.companyName && (
+                <p className="text-xs text-gray-600">{job.companyName}</p>
               )}
 
               {/* 詳細情報リスト */}
@@ -80,10 +61,10 @@ export default function JobCard({ job, horizontal = false }: JobCardProps) {
                 </li>
 
                 {/* 雇用形態 */}
-                {(job as any).employmentType && (
+                {job.employmentType && (
                   <li className="flex items-start gap-1">
                     <Briefcase className="w-4 h-4 text-blue-600 mt-0.5" />
-                    <span className="text-gray-700 text-xs">{(job as any).employmentType}</span>
+                    <span className="text-gray-700 text-xs">{job.employmentType}</span>
                   </li>
                 )}
               </ul>
@@ -92,12 +73,12 @@ export default function JobCard({ job, horizontal = false }: JobCardProps) {
               {job.tags && job.tags.length > 0 && (
                 <div className="pt-2">
                   <div className="flex flex-wrap gap-1">
-                    {job.tags.slice(0, 3).map((t) => (
+                    {job.tags.slice(0, 3).map((tag) => (
                       <span
-                        key={t.id}
+                        key={tag.id}
                         className="border border-gray-300 bg-white text-gray-700 text-[10px] px-2 py-0.5 rounded"
                       >
-                        {t.name}
+                        {tag.name}
                       </span>
                     ))}
                     {job.tags.length > 3 && (
@@ -119,7 +100,7 @@ export default function JobCard({ job, horizontal = false }: JobCardProps) {
                 height={180}
                 className="w-full h-40 object-cover"
               />
-              {isNew && (
+              {isNewJob && (
                 <span className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded">
                   NEW
                 </span>
@@ -134,8 +115,8 @@ export default function JobCard({ job, horizontal = false }: JobCardProps) {
               </h2>
 
               {/* 会社名 */}
-              {(job as any).companyName && (
-                <p className="text-xs text-gray-600">{(job as any).companyName}</p>
+              {job.companyName && (
+                <p className="text-xs text-gray-600">{job.companyName}</p>
               )}
 
               {/* 詳細情報リスト */}
@@ -155,10 +136,10 @@ export default function JobCard({ job, horizontal = false }: JobCardProps) {
                 </li>
 
                 {/* 雇用形態 */}
-                {(job as any).employmentType && (
+                {job.employmentType && (
                   <li className="flex items-start gap-1">
                     <Briefcase className="w-4 h-4 text-blue-600 mt-0.5" />
-                    <span className="text-gray-700 text-xs">{(job as any).employmentType}</span>
+                    <span className="text-gray-700 text-xs">{job.employmentType}</span>
                   </li>
                 )}
               </ul>
@@ -167,12 +148,12 @@ export default function JobCard({ job, horizontal = false }: JobCardProps) {
               {job.tags && job.tags.length > 0 && (
                 <div className="pt-2">
                   <div className="flex flex-wrap gap-1">
-                    {job.tags.slice(0, 3).map((t) => (
+                    {job.tags.slice(0, 3).map((tag) => (
                       <span
-                        key={t.id}
+                        key={tag.id}
                         className="border border-gray-300 bg-white text-gray-700 text-[10px] px-2 py-0.5 rounded"
                       >
-                        {t.name}
+                        {tag.name}
                       </span>
                     ))}
                     {job.tags.length > 3 && (

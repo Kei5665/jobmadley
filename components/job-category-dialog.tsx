@@ -12,7 +12,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Briefcase } from "lucide-react"
-import type { JobCategory } from "@/lib/getJobCategories"
+import type { JobCategory } from "@/lib/types"
 
 interface JobCategoryDialogProps {
   jobCategories: JobCategory[]

@@ -12,7 +12,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Star } from "lucide-react"
-import type { Tag } from "@/lib/getTags"
+import type { Tag } from "@/lib/types"
 
 interface TagDialogProps {
   tags: Tag[]

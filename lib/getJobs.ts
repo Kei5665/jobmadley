@@ -1,37 +1,5 @@
 import { microcmsClient } from "./microcms"
-
-export type Job = {
-  id: string
-  title: string
-  /** 都道府県参照 */
-  prefecture?: {
-    id: string
-    region: string
-  }
-  /** 市区町村参照 */
-  municipality?: {
-    id: string
-    name: string
-  }
-  /** 任意のサムネイル URL */
-  imageUrl?: string
-  /** 複数画像 */
-  images?: {
-    url: string
-  }[]
-  /** タグ参照 (複数) */
-  tags?: {
-    id: string
-    name: string
-  }[]
-  /** 職種名 */
-  jobName?: string
-  /** 最低給与 */
-  salaryMin?: number
-  /** 最高給与 */
-  salaryMax?: number
-  // 必要であれば今後フィールドを追加
-}
+import type { Job, MicroCMSListResponse } from "./types"
 
 interface GetJobsParams {
   /** 都道府県 ID で絞り込み (optional) */
@@ -51,10 +19,17 @@ interface GetJobsParams {
 /**
  * 求人一覧を microCMS から取得
  *
- * filters には [and] で条件を結合する[[memory:7889397435779635015]]
- * microCMS の `limit` は 100 以下にする[[memory:1588031229221905914]]
+ * filters には [and] で条件を結合する
+ * microCMS の `limit` は 100 以下にする
  */
-export const getJobs = async ({ prefectureId, municipalityId, tagIds = [], jobCategoryId, limit = 100, orders }: GetJobsParams) => {
+export const getJobs = async ({
+  prefectureId,
+  municipalityId,
+  tagIds = [],
+  jobCategoryId,
+  limit = 100,
+  orders
+}: GetJobsParams): Promise<Job[]> => {
   const filterParts: string[] = []
   if (prefectureId) filterParts.push(`prefecture[equals]${prefectureId}`)
   if (municipalityId) filterParts.push(`municipality[equals]${municipalityId}`)
@@ -67,7 +42,7 @@ export const getJobs = async ({ prefectureId, municipalityId, tagIds = [], jobCa
 
   const filters = filterParts.join("[and]")
 
-  const data = await microcmsClient.get<{ contents: Job[] }>({
+  const data = await microcmsClient.get<MicroCMSListResponse<Job>>({
     endpoint: "jobs",
     queries: {
       limit,
@@ -81,14 +56,20 @@ export const getJobs = async ({ prefectureId, municipalityId, tagIds = [], jobCa
 }
 
 /** 求人数だけを取得（limit=0） */
-export const getJobCount = async ({ prefectureId, municipalityId }: { prefectureId?: string; municipalityId?: string }) => {
+export const getJobCount = async ({ 
+  prefectureId, 
+  municipalityId 
+}: { 
+  prefectureId?: string; 
+  municipalityId?: string 
+}): Promise<number> => {
   const filterParts: string[] = []
   if (prefectureId) filterParts.push(`prefecture[equals]${prefectureId}`)
   if (municipalityId) filterParts.push(`municipality[equals]${municipalityId}`)
 
   const filters = filterParts.join("[and]")
 
-  const data = await microcmsClient.get<{ totalCount: number }>({
+  const data = await microcmsClient.get<MicroCMSListResponse<Job>>({
     endpoint: "jobs",
     queries: {
       limit: 0, // 件数のみ取得
@@ -111,7 +92,10 @@ export const getJobsPaged = async ({
   limit = 10,
   offset = 0,
   orders,
-}: GetJobsParams & { offset?: number }) => {
+}: GetJobsParams & { offset?: number }): Promise<{
+  contents: Job[]
+  totalCount: number
+}> => {
   const filterParts: string[] = []
   if (prefectureId) filterParts.push(`prefecture[equals]${prefectureId}`)
   if (municipalityId) filterParts.push(`municipality[equals]${municipalityId}`)
@@ -124,7 +108,7 @@ export const getJobsPaged = async ({
 
   const filters = filterParts.join("[and]")
 
-  const data = await microcmsClient.get<{ contents: Job[]; totalCount: number }>({
+  const data = await microcmsClient.get<MicroCMSListResponse<Job>>({
     endpoint: "jobs",
     queries: {
       limit,

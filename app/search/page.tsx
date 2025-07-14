@@ -1,29 +1,179 @@
 import { Suspense } from "react"
-import SearchResultsPage from "../../search-results-page"
+import SiteHeader from "@/components/site-header"
+import SiteFooter from "@/components/site-footer"
+import RidejobMediaSection from "@/components/ridejob-media-section"
+import { getPrefectureById } from "@/lib/getPrefectures"
+import { getJobsPaged } from "@/lib/getJobs"
+import { getMunicipalityById } from "@/lib/getMunicipalities"
+import { getTags } from "@/lib/getTags"
+import { getJobCategories } from "@/lib/getJobCategories"
+import { buildSearchQuery } from "@/lib/utils"
+import { withErrorHandling } from "@/lib/error-handling"
+import { Loading } from "@/components/ui/loading"
+import { ErrorDisplay } from "@/components/ui/error-display"
+import SearchHeader from "./components/search-header"
+import SearchOptions from "./components/search-options"
+import SearchConditionSummary from "./components/search-condition-summary"
+import JobList from "./components/job-list"
+import SearchPagination from "./components/search-pagination"
+import type { SearchResultsPageProps } from "@/lib/types"
 
 interface SearchPageProps {
   searchParams: Promise<{
-    prefecture?: string // prefecture ID
-    municipality?: string // municipality ID optional
-    tags?: string // カンマ区切りのタグ ID 文字列 (optional)
-    jobCategory?: string // 職種 ID (optional)
-    page?: string // ページ番号 (optional)
+    prefecture?: string
+    municipality?: string
+    tags?: string
+    jobCategory?: string
+    page?: string
   }>
+}
+
+async function SearchResultsPage({ 
+  prefectureId, 
+  municipalityId, 
+  tagIds = [], 
+  jobCategoryId, 
+  page = 1 
+}: SearchResultsPageProps) {
+  try {
+    const [
+      prefectureData,
+      selectedMunicipality,
+      { contents: jobs, totalCount },
+      tags,
+      jobCategories,
+    ] = await Promise.all([
+      prefectureId ? withErrorHandling(
+        () => getPrefectureById(prefectureId),
+        "getPrefectureById"
+      ) : null,
+      municipalityId ? withErrorHandling(
+        () => getMunicipalityById(municipalityId),
+        "getMunicipalityById"
+      ) : null,
+      withErrorHandling(
+        () => getJobsPaged({
+          prefectureId,
+          municipalityId,
+          tagIds,
+          jobCategoryId,
+          limit: 10,
+          offset: (page - 1) * 10,
+        }),
+        "getJobsPaged"
+      ),
+      withErrorHandling(() => getTags(), "getTags"),
+      withErrorHandling(() => getJobCategories(), "getJobCategories"),
+    ])
+
+    const prefectureName = prefectureData?.region ?? "都道府県未選択"
+    const totalPages = Math.ceil(totalCount / 10)
+    const currentPage = Math.min(Math.max(page, 1), totalPages || 1)
+
+    // 選択された職種名を取得（未選択の場合はデフォルトでタクシー運転手とする）
+    const jobCategoryName = jobCategoryId
+      ? jobCategories.find((c) => c.id === jobCategoryId)?.name ?? "タクシー運転手"
+      : "タクシー運転手"
+
+    // 職種ごとのヒーロー画像を決定
+    const heroImageSrc = (() => {
+      if (jobCategoryName.includes("タクシー")) return "/images/taxi.png"
+      if (jobCategoryName.includes("看護") || jobCategoryName.includes("介護")) return "/images/nurse-hero.png"
+      return "/placeholder.svg"
+    })()
+
+    const buildPageHref = (p: number) => {
+      const query = buildSearchQuery({
+        prefectureId,
+        municipalityId,
+        tagIds,
+        jobCategoryId,
+        page: p,
+      })
+      return `/search?${query}`
+    }
+
+    return (
+      <div className="min-h-screen bg-white">
+        <SiteHeader />
+        
+        <SearchHeader
+          jobCategoryName={jobCategoryName}
+          prefectureName={prefectureName}
+          selectedMunicipality={selectedMunicipality}
+          heroImageSrc={heroImageSrc}
+          totalCount={totalCount}
+        />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-8">
+            <div>
+              <SearchOptions
+                prefectureId={prefectureId}
+                prefectureName={prefectureName}
+                municipalityId={municipalityId}
+                jobCategories={jobCategories}
+                jobCategoryId={jobCategoryId}
+                tags={tags}
+                tagIds={tagIds}
+              />
+
+              <SearchConditionSummary
+                prefectureName={prefectureName}
+                selectedMunicipality={selectedMunicipality}
+                jobCategoryName={jobCategoryName}
+                tags={tags}
+                tagIds={tagIds}
+                jobCategories={jobCategories}
+                jobCategoryId={jobCategoryId}
+              />
+
+              <JobList jobs={jobs} />
+
+              <SearchPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                buildPageHref={buildPageHref}
+              />
+            </div>
+          </div>
+        </div>
+
+        <RidejobMediaSection />
+        <SiteFooter />
+      </div>
+    )
+  } catch (error) {
+    return (
+      <div className="min-h-screen bg-white">
+        <SiteHeader />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <ErrorDisplay
+            error={error}
+            title="検索結果の取得に失敗しました"
+            onRetry={() => window.location.reload()}
+          />
+        </div>
+        <SiteFooter />
+      </div>
+    )
+  }
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams
 
-  const AnyComp = SearchResultsPage as any
+  const searchProps: SearchResultsPageProps = {
+    prefectureId: params.prefecture,
+    municipalityId: params.municipality,
+    tagIds: params.tags ? params.tags.split(",") : undefined,
+    jobCategoryId: params.jobCategory,
+    page: params.page ? Number(params.page) : undefined,
+  }
+
   return (
-    <Suspense fallback={<div>読み込み中...</div>}>
-      <AnyComp
-        prefectureId={params.prefecture}
-        municipalityId={params.municipality}
-        tagIds={params.tags ? params.tags.split(",") : undefined}
-        jobCategoryId={params.jobCategory}
-        page={params.page ? Number(params.page) : undefined}
-      />
+    <Suspense fallback={<Loading message="検索結果を読み込み中..." />}>
+      <SearchResultsPage {...searchProps} />
     </Suspense>
   )
 }

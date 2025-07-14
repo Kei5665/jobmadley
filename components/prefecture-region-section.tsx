@@ -1,12 +1,12 @@
 import Link from "next/link"
-import type { PrefectureGroup } from "@/lib/getPrefectures"
+import type { PrefectureGroup } from "@/lib/types"
 
 interface RegionSearchSectionProps {
   prefectures: PrefectureGroup
   countMap: Record<string, number>
 }
 
-export default function RegionSearchSection({ prefectures }: RegionSearchSectionProps) {
+export default function RegionSearchSection({ prefectures, countMap }: RegionSearchSectionProps) {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-12 pt-24">
       {/* セクションタイトル */}
@@ -27,7 +27,8 @@ export default function RegionSearchSection({ prefectures }: RegionSearchSection
                   href={`/search?prefecture=${encodeURIComponent(pref.id)}`}
                   className="text-blue-700 hover:underline"
                 >
-                  {pref.name}
+                  {pref.region}
+                  {countMap[pref.id] ? ` (${countMap[pref.id]})` : ""}
                 </Link>
               ))}
             </div>

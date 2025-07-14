@@ -1,22 +1,30 @@
 import { microcmsClient } from "./microcms"
-
-export type JobCategory = {
-  id: string
-  name: string
-  /** 職種カテゴリ (大分類) */
-  category?: string
-}
+import type { JobCategory, MicroCMSListResponse } from "./types"
 
 /**
- * 職種 (job categories) を取得
+ * 職種カテゴリ一覧を取得
  */
 export const getJobCategories = async (): Promise<JobCategory[]> => {
-  const data = await microcmsClient.get<{ contents: JobCategory[] }>({
+  const data = await microcmsClient.get<MicroCMSListResponse<JobCategory>>({
     endpoint: "jobcategories",
-    queries: {
-      limit: 100,
-    },
+    queries: { limit: 100 },
   })
 
   return data.contents
+}
+
+/**
+ * 職種カテゴリを ID で取得
+ */
+export const getJobCategoryById = async (jobCategoryId: string): Promise<JobCategory | null> => {
+  try {
+    const data = await microcmsClient.get<JobCategory>({
+      endpoint: "jobcategories",
+      contentId: jobCategoryId,
+    })
+    return data
+  } catch (error) {
+    console.error("Failed to fetch job category:", error)
+    return null
+  }
 } 
