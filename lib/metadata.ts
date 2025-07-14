@@ -5,7 +5,7 @@ import type { JobDetail, Job } from './types'
 // メタデータ設定
 // =====================
 
-const SITE_NAME = 'RIDE JOB'
+const SITE_NAME = 'ライドジョブ | タクシー運転手の求人・転職サイト'
 const SITE_DESCRIPTION = 'ドライバー・運転職の求人情報サイト。タクシー運転手、配送ドライバー、介護ドライバーなど、あなたにぴったりの運転職求人を見つけよう。'
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://ridejob.jp'
 const OGP_IMAGE = '/images/OGP.png'
@@ -22,7 +22,6 @@ export const baseMetadata: Metadata = {
   keywords: [
     'タクシー運転手',
     '配送ドライバー',
-    '介護ドライバー',
     'ドライバー求人',
     '運転職',
     '転職',

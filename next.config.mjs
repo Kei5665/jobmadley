@@ -3,8 +3,10 @@ const nextConfig = {
   // 実験的機能
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
-    serverComponentsExternalPackages: ['microcms-js-sdk'],
   },
+
+  // 外部パッケージを RSC 向けに許可
+  serverExternalPackages: ['microcms-js-sdk'],
 
   // 画像最適化設定
   images: {

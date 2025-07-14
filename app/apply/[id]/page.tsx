@@ -1,5 +1,5 @@
 import { Suspense } from "react"
-import ApplicationFormPage from "../../../application-form-page"
+import ApplicationFormPage from "@/components/application-form-page"
 import { getJob } from "@/lib/getJob"
 
 interface ApplicationPageProps {

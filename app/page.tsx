@@ -7,11 +7,11 @@ import { withErrorHandling } from "@/lib/error-handling"
 import { Loading } from "@/components/ui/loading"
 import { ErrorDisplay } from "@/components/ui/error-display"
 import SiteHeader from "@/components/site-header"
+import SiteFooter from "@/components/site-footer"
 import RegionSearchSection from "@/components/prefecture-region-section"
 import HeroSection from "./components/hero-section"
 import LatestJobsSection from "./components/latest-jobs-section"
 import MediaSection from "./components/media-section"
-import FooterSection from "./components/footer-section"
 import type { BlogArticle } from "@/lib/types"
 
 async function HomePageContent() {
@@ -73,7 +73,7 @@ async function HomePageContent() {
           companyArticles={companyArticles}
           interviewArticles={interviewArticles}
         />
-        <FooterSection />
+        <SiteFooter />
       </div>
     )
   } catch (error) {
@@ -87,7 +87,7 @@ async function HomePageContent() {
             onRetry={() => window.location.reload()}
           />
         </div>
-        <FooterSection />
+        <SiteFooter />
       </div>
     )
   }
