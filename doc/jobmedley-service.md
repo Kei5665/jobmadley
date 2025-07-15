@@ -112,6 +112,27 @@ const { contents: jobs } = await microcmsClient.get<{ contents: Job[] }>({
   },
 });
 
+// フリーワード検索
+const { contents: keywordJobs } = await microcmsClient.get<{ contents: Job[] }>({
+  endpoint: "jobs",
+  queries: {
+    limit: 100,
+    q: "タクシー運転手", // 全文検索
+    depth: 1,
+  },
+});
+
+// 複合検索（フリーワード × フィルタ）
+const { contents: combinedJobs } = await microcmsClient.get<{ contents: Job[] }>({
+  endpoint: "jobs",
+  queries: {
+    limit: 100,
+    q: "高収入", // フリーワード検索
+    filters: "prefecture[equals]tokyo[and]tags[contains]night-shift", // フィルタ
+    depth: 1,
+  },
+});
+
 // タグ一覧
 const { contents: tags } = await microcmsClient.get<{ contents: Tag[] }>({
   endpoint: "tag",
@@ -121,8 +142,70 @@ const { contents: tags } = await microcmsClient.get<{ contents: Tag[] }>({
 
 ---
 
-## 5. 運用メモ
+## 5. フリーワード検索仕様
+
+### 検索対象フィールド
+microCMS の全文検索（`q` パラメータ）では以下のフィールドが検索対象となります：
+- `title`: 求人タイトル
+- `jobName`: 職種名
+- `companyName`: 会社名
+- `catchCopy`: キャッチコピー
+- `descriptionWork`: 仕事内容
+- `descriptionAppeal`: アピールポイント
+
+### 検索特性
+- **完全一致重視**: microCMS の全文検索は完全一致に近い動作
+- **日本語対応**: ひらがな・カタカナ・漢字での検索が可能
+- **部分一致**: 限定的だが部分一致検索も対応
+- **フィルタ併用**: `filters` パラメータとの組み合わせが可能
+
+### 使用例
+
+```ts
+// lib/getJobs.ts での実装例
+export const getJobs = async ({
+  keyword,
+  prefectureId,
+  municipalityId,
+  tagIds = [],
+  jobCategoryId,
+  limit = 100,
+  orders
+}: GetJobsParams): Promise<Job[]> => {
+  const filterParts: string[] = []
+  if (prefectureId) filterParts.push(`prefecture[equals]${prefectureId}`)
+  if (municipalityId) filterParts.push(`municipality[equals]${municipalityId}`)
+  if (tagIds.length > 0) {
+    tagIds.forEach((id) => {
+      filterParts.push(`tags[contains]${id}`)
+    })
+  }
+  if (jobCategoryId) filterParts.push(`jobcategory[equals]${jobCategoryId}`)
+
+  const filters = filterParts.join("[and]")
+
+  const data = await microcmsClient.get<MicroCMSListResponse<Job>>({
+    endpoint: "jobs",
+    queries: {
+      limit,
+      depth: 1,
+      ...(keyword ? { q: keyword } : {}), // フリーワード検索
+      ...(orders ? { orders } : {}),
+      ...(filters ? { filters } : {}), // フィルタ条件
+    },
+  })
+
+  return data.contents
+}
+```
+
+---
+
+## 6. 運用メモ
 
 * `jobs` は検索ページで `limit=100` まで取得し、フロント側でページネーションする実装。<br/>それ以上の件数が必要になったら offset などで追加取得する。
 * `tag`, `prefectures` などマスタは更新頻度が低いため ISR や SWR でキャッシュして良い。
+* **フリーワード検索**: `q` パラメータを使用し、`filters` との併用が可能。
+* **検索パフォーマンス**: キーワードが短すぎる場合は結果が多くなるため、UI側で適切なバリデーションを実装。
+* **検索精度**: microCMS の全文検索の特性を理解し、必要に応じてクライアント側でのフィルタリングを補完。
 * 不足フィールドを追加した場合はこのドキュメントも更新してください。 

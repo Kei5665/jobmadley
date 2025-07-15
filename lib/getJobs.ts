@@ -10,6 +10,8 @@ interface GetJobsParams {
   tagIds?: string[]
   /** 職種 ID で絞り込み (optional) */
   jobCategoryId?: string
+  /** フリーワード検索 (optional) */
+  keyword?: string
   /** 取得件数 (default: 100) */
   limit?: number
   /** 並び順 (microCMS orders 文字列, optional) */
@@ -27,6 +29,7 @@ export const getJobs = async ({
   municipalityId,
   tagIds = [],
   jobCategoryId,
+  keyword,
   limit = 100,
   orders
 }: GetJobsParams): Promise<Job[]> => {
@@ -47,6 +50,7 @@ export const getJobs = async ({
     queries: {
       limit,
       depth: 1, // タグの名前も取得
+      ...(keyword ? { q: keyword } : {}),
       ...(orders ? { orders } : {}),
       ...(filters ? { filters } : {}),
     },
@@ -58,10 +62,12 @@ export const getJobs = async ({
 /** 求人数だけを取得（limit=0） */
 export const getJobCount = async ({ 
   prefectureId, 
-  municipalityId 
+  municipalityId,
+  keyword 
 }: { 
   prefectureId?: string; 
-  municipalityId?: string 
+  municipalityId?: string;
+  keyword?: string;
 }): Promise<number> => {
   const filterParts: string[] = []
   if (prefectureId) filterParts.push(`prefecture[equals]${prefectureId}`)
@@ -73,6 +79,7 @@ export const getJobCount = async ({
     endpoint: "jobs",
     queries: {
       limit: 0, // 件数のみ取得
+      ...(keyword ? { q: keyword } : {}),
       ...(filters ? { filters } : {}),
     },
   })
@@ -89,6 +96,7 @@ export const getJobsPaged = async ({
   municipalityId,
   tagIds = [],
   jobCategoryId,
+  keyword,
   limit = 10,
   offset = 0,
   orders,
@@ -114,6 +122,7 @@ export const getJobsPaged = async ({
       limit,
       offset,
       depth: 1,
+      ...(keyword ? { q: keyword } : {}),
       ...(orders ? { orders } : {}),
       ...(filters ? { filters } : {}),
     },

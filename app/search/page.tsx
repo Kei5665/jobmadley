@@ -18,6 +18,7 @@ import SearchPagination from "./components/search-pagination"
 
 interface SearchPageProps {
   searchParams: Promise<{
+    q?: string
     prefecture?: string
     municipality?: string
     tags?: string
@@ -29,6 +30,7 @@ interface SearchPageProps {
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams
 
+  const keyword = params.q
   const prefectureId = params.prefecture
   const municipalityId = params.municipality
   const tagIds = params.tags ? params.tags.split(",") : []
@@ -58,6 +60,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           municipalityId,
           tagIds,
           jobCategoryId,
+          keyword,
           limit: 10,
           offset: (page - 1) * 10,
         }),
@@ -88,6 +91,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
     const buildPageHref = (p: number) => {
       const query = buildSearchQuery({
+        keyword,
         prefectureId,
         municipalityId,
         tagIds,
@@ -113,6 +117,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <div className="grid grid-cols-1 gap-8">
             <div>
               <SearchOptions
+                keyword={keyword}
                 prefectureId={prefectureId}
                 prefectureName={prefectureName}
                 municipalityId={municipalityId}
@@ -123,6 +128,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               />
 
               <SearchConditionSummary
+                keyword={keyword}
                 prefectureName={prefectureName}
                 selectedMunicipality={selectedMunicipality}
                 jobCategoryName={jobCategoryName}

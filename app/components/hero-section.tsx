@@ -1,9 +1,28 @@
+"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
 
 export default function HeroSection() {
+  const [keyword, setKeyword] = useState("")
+  const router = useRouter()
+
+  const handleSearch = () => {
+    if (keyword.trim()) {
+      router.push(`/search?q=${encodeURIComponent(keyword.trim())}`)
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
+  }
+
   return (
     <section className="relative mb-12">
       {/* 背景画像 */}
@@ -29,10 +48,14 @@ export default function HeroSection() {
               {/* 検索フォーム */}
               <div className="mt-6 flex rounded-md overflow-hidden bg-white">
                 <Input
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  onKeyPress={handleKeyPress}
                   placeholder="フリーワード"
                   className="flex-1 border-none focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none text-sm"
                 />
                 <Button
+                  onClick={handleSearch}
                   className="bg-[#2000d8] hover:bg-[#1800b6] text-white px-8 flex items-center gap-1 rounded-none"
                 >
                   <Search className="w-4 h-4" />

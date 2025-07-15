@@ -4,6 +4,7 @@ import JobCategoryDialog from "@/components/job-category-dialog"
 import type { Tag, JobCategory } from "@/lib/types"
 
 interface SearchOptionsProps {
+  keyword?: string
   prefectureId?: string
   prefectureName: string
   municipalityId?: string
@@ -14,6 +15,7 @@ interface SearchOptionsProps {
 }
 
 export default function SearchOptions({
+  keyword,
   prefectureId,
   prefectureName,
   municipalityId,
@@ -30,11 +32,13 @@ export default function SearchOptions({
           <MunicipalityDialog
             prefectureId={prefectureId}
             prefectureName={prefectureName}
+            keyword={keyword}
           />
         )}
         <JobCategoryDialog
           jobCategories={jobCategories}
           selectedJobCategoryId={jobCategoryId}
+          keyword={keyword}
           prefectureId={prefectureId}
           municipalityId={municipalityId}
         />
@@ -44,6 +48,7 @@ export default function SearchOptions({
         <TagDialog
           tags={tags}
           selectedTagIds={tagIds}
+          keyword={keyword}
           prefectureId={prefectureId}
           municipalityId={municipalityId}
         />

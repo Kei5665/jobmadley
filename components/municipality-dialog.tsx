@@ -16,9 +16,10 @@ import type { Municipality } from "@/lib/types"
 interface MunicipalityDialogProps {
   prefectureId: string
   prefectureName: string
+  keyword?: string
 }
 
-export default function MunicipalityDialog({ prefectureId, prefectureName }: MunicipalityDialogProps) {
+export default function MunicipalityDialog({ prefectureId, prefectureName, keyword }: MunicipalityDialogProps) {
   const [open, setOpen] = useState(false)
   const [municipalities, setMunicipalities] = useState<Municipality[]>([])
   const [loading, setLoading] = useState(false)
@@ -64,17 +65,25 @@ export default function MunicipalityDialog({ prefectureId, prefectureName }: Mun
             <p className="text-center text-sm text-gray-500 py-4">読み込み中...</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 divide-x">
-              {municipalities.map((m) => (
-                <DialogClose asChild key={m.id}>
-                  <Link
-                    href={`/search?prefecture=${prefectureId}&municipality=${m.id}`}
-                    className="flex items-center justify-between p-3 text-sm text-teal-600 hover:bg-teal-50 border-b"
-                  >
-                    <span className="text-gray-800">{m.name}</span>
-                    <ChevronRight className="w-3 h-3" />
-                  </Link>
-                </DialogClose>
-              ))}
+              {municipalities.map((m) => {
+                const params = new URLSearchParams()
+                if (keyword) params.set("q", keyword)
+                params.set("prefecture", prefectureId)
+                params.set("municipality", m.id)
+                const href = `/search?${params.toString()}`
+                
+                return (
+                  <DialogClose asChild key={m.id}>
+                    <Link
+                      href={href}
+                      className="flex items-center justify-between p-3 text-sm text-teal-600 hover:bg-teal-50 border-b"
+                    >
+                      <span className="text-gray-800">{m.name}</span>
+                      <ChevronRight className="w-3 h-3" />
+                    </Link>
+                  </DialogClose>
+                )
+              })}
               {municipalities.length === 0 && !loading && (
                 <p className="col-span-full text-sm text-gray-500 text-center py-4">
                   市区町村データがありません

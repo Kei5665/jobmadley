@@ -95,10 +95,14 @@ export const buildSearchQuery = (params: {
   municipalityId?: string
   tagIds?: string[]
   jobCategoryId?: string
+  keyword?: string
   page?: number
 }): string => {
   const searchParams = new URLSearchParams()
   
+  if (params.keyword?.trim()) {
+    searchParams.set("q", params.keyword.trim())
+  }
   if (params.prefectureId) {
     searchParams.set("prefecture", params.prefectureId)
   }

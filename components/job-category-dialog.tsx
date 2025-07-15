@@ -17,6 +17,7 @@ import type { JobCategory } from "@/lib/types"
 interface JobCategoryDialogProps {
   jobCategories: JobCategory[]
   selectedJobCategoryId?: string
+  keyword?: string
   prefectureId?: string
   municipalityId?: string
 }
@@ -24,16 +25,18 @@ interface JobCategoryDialogProps {
 export default function JobCategoryDialog({
   jobCategories,
   selectedJobCategoryId,
+  keyword,
   prefectureId,
   municipalityId,
 }: JobCategoryDialogProps) {
   const [selected, setSelected] = useState<string | undefined>(selectedJobCategoryId)
 
-  const applyHref = () => {
+  const buildHref = (jobCategoryId: string) => {
     const params = new URLSearchParams()
+    if (keyword) params.set("q", keyword)
     if (prefectureId) params.set("prefecture", prefectureId)
     if (municipalityId) params.set("municipality", municipalityId)
-    if (selected) params.set("jobCategory", selected)
+    if (jobCategoryId) params.set("jobCategory", jobCategoryId)
     return `/search?${params.toString()}`
   }
 
@@ -73,7 +76,7 @@ export default function JobCategoryDialog({
             <button className="px-4 py-2 text-sm text-gray-600 rounded hover:bg-gray-100">キャンセル</button>
           </DialogClose>
           <DialogClose asChild>
-            <Link href={applyHref()} className="px-4 py-2 text-sm bg-teal-600 text-white rounded hover:bg-teal-700">
+            <Link href={buildHref(selected || "")} className="px-4 py-2 text-sm bg-teal-600 text-white rounded hover:bg-teal-700">
               適用
             </Link>
           </DialogClose>

@@ -1,6 +1,7 @@
 import type { Tag, JobCategory, Municipality } from "@/lib/types"
 
 interface SearchConditionSummaryProps {
+  keyword?: string
   prefectureName: string
   selectedMunicipality: Municipality | null
   jobCategoryName: string
@@ -11,6 +12,7 @@ interface SearchConditionSummaryProps {
 }
 
 export default function SearchConditionSummary({
+  keyword,
   prefectureName,
   selectedMunicipality,
   jobCategoryName,
@@ -28,6 +30,7 @@ export default function SearchConditionSummary({
     : jobCategoryName
 
   const parts: string[] = []
+  if (keyword) parts.push(`「${keyword}」`)
   parts.push(prefectureName)
   if (selectedMunicipality) parts.push(selectedMunicipality.name)
   if (currentJobCategoryName) parts.push(currentJobCategoryName)

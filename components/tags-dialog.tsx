@@ -17,11 +17,12 @@ import type { Tag } from "@/lib/types"
 interface TagDialogProps {
   tags: Tag[]
   selectedTagIds: string[]
+  keyword?: string
   prefectureId?: string
   municipalityId?: string
 }
 
-export default function TagDialog({ tags, selectedTagIds, prefectureId, municipalityId }: TagDialogProps) {
+export default function TagDialog({ tags, selectedTagIds, keyword, prefectureId, municipalityId }: TagDialogProps) {
   const router = useRouter()
   const [selected, setSelected] = useState<string[]>(selectedTagIds)
 
@@ -31,6 +32,7 @@ export default function TagDialog({ tags, selectedTagIds, prefectureId, municipa
 
   const apply = () => {
     const params = new URLSearchParams()
+    if (keyword) params.set("q", keyword)
     if (prefectureId) params.set("prefecture", prefectureId)
     if (municipalityId) params.set("municipality", municipalityId)
     if (selected.length) params.set("tags", selected.join(","))
