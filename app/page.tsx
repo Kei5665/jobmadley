@@ -1,10 +1,8 @@
-import { Suspense } from "react"
 import { ChevronRight, Home } from "lucide-react"
 import { getPrefectureGroups } from "@/lib/getPrefectures"
 import { getJobCount, getJobs } from "@/lib/getJobs"
 import { microcmsClient2 } from "@/lib/microcms"
 import { withErrorHandling } from "@/lib/error-handling"
-import { Loading } from "@/components/ui/loading"
 import { ErrorDisplay } from "@/components/ui/error-display"
 import SiteHeader from "@/components/site-header"
 import SiteFooter from "@/components/site-footer"
@@ -14,7 +12,7 @@ import LatestJobsSection from "./components/latest-jobs-section"
 import MediaSection from "./components/media-section"
 import type { BlogArticle } from "@/lib/types"
 
-async function HomePageContent() {
+export default async function HomePage() {
   try {
     const [prefectures, latestJobs, companyArticles, interviewArticles] = await Promise.all([
       withErrorHandling(() => getPrefectureGroups(), "getPrefectureGroups"),
@@ -91,12 +89,4 @@ async function HomePageContent() {
       </div>
     )
   }
-}
-
-export default async function HomePage() {
-  return (
-    <Suspense fallback={<Loading message="ページを読み込み中..." />}>
-      <HomePageContent />
-    </Suspense>
-  )
 }
