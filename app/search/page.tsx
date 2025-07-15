@@ -1,4 +1,3 @@
-import { Suspense } from "react"
 import SiteHeader from "@/components/site-header"
 import SiteFooter from "@/components/site-footer"
 import RidejobMediaSection from "@/components/ridejob-media-section"
@@ -10,14 +9,12 @@ import { getJobCategories } from "@/lib/getJobCategories"
 import { getMediaArticles } from "@/lib/getMediaArticles"
 import { buildSearchQuery } from "@/lib/utils"
 import { withErrorHandling } from "@/lib/error-handling"
-import { Loading } from "@/components/ui/loading"
 import { ErrorDisplay } from "@/components/ui/error-display"
 import SearchHeader from "./components/search-header"
 import SearchOptions from "./components/search-options"
 import SearchConditionSummary from "./components/search-condition-summary"
 import JobList from "./components/job-list"
 import SearchPagination from "./components/search-pagination"
-import type { SearchResultsPageProps } from "@/lib/types"
 
 interface SearchPageProps {
   searchParams: Promise<{
@@ -29,13 +26,15 @@ interface SearchPageProps {
   }>
 }
 
-async function SearchResultsPage({ 
-  prefectureId, 
-  municipalityId, 
-  tagIds = [], 
-  jobCategoryId, 
-  page = 1 
-}: SearchResultsPageProps) {
+export default async function SearchPage({ searchParams }: SearchPageProps) {
+  const params = await searchParams
+
+  const prefectureId = params.prefecture
+  const municipalityId = params.municipality
+  const tagIds = params.tags ? params.tags.split(",") : []
+  const jobCategoryId = params.jobCategory
+  const page = params.page ? Number(params.page) : 1
+
   try {
     const [
       prefectureData,
@@ -163,22 +162,4 @@ async function SearchResultsPage({
       </div>
     )
   }
-}
-
-export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const params = await searchParams
-
-  const searchProps: SearchResultsPageProps = {
-    prefectureId: params.prefecture,
-    municipalityId: params.municipality,
-    tagIds: params.tags ? params.tags.split(",") : undefined,
-    jobCategoryId: params.jobCategory,
-    page: params.page ? Number(params.page) : undefined,
-  }
-
-  return (
-    <Suspense fallback={<Loading message="検索結果を読み込み中..." />}>
-      <SearchResultsPage {...searchProps} />
-    </Suspense>
-  )
 }
