@@ -1,18 +1,42 @@
 import { NextResponse } from "next/server"
 
-interface ApplicationFormData {
-  lastName: string
-  firstName: string
-  lastNameKana: string
-  firstNameKana: string
-  birthDate: string
-  phone: string
-  email: string
-  address: string
-  companyName: string
-  jobName: string
-  jobUrl: string
-  jobId?: string
+interface ActualRequestData {
+  id: string
+  appliedOnMillis: number
+  job: {
+    jobId: string
+    jobUrl: string
+    jobTitle: string
+    jobCompany: string
+    jobLocation: string
+  }
+  applicant: {
+    fullName: string
+    firstName: string
+    lastName: string
+    pronunciationFullName: string
+    pronunciationFirstName: string
+    pronunciationLastName: string
+    email: string
+    phoneNumber: string
+    coverLetter: string
+    birthday: string
+    gender: string
+    prefecture: string
+    city: string
+    occupation: string
+  }
+  analytics: {
+    ip: string
+    userAgent: string
+    device: string
+    sponsored: string
+  }
+  questionsAndAnswers: {
+    url: string
+    retrievedOnMillis: number
+    questionsAndAnswers: any[]
+  }
 }
 
 interface Applicant {
@@ -48,52 +72,67 @@ interface ApplicationData {
   job: Job
   applicant: Applicant
   analytics: Analytics
-  questionsAndAnswers: []
+  questionsAndAnswers: any[]
 }
 
-function transformApplicationData(formData: ApplicationFormData, request: Request): ApplicationData {
-  const userAgent = request.headers.get('user-agent') || 'unknown'
-  const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
-  const referrer = request.headers.get('referer') || 'direct'
+function transformApplicationData(requestData: ActualRequestData): ApplicationData {
+  // 日付形式の変換: "2008/04/04" → "2008-04-04"
+  const convertDateFormat = (dateStr: string): string => {
+    if (!dateStr) return 'unknown'
+    return dateStr.replace(/\//g, '-')
+  }
+
+  // 住所の組み立て
+  const buildAddress = (prefecture: string, city: string): string => {
+    if (!prefecture && !city) return 'unknown'
+    return `${prefecture || ''}${city || ''}`.trim()
+  }
+
+  // 性別の変換
+  const convertGender = (gender: string): string => {
+    if (gender === '男性') return 'male'
+    if (gender === '女性') return 'female'
+    return 'unknown'
+  }
 
   return {
-    id: `AT-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
-    appliedOnMillis: Date.now(),
+    id: requestData.id || `AT-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
+    appliedOnMillis: requestData.appliedOnMillis || Date.now(),
     job: {
-      id: formData.jobId || 'unknown',
-      title: formData.jobName || 'unknown',
-      url: formData.jobUrl || 'unknown',
-      companyName: formData.companyName || 'unknown',
-      location: 'unknown'
+      id: requestData.job.jobId || 'unknown',
+      title: requestData.job.jobTitle || 'unknown',
+      url: requestData.job.jobUrl || 'unknown',
+      companyName: requestData.job.jobCompany || 'unknown',
+      location: requestData.job.jobLocation || 'unknown'
     },
     applicant: {
-      firstName: formData.firstName || 'unknown',
-      lastName: formData.lastName || 'unknown',
-      firstNameKana: formData.firstNameKana || 'unknown',
-      lastNameKana: formData.lastNameKana || 'unknown',
-      email: formData.email || 'unknown',
-      phone: formData.phone || 'unknown',
-      birthday: formData.birthDate || 'unknown',
-      gender: 'unknown',
-      address: formData.address || 'unknown',
-      occupation: 'unknown'
+      firstName: requestData.applicant.firstName || 'unknown',
+      lastName: requestData.applicant.lastName || 'unknown',
+      firstNameKana: requestData.applicant.pronunciationFirstName || 'unknown',
+      lastNameKana: requestData.applicant.pronunciationLastName || 'unknown',
+      email: requestData.applicant.email || 'unknown',
+      phone: requestData.applicant.phoneNumber || 'unknown',
+      birthday: convertDateFormat(requestData.applicant.birthday),
+      gender: convertGender(requestData.applicant.gender),
+      address: buildAddress(requestData.applicant.prefecture, requestData.applicant.city),
+      occupation: requestData.applicant.occupation || 'unknown'
     },
     analytics: {
-      userAgent,
-      ipAddress,
-      referrer
+      userAgent: requestData.analytics.userAgent || 'unknown',
+      ipAddress: requestData.analytics.ip || 'unknown',
+      referrer: 'direct'
     },
-    questionsAndAnswers: []
+    questionsAndAnswers: requestData.questionsAndAnswers.questionsAndAnswers || []
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const formData: ApplicationFormData = await request.json()
+    const requestData: ActualRequestData = await request.json()
 
-    console.log("[submit-application] Received form data:", formData)
+    console.log("[submit-application] Received request data:", requestData)
 
-    const transformedData = transformApplicationData(formData, request)
+    const transformedData = transformApplicationData(requestData)
     
     console.log("[submit-application] Transformed data for Lark:", transformedData)
 
