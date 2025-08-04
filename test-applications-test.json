@@ -1,0 +1,40 @@
+{
+  "id": "test-app-001",
+  "appliedOnMillis": 1704067200000,
+  "job": {
+    "id": "job-test-001",
+    "title": "看護師（正社員）",
+    "url": "https://ridejob.jp/job/test-001",
+    "companyName": "テスト病院",
+    "location": "東京都渋谷区"
+  },
+  "applicant": {
+    "firstName": "太郎",
+    "lastName": "田中",
+    "firstNameKana": "タロウ",
+    "lastNameKana": "タナカ",
+    "email": "tanaka.taro@test.com",
+    "phone": "090-1234-5678",
+    "birthday": "1990-04-15",
+    "gender": "male",
+    "address": "東京都新宿区西新宿1-1-1",
+    "occupation": "看護師"
+  },
+  "analytics": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+    "ipAddress": "192.168.1.100",
+    "referrer": "https://google.com"
+  },
+  "questionsAndAnswers": [
+    {
+      "questionId": "q1",
+      "question": "志望動機を教えてください",
+      "answer": "患者様により良い医療を提供したいと考えています。"
+    },
+    {
+      "questionId": "q2", 
+      "question": "いつから勤務可能ですか？",
+      "answer": "来月から勤務可能です。"
+    }
+  ]
+}
