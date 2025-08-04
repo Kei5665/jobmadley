@@ -95,6 +95,27 @@ function transformApplicationData(requestData: ActualRequestData): ApplicationDa
     return 'unknown'
   }
 
+  // 名前の処理: 現在のデータ構造では firstName/lastName にひらがなが入っている
+  // 漢字の名前が fullName にある場合はそれを使用、なければひらがなを使用
+  const getActualName = (fullName: string, firstName: string, lastName: string) => {
+    if (fullName && fullName.trim()) {
+      // fullNameがある場合は分割して使用
+      const parts = fullName.trim().split(/\s+/)
+      if (parts.length >= 2) {
+        return { lastName: parts[0], firstName: parts.slice(1).join(' ') }
+      }
+      return { lastName: fullName, firstName: '' }
+    }
+    // fullNameがない場合はひらがなをそのまま使用
+    return { lastName: lastName || 'unknown', firstName: firstName || 'unknown' }
+  }
+
+  const actualName = getActualName(
+    requestData.applicant.fullName,
+    requestData.applicant.firstName,
+    requestData.applicant.lastName
+  )
+
   return {
     id: requestData.id || `AT-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
     appliedOnMillis: requestData.appliedOnMillis || Date.now(),
@@ -106,10 +127,12 @@ function transformApplicationData(requestData: ActualRequestData): ApplicationDa
       location: requestData.job.jobLocation || 'unknown'
     },
     applicant: {
-      firstName: requestData.applicant.firstName || 'unknown',
-      lastName: requestData.applicant.lastName || 'unknown',
-      firstNameKana: requestData.applicant.pronunciationFirstName || 'unknown',
-      lastNameKana: requestData.applicant.pronunciationLastName || 'unknown',
+      // 処理済みの名前を使用
+      firstName: actualName.firstName,
+      lastName: actualName.lastName,
+      // ふりがなは pronunciation* を優先、なければ firstName/lastName を使用
+      firstNameKana: requestData.applicant.pronunciationFirstName || requestData.applicant.firstName || 'unknown',
+      lastNameKana: requestData.applicant.pronunciationLastName || requestData.applicant.lastName || 'unknown',
       email: requestData.applicant.email || 'unknown',
       phone: requestData.applicant.phoneNumber || 'unknown',
       birthday: convertDateFormat(requestData.applicant.birthday),
