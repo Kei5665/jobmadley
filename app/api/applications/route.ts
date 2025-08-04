@@ -52,6 +52,20 @@ function formatLarkMessage(data: ApplicationData): any {
     minute: '2-digit'
   })
 
+  const formatValue = (value: string | undefined, defaultValue: string = 'undefined'): string => {
+    return value && value !== 'undefined' ? value : defaultValue
+  }
+
+  const formatName = (lastName: string, firstName: string, lastNameKana: string, firstNameKana: string): string => {
+    const fullName = `${formatValue(lastName)} ${formatValue(firstName)}`
+    const fullNameKana = `${formatValue(lastNameKana)} ${formatValue(firstNameKana)}`
+    
+    if (lastNameKana !== 'undefined' && firstNameKana !== 'undefined') {
+      return `${fullName} (${fullNameKana})`
+    }
+    return fullName
+  }
+
   return {
     msg_type: "interactive",
     card: {
@@ -70,7 +84,7 @@ function formatLarkMessage(data: ApplicationData): any {
           tag: "div",
           text: {
             tag: "lark_md",
-            content: `**👤 応募者情報**\n氏名: ${data.applicant.lastName} ${data.applicant.firstName} (${data.applicant.lastNameKana} ${data.applicant.firstNameKana})\n生年月日: ${data.applicant.birthday}\n性別: ${data.applicant.gender === 'male' ? '男性' : '女性'}\n職業: ${data.applicant.occupation}\n住所: ${data.applicant.address}\nメール: ${data.applicant.email}\n電話: ${data.applicant.phone}`
+            content: `**👤 応募者情報**\n氏名: ${formatName(data.applicant.lastName, data.applicant.firstName, data.applicant.lastNameKana, data.applicant.firstNameKana)}\n生年月日: ${formatValue(data.applicant.birthday)}\n性別: ${data.applicant.gender === 'male' ? '男性' : data.applicant.gender === 'female' ? '女性' : formatValue(data.applicant.gender)}\n職業: ${formatValue(data.applicant.occupation, '派遣社員')}\n住所: ${formatValue(data.applicant.address)}\nメール: ${formatValue(data.applicant.email)}\n電話: ${formatValue(data.applicant.phone)}`
           }
         },
         {
@@ -80,7 +94,7 @@ function formatLarkMessage(data: ApplicationData): any {
           tag: "div",
           text: {
             tag: "lark_md",
-            content: `**💼 求人情報**\n求人タイトル: ${data.job.title}\n会社名: ${data.job.companyName}\n勤務地: ${data.job.location}\n求人URL: ${data.job.url}`
+            content: `**💼 求人情報**\n求人タイトル: ${formatValue(data.job.title)}\n会社名: ${formatValue(data.job.companyName)}\n勤務地: ${formatValue(data.job.location)}\n求人URL: ${formatValue(data.job.url)}`
           }
         },
         ...(data.questionsAndAnswers.length > 0 ? [
@@ -102,7 +116,7 @@ function formatLarkMessage(data: ApplicationData): any {
           tag: "div",
           text: {
             tag: "lark_md",
-            content: `**📊 分析情報**\nUser Agent: ${data.analytics.userAgent}\nIP Address: ${data.analytics.ipAddress}\nReferrer: ${data.analytics.referrer}`
+            content: `**📊 分析情報**\nUser Agent: ${formatValue(data.analytics.userAgent)}\nIP Address: ${formatValue(data.analytics.ipAddress)}\nReferrer: ${formatValue(data.analytics.referrer)}`
           }
         }
       ]
