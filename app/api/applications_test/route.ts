@@ -114,6 +114,42 @@ function formatLarkMessage(data: ApplicationData): any {
   }
 }
 
+function formatRawDataMessage(data: any): any {
+  const appliedDate = new Date(data.appliedOnMillis || Date.now()).toLocaleString('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+
+  return {
+    msg_type: "interactive",
+    card: {
+      elements: [
+        {
+          tag: "div",
+          text: {
+            tag: "lark_md",
+            content: `**🧪 テスト生データ応募通知**\n応募ID: ${data.id}\n応募日時: ${appliedDate}`
+          }
+        },
+        {
+          tag: "hr"
+        },
+        {
+          tag: "div",
+          text: {
+            tag: "lark_md",
+            content: `**📊 受信した生データ (JSON形式)**\n\`\`\`json\n${JSON.stringify(data, null, 2)}\n\`\`\``
+          }
+        }
+      ]
+    }
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const LARK_WEBHOOK = process.env.LARK_WEBHOOK
@@ -126,7 +162,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const body: ApplicationData = await request.json()
+    const body: any = await request.json()
 
     // テスト用詳細ログ出力
     console.log("=" .repeat(80))
@@ -137,6 +173,42 @@ export async function POST(request: Request) {
     console.log("Timestamp:", new Date().toISOString())
     console.log("=" .repeat(80))
 
+    // 生データの場合は特別な処理
+    if (body.isRawData) {
+      console.log("[applications_test] Processing raw data for Lark")
+      const rawLarkMessage = formatRawDataMessage(body)
+      
+      console.log("[applications_test] 📤 Sending raw data to Lark webhook...")
+      console.log("Raw Lark Message:", JSON.stringify(rawLarkMessage, null, 2))
+      
+      const response = await fetch(LARK_WEBHOOK, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(rawLarkMessage),
+      })
+
+      console.log("[applications_test] 📬 Raw data Lark response status:", response.status)
+      console.log("[applications_test] 📬 Raw data Lark response headers:", Object.fromEntries(response.headers.entries()))
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error("[applications_test] ❌ Lark webhook error for raw data:", errorText)
+        return NextResponse.json(
+          { success: false, message: "Failed to send raw data to Lark" },
+          { status: response.status }
+        )
+      }
+
+      const responseText = await response.text()
+      console.log("[applications_test] ✅ Raw data Lark response body:", responseText)
+      console.log("[applications_test] ✅ Successfully sent raw data to Lark")
+      console.log("=" .repeat(80))
+      return NextResponse.json({ success: true })
+    }
+
+    // 通常の変換済みデータの処理
     const larkMessage = formatLarkMessage(body)
 
     console.log("[applications_test] 📤 Sending to Lark webhook...")
