@@ -133,29 +133,6 @@ export async function POST(request: Request) {
     console.log("Timestamp:", new Date().toISOString())
     console.log("=" .repeat(80))
 
-    // データバリデーション詳細チェック
-    const validationErrors = []
-    if (!body.id) validationErrors.push("Missing application ID")
-    if (!body.appliedOnMillis) validationErrors.push("Missing application timestamp")
-    if (!body.applicant?.firstName) validationErrors.push("Missing applicant first name")
-    if (!body.applicant?.lastName) validationErrors.push("Missing applicant last name")
-    if (!body.applicant?.email) validationErrors.push("Missing applicant email")
-    if (!body.job?.id) validationErrors.push("Missing job ID")
-    if (!body.job?.title) validationErrors.push("Missing job title")
-
-    if (validationErrors.length > 0) {
-      console.error("[applications_test] ❌ Validation errors:", validationErrors)
-      return NextResponse.json(
-        { 
-          success: false, 
-          message: "Validation failed", 
-          errors: validationErrors,
-          receivedData: body
-        },
-        { status: 400 }
-      )
-    }
-
     const larkMessage = formatLarkMessage(body)
 
     console.log("[applications_test] 📤 Sending to Lark webhook...")
@@ -176,16 +153,7 @@ export async function POST(request: Request) {
       const errorText = await response.text()
       console.error("[applications_test] ❌ Lark webhook error:", errorText)
       return NextResponse.json(
-        { 
-          success: false, 
-          message: "Failed to send to Lark",
-          larkResponse: {
-            status: response.status,
-            statusText: response.statusText,
-            error: errorText
-          },
-          sentData: larkMessage
-        },
+        { success: false, message: "Failed to send to Lark" },
         { status: response.status }
       )
     }
@@ -195,20 +163,7 @@ export async function POST(request: Request) {
     console.log("[applications_test] ✅ Successfully sent to Lark")
     console.log("=" .repeat(80))
 
-    return NextResponse.json({ 
-      success: true,
-      message: "Test application processed successfully",
-      processedData: {
-        applicationId: body.id,
-        applicantName: `${body.applicant.lastName} ${body.applicant.firstName}`,
-        jobTitle: body.job.title,
-        processedAt: new Date().toISOString()
-      },
-      larkResponse: {
-        status: response.status,
-        body: responseText
-      }
-    })
+    return NextResponse.json({ success: true })
 
   } catch (error) {
     console.error("[applications_test] ❌ Error processing test application:", error)
@@ -216,12 +171,7 @@ export async function POST(request: Request) {
     console.log("=" .repeat(80))
     
     return NextResponse.json(
-      { 
-        success: false, 
-        message: "Internal server error",
-        error: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date().toISOString()
-      },
+      { success: false, message: "Internal server error" },
       { status: 500 }
     )
   }
