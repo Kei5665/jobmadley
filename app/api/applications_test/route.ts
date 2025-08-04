@@ -182,30 +182,38 @@ export async function POST(request: Request) {
       console.log("[applications_test] 📤 Sending raw data to Lark webhook...")
       console.log("Raw Lark Message:", JSON.stringify(rawLarkMessage, null, 2))
       
-      const response = await fetch(LARK_WEBHOOK, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(rawLarkMessage),
-      })
+      try {
+        const response = await fetch(LARK_WEBHOOK, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(rawLarkMessage),
+        })
 
-      console.log("[applications_test] 📬 Raw data Lark response status:", response.status)
-      console.log("[applications_test] 📬 Raw data Lark response headers:", Object.fromEntries(response.headers.entries()))
+        console.log("[applications_test] 📬 Raw data Lark response status:", response.status)
+        console.log("[applications_test] 📬 Raw data Lark response headers:", Object.fromEntries(response.headers.entries()))
 
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error("[applications_test] ❌ Lark webhook error for raw data:", errorText)
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error("[applications_test] ❌ Lark webhook error for raw data:", errorText)
+          return NextResponse.json(
+            { success: false, message: `Failed to send raw data to Lark: ${response.status} - ${errorText}` },
+            { status: response.status }
+          )
+        }
+
+        const responseText = await response.text()
+        console.log("[applications_test] ✅ Raw data Lark response body:", responseText)
+        console.log("[applications_test] ✅ Successfully sent raw data to Lark")
+        console.log("=" .repeat(80))
+      } catch (fetchError) {
+        console.error("[applications_test] ❌ Network error sending raw data to Lark:", fetchError)
         return NextResponse.json(
-          { success: false, message: "Failed to send raw data to Lark" },
-          { status: response.status }
+          { success: false, message: `Network error: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}` },
+          { status: 500 }
         )
       }
-
-      const responseText = await response.text()
-      console.log("[applications_test] ✅ Raw data Lark response body:", responseText)
-      console.log("[applications_test] ✅ Successfully sent raw data to Lark")
-      console.log("=" .repeat(80))
       return NextResponse.json({ success: true })
     }
 
