@@ -197,12 +197,33 @@ export async function POST(request: Request) {
         ? `https://${process.env.VERCEL_URL}` 
         : 'https://ridejob.jp'
 
+    // まず変換済みデータをLarkに送信
     const res = await fetch(`${baseUrl}/api/applications`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(transformedData),
+    })
+
+    // 次に生データもLarkに送信
+    console.log("=".repeat(80))
+    console.log("[INFO] Sending raw data to Lark...")
+    console.log("=".repeat(80))
+    
+    await fetch(`${baseUrl}/api/applications`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...requestData,
+        id: `RAW-${requestData.id || Date.now()}`,
+        isRawData: true // 生データであることを示すフラグ
+      }),
+    }).catch(error => {
+      console.error("[WARN] Failed to send raw data to Lark:", error)
+      return null
     })
 
     if (!res.ok) {

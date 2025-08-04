@@ -1,0 +1,35 @@
+{
+  "id": "test-app-20250801-001",
+  "appliedOnMillis": 1754038362946,
+  "job": {
+    "id": "test-job-001",
+    "title": "アプリ配車タクシードライバー",
+    "url": "https://ridejob.jp/job/test-job-001",
+    "companyName": "テスト交通株式会社",
+    "location": "東京都渋谷区"
+  },
+  "applicant": {
+    "firstName": "太郎",
+    "lastName": "テスト",
+    "firstNameKana": "タロウ",
+    "lastNameKana": "テスト",
+    "email": "test.taro@example.com",
+    "phone": "090-1234-5678",
+    "birthday": "1990-05-15",
+    "gender": "male",
+    "address": "東京都新宿区西新宿1-1-1",
+    "occupation": "システムエンジニア"
+  },
+  "analytics": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "ipAddress": "192.168.1.100",
+    "referrer": "https://www.google.com"
+  },
+  "questionsAndAnswers": [
+    {
+      "questionId": "motivation",
+      "question": "志望動機をお聞かせください",
+      "answer": "タクシー業界でのキャリアを積みたいと考えています。"
+    }
+  ]
+}

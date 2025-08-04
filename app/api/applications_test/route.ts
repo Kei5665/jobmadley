@@ -108,17 +108,7 @@ function formatLarkMessage(data: ApplicationData): any {
               content: `**❓ 質問・回答**\n${data.questionsAndAnswers.map(qa => `**${qa.question}**\n${qa.answer}`).join('\n\n')}`
             }
           }
-        ] : []),
-        {
-          tag: "hr"
-        },
-        {
-          tag: "div",
-          text: {
-            tag: "lark_md",
-            content: `**📊 分析情報**\nUser Agent: ${formatValue(data.analytics.userAgent)}\nIP Address: ${formatValue(data.analytics.ipAddress)}\nReferrer: ${formatValue(data.analytics.referrer)}`
-          }
-        }
+        ] : [])
       ]
     }
   }
