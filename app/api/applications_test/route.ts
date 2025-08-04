@@ -124,6 +124,20 @@ function formatRawDataMessage(data: any): any {
     minute: '2-digit'
   })
 
+  // JSONを短縮して表示
+  const shortenedData = {
+    id: data.id,
+    applicant: {
+      firstName: data.applicant?.firstName || 'N/A',
+      lastName: data.applicant?.lastName || 'N/A',
+      email: data.applicant?.email || 'N/A'
+    },
+    job: {
+      jobTitle: data.job?.jobTitle || 'N/A',
+      jobCompany: data.job?.jobCompany || 'N/A'
+    }
+  }
+
   return {
     msg_type: "interactive",
     card: {
@@ -142,7 +156,7 @@ function formatRawDataMessage(data: any): any {
           tag: "div",
           text: {
             tag: "lark_md",
-            content: `**📊 受信した生データ (JSON形式)**\n\`\`\`json\n${JSON.stringify(data, null, 2)}\n\`\`\``
+            content: `**📊 受信した生データ (簡略版)**\n\`\`\`json\n${JSON.stringify(shortenedData, null, 2)}\n\`\`\``
           }
         }
       ]
