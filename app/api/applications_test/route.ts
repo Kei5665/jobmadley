@@ -124,19 +124,8 @@ function formatRawDataMessage(data: any): any {
     minute: '2-digit'
   })
 
-  // JSONを短縮して表示
-  const shortenedData = {
-    id: data.id,
-    applicant: {
-      firstName: data.applicant?.firstName || 'N/A',
-      lastName: data.applicant?.lastName || 'N/A',
-      email: data.applicant?.email || 'N/A'
-    },
-    job: {
-      jobTitle: data.job?.jobTitle || 'N/A',
-      jobCompany: data.job?.jobCompany || 'N/A'
-    }
-  }
+  // testEndpointフラグを除いた完全な生データを表示
+  const { testEndpoint, ...fullRawData } = data
 
   return {
     msg_type: "interactive",
@@ -146,7 +135,7 @@ function formatRawDataMessage(data: any): any {
           tag: "div",
           text: {
             tag: "lark_md",
-            content: `**🧪 テスト生データ応募通知**\n応募ID: ${data.id}\n応募日時: ${appliedDate}`
+            content: `**🧪 テスト生データ応募通知 (完全版)**\n応募ID: ${data.id}\n応募日時: ${appliedDate}`
           }
         },
         {
@@ -156,7 +145,7 @@ function formatRawDataMessage(data: any): any {
           tag: "div",
           text: {
             tag: "lark_md",
-            content: `**📊 受信した生データ (簡略版)**\n\`\`\`json\n${JSON.stringify(shortenedData, null, 2)}\n\`\`\``
+            content: `**📊 受信した完全な生データ (JSON形式)**\n\`\`\`json\n${JSON.stringify(fullRawData, null, 2)}\n\`\`\``
           }
         }
       ]
