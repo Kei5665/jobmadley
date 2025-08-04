@@ -176,6 +176,7 @@ export async function POST(request: Request) {
     // 生データの場合は特別な処理
     if (body.isRawData) {
       console.log("[applications_test] Processing raw data for Lark")
+      console.log("[applications_test] LARK_WEBHOOK URL:", LARK_WEBHOOK ? "SET" : "NOT SET")
       const rawLarkMessage = formatRawDataMessage(body)
       
       console.log("[applications_test] 📤 Sending raw data to Lark webhook...")

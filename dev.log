@@ -1,0 +1,97 @@
+
+> my-v0-project@0.1.0 dev
+> next dev
+
+ ⚠ Port 3000 is in use, trying 3001 instead.
+   ▲ Next.js 15.2.4
+   - Local:        http://localhost:3001
+   - Network:      http://192.168.11.7:3001
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1143ms
+ ✓ Compiled /api/applications_test in 432ms (359 modules)
+================================================================================
+[applications_test] 🧪 TEST ENDPOINT - Received application data
+================================================================================
+Request Headers: {
+  accept: '*/*',
+  'content-length': '479',
+  'content-type': 'application/json',
+  host: 'localhost:3001',
+  'user-agent': 'curl/8.7.1',
+  'x-forwarded-for': '::1',
+  'x-forwarded-host': 'localhost:3001',
+  'x-forwarded-port': '3001',
+  'x-forwarded-proto': 'http'
+}
+Request Body: {
+  "id": "RAW-test-123",
+  "appliedOnMillis": 1754291319000,
+  "job": {
+    "jobId": "test-job",
+    "jobUrl": "https://ridejob.jp/job/test-job",
+    "jobTitle": "テスト求人",
+    "jobCompany": "テスト会社",
+    "jobLocation": "東京都"
+  },
+  "applicant": {
+    "fullName": "",
+    "firstName": "テスト",
+    "lastName": "太郎",
+    "email": "test@example.com",
+    "phoneNumber": "090-1234-5678"
+  },
+  "isRawData": true
+}
+Timestamp: 2025-08-04T07:39:16.433Z
+================================================================================
+[applications_test] Processing raw data for Lark
+[applications_test] 📤 Sending raw data to Lark webhook...
+Raw Lark Message: {
+  "msg_type": "interactive",
+  "card": {
+    "elements": [
+      {
+        "tag": "div",
+        "text": {
+          "tag": "lark_md",
+          "content": "**🧪 テスト生データ応募通知**\n応募ID: RAW-test-123\n応募日時: 2025/08/04 16:08"
+        }
+      },
+      {
+        "tag": "hr"
+      },
+      {
+        "tag": "div",
+        "text": {
+          "tag": "lark_md",
+          "content": "**📊 受信した生データ (JSON形式)**\n```json\n{\n  \"id\": \"RAW-test-123\",\n  \"appliedOnMillis\": 1754291319000,\n  \"job\": {\n    \"jobId\": \"test-job\",\n    \"jobUrl\": \"https://ridejob.jp/job/test-job\",\n    \"jobTitle\": \"テスト求人\",\n    \"jobCompany\": \"テスト会社\",\n    \"jobLocation\": \"東京都\"\n  },\n  \"applicant\": {\n    \"fullName\": \"\",\n    \"firstName\": \"テスト\",\n    \"lastName\": \"太郎\",\n    \"email\": \"test@example.com\",\n    \"phoneNumber\": \"090-1234-5678\"\n  },\n  \"isRawData\": true\n}\n```"
+        }
+      }
+    ]
+  }
+}
+[applications_test] 📬 Raw data Lark response status: 200
+[applications_test] 📬 Raw data Lark response headers: {
+  connection: 'keep-alive',
+  'content-length': '77',
+  'content-type': 'application/json',
+  date: 'Mon, 04 Aug 2025 07:39:16 GMT',
+  'request-id': '20250804073915815D78D9B28EAB57579F',
+  server: 'TLB',
+  'server-timing': 'inner; dur=267, cdn-cache; desc=MISS, edge; dur=5, origin; dur=346',
+  tt_stable: '1',
+  'x-lgw-dst-svc': 'A-mP1Zr4LjFjhIbcRpcBykhzE-uSiRltai4OWcbeTXrE0MOmefb5hy-8dlVEFbAB29FRtzX-CNN-6b-sASLtxVGxNAlEFpNHfdy2Fcd00e8SJ4DqMRJTNhjnd9lulefX0XMFkwU__VMfdSeJemEzDDeyDS6YAmF_p2BFJ9ZGAnyMMOON36VMzmszJvKOHulJI6QeQgzNdy0RJZhYDIRKOj9LTXruLEmUqqWJSnz1LX39nHnwfBWQ3mudwDOC0PJ634EiuKlK6ON9B1aKS1jhPjteH9XMUz0yNt3FrH9niYiXwgfS8BQ5r20ybNAnbA1dAsVdBHXJvDa-_PpcBvh4Lvuhc7g7qWpKJ0UbBATsvhB5ENU=',
+  'x-origin-response-time': '346,23.209.45.44',
+  'x-request-id': '20250804073915815D78D9B28EAB57579F',
+  'x-tt-logid': '20250804073915815D78D9B28EAB57579F',
+  'x-tt-trace-host': '010867351b8b74310137dd70103e2a25fd61967c7b8bfdf2a50ba4604262fa9664a1429286e53c1980b083511b0aecfa26fc0fde930c9d4639c3b5852c413e19af997f834883389c29cbc9f1fd5d772ab8ab369da6b57471b5d472700f1c22ae02188f8d6c75c9e8b6a7ed356cf57bc5d3',
+  'x-tt-trace-id': '00-250804073915815D78D9B28EAB57579F-2BC3F9975B3DD1AA-00',
+  'x-tt-trace-tag': 'id=16;cdn-cache=miss;type=dyn'
+}
+[applications_test] ✅ Raw data Lark response body: {"StatusCode":0,"StatusMessage":"success","code":0,"data":{},"msg":"success"}
+[applications_test] ✅ Successfully sent raw data to Lark
+================================================================================
+ POST /api/applications_test 200 in 927ms
+ ✓ Compiled in 74ms (83 modules)
