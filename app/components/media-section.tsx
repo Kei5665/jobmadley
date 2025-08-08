@@ -90,7 +90,7 @@ export default function MediaSection({ companyArticles, interviewArticles }: Med
 
         {/* More button */}
         <div className="text-center mt-12">
-          <Link href="https://ridejob.jp/media/blogs" target="_blank" rel="noopener noreferrer">
+          <Link href="https://ridejob.jp/media/" target="_blank" rel="noopener noreferrer">
             <Button className="bg-[#2000d8] hover:bg-[#1800b6] text-white px-8 py-4 rounded-full inline-flex items-center gap-2">
               記事をもっと見る
               <ChevronRight className="w-4 h-4" />

@@ -96,3 +96,4 @@ Raw Lark Message: {
  POST /api/applications_test 200 in 927ms
  ✓ Compiled in 74ms (83 modules)
  ✓ Compiled in 11ms
+[?25h
