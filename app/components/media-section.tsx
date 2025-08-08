@@ -30,7 +30,7 @@ export default function MediaSection({ companyArticles, interviewArticles }: Med
                 return (
                   <Link 
                     key={article.id} 
-                    href={`https://ridejob.jp/media/blogs/${article.slug ?? article.id}`} 
+                    href={`https://ridejob.jp/media/blog/${article.slug ?? article.id}`} 
                     target="_blank" 
                     className="block group"
                   >
@@ -64,7 +64,7 @@ export default function MediaSection({ companyArticles, interviewArticles }: Med
                 return (
                   <Link 
                     key={article.id} 
-                    href={`https://ridejob-cms.vercel.app/blogs/${article.slug ?? article.id}`} 
+                    href={`https://ridejob.jp/media/blog/${article.slug ?? article.id}`} 
                     target="_blank" 
                     className="block group"
                   >
