@@ -155,6 +155,36 @@ function formatRawDataMessage(data: any): any {
 
 export async function POST(request: Request) {
   try {
+    const body: any = await request.json()
+
+    // テストモード: 求人ボックス連携テスト用の強制分岐
+    // APPLY_TEST_MODE=1 のとき、job.id / job.jobId に応じてステータスを固定で返す
+    if (process.env.APPLY_TEST_MODE === '1') {
+      const jobId: string | undefined = body?.job?.id ?? body?.job?.jobId
+      if (jobId === 'test-404') {
+        return NextResponse.json(
+          { success: false, message: 'Job Not Found' },
+          { status: 404 }
+        )
+      }
+      if (jobId === 'test-410') {
+        return NextResponse.json(
+          { success: false, message: 'Job Expired' },
+          { status: 410 }
+        )
+      }
+      if (jobId === 'test-200') {
+        return NextResponse.json(
+          { success: true, message: 'OK' },
+          { status: 200 }
+        )
+      }
+      return NextResponse.json(
+        { success: true, message: 'OK' },
+        { status: 200 }
+      )
+    }
+
     const LARK_WEBHOOK = process.env.LARK_WEBHOOK
     
     if (!LARK_WEBHOOK) {
@@ -165,12 +195,10 @@ export async function POST(request: Request) {
       )
     }
 
-    const body: any = await request.json()
-
     // テスト用詳細ログ出力
-    console.log("=" .repeat(80))
+    console.log("=".repeat(80))
     console.log("[applications_test] 🧪 TEST ENDPOINT - Received application data")
-    console.log("=" .repeat(80))
+    console.log("=".repeat(80))
     console.log("Request Headers:", Object.fromEntries(request.headers.entries()))
     console.log("Request Body:", JSON.stringify(body, null, 2))
     console.log("Timestamp:", new Date().toISOString())
@@ -215,8 +243,8 @@ export async function POST(request: Request) {
 
       const responseText = await response.text()
       console.log("[applications_test] ✅ Raw data Lark response body:", responseText)
-      console.log("[applications_test] ✅ Successfully sent raw data to Lark")
-      console.log("=" .repeat(80))
+    console.log("[applications_test] ✅ Successfully sent raw data to Lark")
+    console.log("=".repeat(80))
     } catch (fetchError) {
       console.error("[applications_test] ❌ Network error sending raw data to Lark:", fetchError)
       return NextResponse.json(
@@ -229,7 +257,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("[applications_test] ❌ Error processing test application:", error)
     console.error("[applications_test] ❌ Error stack:", error instanceof Error ? error.stack : 'Unknown error')
-    console.log("=" .repeat(80))
+    console.log("=".repeat(80))
     
     return NextResponse.json(
       { success: false, message: "Internal server error" },
