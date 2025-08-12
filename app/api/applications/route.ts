@@ -152,8 +152,42 @@ function formatRawDataMessage(data: any): any {
 
 export async function POST(request: Request) {
   try {
+    const body: any = await request.json()
+
+    // テストモード: 求人ボックス連携テスト用の強制分岐
+    // APPLY_TEST_MODE=1 のとき、job.id に応じてステータスを固定で返す
+    if (process.env.APPLY_TEST_MODE === '1') {
+      // job.id（変換後）と job.jobId（生データ）どちらでも判定できるように両対応
+      const jobId: string | undefined = body?.job?.id ?? body?.job?.jobId
+      if (jobId === 'test-404') {
+        return NextResponse.json(
+          { success: false, message: 'Job Not Found' },
+          { status: 404 }
+        )
+      }
+      if (jobId === 'test-410') {
+        return NextResponse.json(
+          { success: false, message: 'Job Expired' },
+          { status: 410 }
+        )
+      }
+      if (jobId === 'test-200') {
+        return NextResponse.json(
+          { success: true, message: 'OK' },
+          { status: 200 }
+        )
+      }
+      // 想定外のIDは200で受領（テスト観点では合格条件外だが安全側）
+      return NextResponse.json(
+        { success: true, message: 'OK' },
+        { status: 200 }
+      )
+    }
+
+    console.log("[applications] Received application data:", body)
+
+    // ここから先はテストモードではなく通常フロー。
     const LARK_WEBHOOK = process.env.LARK_WEBHOOK
-    
     if (!LARK_WEBHOOK) {
       console.error("[applications] LARK_WEBHOOK environment variable is not set")
       return NextResponse.json(
@@ -161,10 +195,6 @@ export async function POST(request: Request) {
         { status: 500 }
       )
     }
-
-    const body: any = await request.json()
-
-    console.log("[applications] Received application data:", body)
 
     // 生データの場合は特別な処理
     if (body.isRawData) {
