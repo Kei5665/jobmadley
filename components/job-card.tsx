@@ -15,14 +15,14 @@ export default function JobCard({ job, horizontal = false }: JobCardProps) {
     <Link href={`/job/${job.id}`} className="block group">
       <Card className="rounded-lg shadow-md overflow-hidden group-hover:shadow-lg">
         {horizontal ? (
-          <div className="flex">
-            {/* 画像エリア */}
-            <div className="relative w-40 md:w-48 flex-shrink-0">
+          <div className="flex flex-col md:flex-row">
+            {/* 画像エリア（モバイル: 上部フル幅 / PC: 左サムネ） */}
+            <div className="relative w-full h-40 md:h-auto md:w-48 flex-shrink-0">
               <Image
                 src={imageUrl}
                 alt="求人画像"
                 fill
-                sizes="192px"
+                sizes="(min-width: 768px) 192px, 100vw"
                 className="object-cover"
               />
               {isNewJob && (

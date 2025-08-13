@@ -24,7 +24,7 @@ export default function JobTitleActions({ job }: JobTitleActionsProps) {
             {job.jobName ?? job.title}
           </h1>
           {job.companyName ? (
-            <Link href="#" className="text-teal-600 hover:underline">
+            <Link href="#" className="text-blue-600 hover:underline">
               {job.companyName}
             </Link>
           ) : (

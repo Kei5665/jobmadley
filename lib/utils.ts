@@ -97,6 +97,7 @@ export const buildSearchQuery = (params: {
   jobCategoryId?: string
   keyword?: string
   page?: number
+  sort?: string
 }): string => {
   const searchParams = new URLSearchParams()
   
@@ -117,6 +118,9 @@ export const buildSearchQuery = (params: {
   }
   if (params.page && params.page > 1) {
     searchParams.set("page", String(params.page))
+  }
+  if (params.sort) {
+    searchParams.set("sort", params.sort)
   }
   
   return searchParams.toString()

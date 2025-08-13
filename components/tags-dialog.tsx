@@ -43,11 +43,9 @@ export default function TagDialog({ tags, selectedTagIds, keyword, prefectureId,
     <Dialog>
       <DialogTrigger asChild>
         <Card className="cursor-pointer hover:bg-gray-50">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div className="flex items-center">
-              <Star className="w-5 h-5 text-teal-600 mr-3" />
-              <span className="text-gray-800">特徴から選択</span>
-            </div>
+          <CardContent className="p-6 text-center">
+            <Star className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+            <span className="text-gray-800 font-medium">特徴から選択</span>
           </CardContent>
         </Card>
       </DialogTrigger>
@@ -81,7 +79,7 @@ export default function TagDialog({ tags, selectedTagIds, keyword, prefectureId,
             <button className="px-4 py-2 text-sm text-gray-600 rounded hover:bg-gray-100">キャンセル</button>
           </DialogClose>
           <DialogClose asChild>
-            <button onClick={apply} className="px-4 py-2 text-sm bg-teal-600 text-white rounded hover:bg-teal-700">
+            <button onClick={apply} className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
               適用
             </button>
           </DialogClose>

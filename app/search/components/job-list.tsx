@@ -1,3 +1,5 @@
+"use client"
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import JobCard from "@/components/job-card"
 import type { Job } from "@/lib/types"
@@ -9,12 +11,6 @@ interface JobListProps {
 export default function JobList({ jobs }: JobListProps) {
   return (
     <Tabs defaultValue="recommended" className="mb-8">
-      <TabsList className="grid w-full grid-cols-3">
-        <TabsTrigger value="recommended">おすすめ順</TabsTrigger>
-        <TabsTrigger value="newest">新着順</TabsTrigger>
-        <TabsTrigger value="nearest">自宅に近い順</TabsTrigger>
-      </TabsList>
-
       <TabsContent value="recommended" className="mt-6">
         {jobs.length === 0 ? (
           <div className="text-center py-8 text-gray-500">該当する求人がありません</div>

@@ -2,6 +2,7 @@ import SiteHeader from "@/components/site-header"
 import SiteFooter from "@/components/site-footer"
 import RidejobMediaSection from "@/components/ridejob-media-section"
 import { getPrefectureById } from "@/lib/getPrefectures"
+import { getPrefectureGroups } from "@/lib/getPrefectures"
 import { getJobsPaged } from "@/lib/getJobs"
 import { getMunicipalityById } from "@/lib/getMunicipalities"
 import { getTags } from "@/lib/getTags"
@@ -11,10 +12,11 @@ import { buildSearchQuery } from "@/lib/utils"
 import { withErrorHandling } from "@/lib/error-handling"
 import { ErrorDisplay } from "@/components/ui/error-display"
 import SearchHeader from "./components/search-header"
-import SearchOptions from "./components/search-options"
 import SearchConditionSummary from "./components/search-condition-summary"
 import JobList from "./components/job-list"
 import SearchPagination from "./components/search-pagination"
+import SortTabs from "./components/sort-tabs"
+import FilterSidebar from "./components/filter-sidebar"
 
 interface SearchPageProps {
   searchParams: Promise<{
@@ -24,6 +26,7 @@ interface SearchPageProps {
     tags?: string
     jobCategory?: string
     page?: string
+    sort?: string
   }>
 }
 
@@ -36,15 +39,17 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const tagIds = params.tags ? params.tags.split(",") : []
   const jobCategoryId = params.jobCategory
   const page = params.page ? Number(params.page) : 1
+  const sort = params.sort ?? "recommended"
 
   try {
     const [
-      prefectureData,
+       prefectureData,
       selectedMunicipality,
       { contents: jobs, totalCount },
       tags,
       jobCategories,
       mediaArticles,
+       prefectureGroups,
     ] = await Promise.all([
       prefectureId ? withErrorHandling(
         () => getPrefectureById(prefectureId),
@@ -54,21 +59,23 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         () => getMunicipalityById(municipalityId),
         "getMunicipalityById"
       ) : null,
-      withErrorHandling(
+       withErrorHandling(
         () => getJobsPaged({
           prefectureId,
           municipalityId,
           tagIds,
           jobCategoryId,
           keyword,
-          limit: 10,
+           limit: 10,
           offset: (page - 1) * 10,
+           orders: "-publishedAt",
         }),
         "getJobsPaged"
       ),
       withErrorHandling(() => getTags(), "getTags"),
       withErrorHandling(() => getJobCategories(), "getJobCategories"),
-      withErrorHandling(() => getMediaArticles(), "getMediaArticles"),
+       withErrorHandling(() => getMediaArticles(), "getMediaArticles"),
+       withErrorHandling(() => getPrefectureGroups(), "getPrefectureGroups"),
     ])
 
     const { companyArticles, interviewArticles } = mediaArticles
@@ -97,6 +104,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         tagIds,
         jobCategoryId,
         page: p,
+        sort,
       })
       return `/search?${query}`
     }
@@ -114,9 +122,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-8">
-            <div>
-              <SearchOptions
+          <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8">
+            {/* サイドバー（PC）/ 上部（SP） */}
+            <div className="order-1 md:order-none">
+              <FilterSidebar
                 keyword={keyword}
                 prefectureId={prefectureId}
                 prefectureName={prefectureName}
@@ -125,8 +134,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 jobCategoryId={jobCategoryId}
                 tags={tags}
                 tagIds={tagIds}
+                prefectureGroups={prefectureGroups}
               />
+            </div>
 
+            {/* 結果エリア */}
+            <div className="order-2 md:order-none">
               <SearchConditionSummary
                 keyword={keyword}
                 prefectureName={prefectureName}
@@ -137,6 +150,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 jobCategories={jobCategories}
                 jobCategoryId={jobCategoryId}
               />
+
+              <div className="mb-4">
+                <SortTabs />
+              </div>
 
               <JobList jobs={jobs} />
 

@@ -49,7 +49,7 @@ export default function MunicipalityDialog({ prefectureId, prefectureName, keywo
       <DialogTrigger asChild>
         <Card className="cursor-pointer hover:bg-gray-50">
           <CardContent className="p-6 text-center">
-            <MapPin className="w-8 h-8 text-teal-600 mx-auto mb-2" />
+            <MapPin className="w-8 h-8 text-blue-600 mx-auto mb-2" />
             <span className="text-gray-800 font-medium">市区町村から選択</span>
           </CardContent>
         </Card>
@@ -76,7 +76,7 @@ export default function MunicipalityDialog({ prefectureId, prefectureName, keywo
                   <DialogClose asChild key={m.id}>
                     <Link
                       href={href}
-                      className="flex items-center justify-between p-3 text-sm text-teal-600 hover:bg-teal-50 border-b"
+                      className="flex items-center justify-between p-3 text-sm text-blue-600 hover:bg-blue-50 border-b"
                     >
                       <span className="text-gray-800">{m.name}</span>
                       <ChevronRight className="w-3 h-3" />

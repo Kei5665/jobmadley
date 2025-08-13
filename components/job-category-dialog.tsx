@@ -45,7 +45,7 @@ export default function JobCategoryDialog({
       <DialogTrigger asChild>
         <Card className="cursor-pointer hover:bg-gray-50">
           <CardContent className="p-6 text-center">
-            <Briefcase className="w-8 h-8 text-teal-600 mx-auto mb-2" />
+            <Briefcase className="w-8 h-8 text-blue-600 mx-auto mb-2" />
             <span className="text-gray-800 font-medium">募集職種から選択</span>
           </CardContent>
         </Card>
@@ -63,7 +63,7 @@ export default function JobCategoryDialog({
                 onClick={() => setSelected(jc.id)}
               >
                 <span className="text-gray-800">{jc.name}</span>
-                {selected === jc.id && <span className="text-teal-600">✓</span>}
+                {selected === jc.id && <span className="text-blue-600">✓</span>}
               </li>
             ))}
             {jobCategories.length === 0 && (
@@ -76,7 +76,7 @@ export default function JobCategoryDialog({
             <button className="px-4 py-2 text-sm text-gray-600 rounded hover:bg-gray-100">キャンセル</button>
           </DialogClose>
           <DialogClose asChild>
-            <Link href={buildHref(selected || "")} className="px-4 py-2 text-sm bg-teal-600 text-white rounded hover:bg-teal-700">
+            <Link href={buildHref(selected || "")} className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
               適用
             </Link>
           </DialogClose>

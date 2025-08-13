@@ -19,13 +19,13 @@ export default function JobBreadcrumb({ job }: JobBreadcrumbProps) {
       <div className="flex items-center text-sm text-gray-600">
         <Home className="w-4 h-4 mr-1" />
         <ChevronRight className="w-4 h-4 mx-1" />
-        <Link href="/" className="hover:text-teal-600">
+    <Link href="/" className="hover:text-blue-600">
           {jobCategoryName}の求人
         </Link>
         {prefectureId && (
           <>
             <ChevronRight className="w-4 h-4 mx-1" />
-            <Link href={`/search?prefecture=${prefectureId}`} className="hover:text-teal-600">
+            <Link href={`/search?prefecture=${prefectureId}`} className="hover:text-blue-600">
               {prefectureName}
             </Link>
           </>
@@ -33,7 +33,7 @@ export default function JobBreadcrumb({ job }: JobBreadcrumbProps) {
         {municipalityId && (
           <>
             <ChevronRight className="w-4 h-4 mx-1" />
-            <Link href={`/search?prefecture=${prefectureId}&municipality=${municipalityId}`} className="hover:text-teal-600">
+            <Link href={`/search?prefecture=${prefectureId}&municipality=${municipalityId}`} className="hover:text-blue-600">
               {municipalityName}
             </Link>
           </>

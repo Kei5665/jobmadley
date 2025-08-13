@@ -25,7 +25,7 @@ export default function SearchHeader({
         <div className="flex items-center text-sm text-gray-600">
           <Home className="w-4 h-4 mr-1" />
           <ChevronRight className="w-4 h-4 mx-1" />
-          <Link href="/" className="hover:text-teal-600">
+          <Link href="/" className="hover:text-blue-600">
             {jobCategoryName}の求人
           </Link>
           <ChevronRight className="w-4 h-4 mx-1" />
@@ -61,7 +61,7 @@ export default function SearchHeader({
           <span className="text-lg text-gray-600">
             該当件数 <span className="font-bold text-red-500">{totalCount}件</span>
           </span>
-          <Link href="#" className="text-sm text-teal-600 hover:underline">
+          <Link href="#" className="text-sm text-blue-600 hover:underline">
             登録情報を変更する
           </Link>
         </div>
