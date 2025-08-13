@@ -98,6 +98,37 @@ export default function MediaSection({ companyArticles, interviewArticles }: Med
           </Link>
         </div>
       </div>
+
+      {/* 外部リンクバナー */}
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <a href="https://ridejob.jp/ssw/ja" target="_blank" rel="noopener noreferrer" className="block">
+          <Image
+            src="/images/ssw.png"
+            alt="特定技能向け LINE 相談"
+            width={768}
+            height={279}
+            className="w-full h-auto rounded-xl shadow"
+          />
+        </a>
+        <a href="https://www.tiktok.com/@ride.job" target="_blank" rel="noopener noreferrer" className="block">
+          <Image
+            src="/images/Tiltok.png"
+            alt="RIDE JOB TikTok アカウント"
+            width={768}
+            height={279}
+            className="w-full h-auto rounded-xl shadow"
+          />
+        </a>
+        <a href="https://www.youtube.com/@RIDEJOB%E3%83%81%E3%83%A3%E3%83%B3%E3%83%8D%E3%83%AB" target="_blank" rel="noopener noreferrer" className="block">
+          <Image
+            src="/images/youtube.png"
+            alt="RIDE JOB YouTube アカウント"
+            width={768}
+            height={279}
+            className="w-full h-auto rounded-xl shadow"
+          />
+        </a>
+      </div>
     </section>
   )
 } 

@@ -11,10 +11,14 @@ import HeroSection from "./components/hero-section"
 import LatestJobsSection from "./components/latest-jobs-section"
 import MediaSection from "./components/media-section"
 import type { BlogArticle } from "@/lib/types"
+import { getTags } from "@/lib/getTags"
+import PopularTagsSection from "@/components/popular-tags-section"
+import { getJobCategories } from "@/lib/getJobCategories"
+import JobCategoriesSection from "@/components/job-categories-section"
 
 export default async function HomePage() {
   try {
-    const [prefectures, latestJobs, companyArticles, interviewArticles] = await Promise.all([
+    const [prefectures, latestJobs, companyArticles, interviewArticles, tags, jobCategories] = await Promise.all([
       withErrorHandling(() => getPrefectureGroups(), "getPrefectureGroups"),
       withErrorHandling(() => getJobs({ limit: 4, orders: "-publishedAt" }), "getLatestJobs"),
       withErrorHandling(
@@ -31,6 +35,8 @@ export default async function HomePage() {
         }),
         "getInterviewArticles"
       ).then(data => data.contents),
+      withErrorHandling(() => getTags(), "getTags"),
+      withErrorHandling(() => getJobCategories(), "getJobCategories"),
     ])
 
     // 各都道府県の求人数を取得
@@ -66,6 +72,8 @@ export default async function HomePage() {
 
         <HeroSection />
         <RegionSearchSection prefectures={prefectures} countMap={countMap} />
+        <PopularTagsSection tags={tags} />
+        <JobCategoriesSection categories={jobCategories} />
         <LatestJobsSection jobs={latestJobs} />
         <MediaSection 
           companyArticles={companyArticles}

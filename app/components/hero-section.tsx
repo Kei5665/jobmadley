@@ -25,13 +25,10 @@ export default function HeroSection() {
 
   return (
     <section className="relative mb-12">
-      {/* 背景画像 */}
-      <div
-        className="relative h-[320px] md:h-[380px] lg:h-[420px] w-full bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/top-bg.png')" }}
-      >
+      {/* 背景画像（モバイルとPCで出し分け） */}
+      <div className="relative h-[320px] md:h-[380px] lg:h-[420px] w-full bg-cover bg-center bg-[url('/images/m-top-bg.png')] md:bg-[url('/images/top-bg.png')]">
         {/* 浮かせた検索ボックス */}
-        <div className="absolute left-1/2 bottom-0 translate-y-1/4 -translate-x-1/2 w-full max-w-5xl px-4 z-20">
+        <div className="absolute left-1/2 bottom-0 translate-y-[40%] md:translate-y-1/4 -translate-x-1/2 w-full max-w-5xl px-4 z-20">
           <div className="bg-gradient-to-r from-[#1f1fff] via-[#0044ff] to-[#1aa9ff] rounded-xl shadow-2xl">
             <div className="px-6 py-6">
               {/* タイトル画像 */}

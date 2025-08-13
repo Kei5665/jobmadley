@@ -41,7 +41,7 @@ export const getJobs = async ({
       filterParts.push(`tags[contains]${id}`)
     })
   }
-  if (jobCategoryId) filterParts.push(`jobcategory[equals]${jobCategoryId}`)
+  if (jobCategoryId) filterParts.push(`jobCategory[equals]${jobCategoryId}`)
 
   const filters = filterParts.join("[and]")
 
@@ -112,7 +112,7 @@ export const getJobsPaged = async ({
       filterParts.push(`tags[contains]${id}`)
     })
   }
-  if (jobCategoryId) filterParts.push(`jobcategory[equals]${jobCategoryId}`)
+  if (jobCategoryId) filterParts.push(`jobCategory[equals]${jobCategoryId}`)
 
   const filters = filterParts.join("[and]")
 
