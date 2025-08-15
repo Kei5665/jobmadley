@@ -1,4 +1,6 @@
 import { Suspense } from "react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 import SiteHeader from "@/components/site-header"
 import SiteFooter from "@/components/site-footer"
 import RidejobMediaSection from "@/components/ridejob-media-section"
@@ -87,6 +89,16 @@ export default async function JobPage({ params }: JobPageProps) {
           companyArticles={companyArticles}
           interviewArticles={interviewArticles}
         />
+        {/* Mobile sticky apply button */}
+        <div className="sm:hidden fixed inset-x-0 bottom-0 z-40 bg-white border-t border-gray-200 p-3">
+          <Link href={`/apply/${job.id}`} className="block">
+            <Button className="w-full bg-red-500 hover:bg-red-600 text-white text-base py-3">
+              応募画面へ進む
+            </Button>
+          </Link>
+        </div>
+        {/* Spacer to avoid content being hidden behind sticky bar on mobile */}
+        <div className="h-20 sm:hidden" />
         <SiteFooter />
       </div>
     )

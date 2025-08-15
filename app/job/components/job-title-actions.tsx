@@ -40,7 +40,7 @@ export default function JobTitleActions({ job }: JobTitleActionsProps) {
             </div>
           )}
         </div>
-        <div className="w-full sm:w-auto flex flex-col space-y-3 sm:ml-6">
+        <div className="hidden sm:flex sm:w-auto flex-col space-y-3 sm:ml-6">
           <Link href={`/apply/${job.id}`} className="block w-full sm:w-auto">
             <Button className="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white px-8 py-3 text-lg">
               応募画面へ進む
