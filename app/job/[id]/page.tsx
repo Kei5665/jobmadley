@@ -109,7 +109,6 @@ export default async function JobPage({ params }: JobPageProps) {
 
   return (
     <Suspense fallback={<Loading message="求人詳細を読み込み中..." />}>
-      {/* @ts-expect-error Async Server Component */}
       <JobDetailPage jobId={id} />
     </Suspense>
   )

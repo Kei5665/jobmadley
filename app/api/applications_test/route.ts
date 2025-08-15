@@ -229,21 +229,31 @@ export async function POST(request: Request) {
         body: JSON.stringify(rawLarkMessage),
       })
 
+      const responseText = await response.text()
       console.log("[applications_test] 📬 Raw data Lark response status:", response.status)
       console.log("[applications_test] 📬 Raw data Lark response headers:", Object.fromEntries(response.headers.entries()))
+      console.log("[applications_test] 📬 Raw data Lark response body:", responseText)
 
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error("[applications_test] ❌ Lark webhook error for raw data:", errorText)
+      let parsed: any = null
+      try {
+        parsed = JSON.parse(responseText)
+      } catch (_) {}
+
+      const larkCode: number | undefined = parsed?.code ?? parsed?.StatusCode
+      const larkMsg: string | undefined = parsed?.msg ?? parsed?.StatusMessage
+
+      if (!response.ok || (typeof larkCode === 'number' && larkCode !== 0)) {
+        console.error("[applications_test] ❌ Lark webhook error for raw data:", {
+          httpStatus: response.status,
+          body: responseText,
+        })
         return NextResponse.json(
-          { success: false, message: `Failed to send raw data to Lark: ${response.status} - ${errorText}` },
-          { status: response.status }
+          { success: false, message: `Failed to send raw data to Lark: ${response.ok ? 502 : response.status} - ${larkMsg || 'Unknown error'}` },
+          { status: response.ok ? 502 : response.status }
         )
       }
 
-      const responseText = await response.text()
-      console.log("[applications_test] ✅ Raw data Lark response body:", responseText)
-    console.log("[applications_test] ✅ Successfully sent raw data to Lark")
+      console.log("[applications_test] ✅ Successfully sent raw data to Lark")
     console.log("=".repeat(80))
     } catch (fetchError) {
       console.error("[applications_test] ❌ Network error sending raw data to Lark:", fetchError)
@@ -268,11 +278,14 @@ export async function POST(request: Request) {
 
 // テスト用GETエンドポイント（エンドポイント確認用）
 export async function GET() {
+  const hook = process.env.LARK_WEBHOOK
+  const masked = hook ? `${hook.slice(0, 30)}...${hook.slice(-8)}` : undefined
   return NextResponse.json({
     message: "🧪 Test Applications Endpoint",
     status: "active",
     timestamp: new Date().toISOString(),
     description: "This is a test endpoint for application data processing",
+    webhook: masked ? { configured: true, masked } : { configured: false },
     usage: {
       method: "POST",
       contentType: "application/json",

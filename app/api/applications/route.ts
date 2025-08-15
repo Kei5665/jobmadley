@@ -233,16 +233,30 @@ export async function POST(request: Request) {
       body: JSON.stringify(larkMessage),
     })
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error("[applications] Lark webhook error:", errorText)
+    // LarkはHTTP 200でも本文のcodeが非0でエラーを返すことがある
+    const responseText = await response.text()
+    let parsed: any = null
+    try {
+      parsed = JSON.parse(responseText)
+    } catch (_) {
+      // 本文がJSONでない場合はそのまま扱う
+    }
+
+    const larkCode: number | undefined = parsed?.code ?? parsed?.StatusCode
+    const larkMsg: string | undefined = parsed?.msg ?? parsed?.StatusMessage
+
+    if (!response.ok || (typeof larkCode === 'number' && larkCode !== 0)) {
+      console.error("[applications] Lark webhook error:", {
+        httpStatus: response.status,
+        body: responseText,
+      })
       return NextResponse.json(
-        { success: false, message: "Failed to send to Lark" },
-        { status: response.status }
+        { success: false, message: larkMsg || "Failed to send to Lark" },
+        { status: response.ok ? 502 : response.status }
       )
     }
 
-    console.log("[applications] Successfully sent to Lark")
+    console.log("[applications] Successfully sent to Lark", { body: responseText })
     return NextResponse.json({ success: true })
 
   } catch (error) {

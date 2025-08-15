@@ -7,39 +7,43 @@ interface JobBreadcrumbProps {
 }
 
 export default function JobBreadcrumb({ job }: JobBreadcrumbProps) {
-  const jobCategoryName = job.jobCategory?.name ?? "職種未設定"
+  const jobCategoryName = job.jobCategory?.name
   const prefectureId = job.prefecture?.id ?? ""
   const prefectureName = job.prefecture?.region ?? ""
   const municipalityId = job.municipality?.id ?? ""
   const municipalityName = job.municipality?.name ?? ""
-  const companyName = job.companyName ?? "会社名未設定"
+  const companyName = job.companyName ?? ""
+
+  const lastCrumbText = companyName && jobCategoryName
+    ? `${companyName}の${jobCategoryName}求人`
+    : companyName
+      ? `${companyName}の求人`
+      : jobCategoryName
+        ? `${jobCategoryName}求人`
+        : "求人詳細"
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-      <div className="flex items-center text-sm text-gray-600">
-        <Home className="w-4 h-4 mr-1" />
-        <ChevronRight className="w-4 h-4 mx-1" />
-    <Link href="/" className="hover:text-blue-600">
-          {jobCategoryName}の求人
-        </Link>
+      <div className="flex flex-wrap items-center gap-1.5 text-sm text-gray-600 sm:gap-2">
+        <Home className="w-5 h-5 mr-1 shrink-0 sm:w-4 sm:h-4" />
         {prefectureId && (
           <>
-            <ChevronRight className="w-4 h-4 mx-1" />
-            <Link href={`/search?prefecture=${prefectureId}`} className="hover:text-blue-600">
+            <ChevronRight className="w-4 h-4 mx-1 shrink-0" />
+            <Link href={`/search?prefecture=${prefectureId}`} className="hover:text-blue-600 whitespace-nowrap">
               {prefectureName}
             </Link>
           </>
         )}
         {municipalityId && (
           <>
-            <ChevronRight className="w-4 h-4 mx-1" />
-            <Link href={`/search?prefecture=${prefectureId}&municipality=${municipalityId}`} className="hover:text-blue-600">
+            <ChevronRight className="w-4 h-4 mx-1 shrink-0" />
+            <Link href={`/search?prefecture=${prefectureId}&municipality=${municipalityId}`} className="hover:text-blue-600 whitespace-nowrap">
               {municipalityName}
             </Link>
           </>
         )}
-        <ChevronRight className="w-4 h-4 mx-1" />
-        <span>{`${companyName}の${jobCategoryName}求人`}</span>
+        <ChevronRight className="w-4 h-4 mx-1 shrink-0" />
+        <span className="flex-1 min-w-0 whitespace-normal break-words">{lastCrumbText}</span>
       </div>
     </div>
   )

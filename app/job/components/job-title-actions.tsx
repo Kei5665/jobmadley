@@ -15,8 +15,8 @@ export default function JobTitleActions({ job }: JobTitleActionsProps) {
 
   return (
     <div className="mb-8">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex-1">
+      <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-start sm:justify-between mb-4">
+        <div className="sm:flex-1">
           <div className="flex items-center mb-2">
             {isNewJob && <Badge className="bg-red-500 text-white mr-2">NEW</Badge>}
           </div>
@@ -40,9 +40,9 @@ export default function JobTitleActions({ job }: JobTitleActionsProps) {
             </div>
           )}
         </div>
-        <div className="flex flex-col space-y-3 ml-6">
-          <Link href={`/apply/${job.id}`}>
-            <Button className="bg-red-500 hover:bg-red-600 text-white px-8 py-3 text-lg">
+        <div className="w-full sm:w-auto flex flex-col space-y-3 sm:ml-6">
+          <Link href={`/apply/${job.id}`} className="block w-full sm:w-auto">
+            <Button className="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white px-8 py-3 text-lg">
               応募画面へ進む
               <div className="text-xs ml-2 bg-white text-red-500 px-2 py-1 rounded">
                 約1分!
@@ -51,10 +51,6 @@ export default function JobTitleActions({ job }: JobTitleActionsProps) {
               </div>
             </Button>
           </Link>
-          <Button variant="outline" className="flex items-center">
-            <Star className="w-4 h-4 mr-2" />
-            キープする
-          </Button>
         </div>
       </div>
 
