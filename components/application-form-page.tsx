@@ -278,7 +278,7 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
                 }}
               />
               <label htmlFor="agreement" className="text-sm leading-5">
-                <Link href="/privacy" className="text-blue-600 underline hover:text-blue-800">
+                <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">
                   利用規約・個人情報の取り扱い
                 </Link>
                 について同意します。
@@ -297,9 +297,6 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
               >
                 {isSubmitting ? "送信中..." : "応募する"}
               </Button>
-              <p className="text-sm text-gray-600 mt-2">
-                応募完了まで30秒ほどで応募が完了します。
-              </p>
             </div>
           </form>
         </div>
