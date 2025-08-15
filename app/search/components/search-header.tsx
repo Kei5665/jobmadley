@@ -24,14 +24,18 @@ export default function SearchHeader({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center text-sm text-gray-600">
           <Home className="w-4 h-4 mr-1" />
-          <ChevronRight className="w-4 h-4 mx-1" />
-          <Link href="/" className="hover:text-blue-600">
-            {jobCategoryName}の求人
-          </Link>
+          {jobCategoryName && (
+            <>
+              <ChevronRight className="w-4 h-4 mx-1" />
+              <Link href="/" className="hover:text-blue-600">
+                {jobCategoryName}の求人
+              </Link>
+            </>
+          )}
           <ChevronRight className="w-4 h-4 mx-1" />
           <span>
             {selectedMunicipality ? `${selectedMunicipality.name}（${prefectureName}）` : prefectureName}
-            の{jobCategoryName}求人
+            {jobCategoryName ? `の${jobCategoryName}求人` : "の求人"}
           </span>
         </div>
       </div>
@@ -55,7 +59,7 @@ export default function SearchHeader({
           {selectedMunicipality
             ? `${selectedMunicipality.name}（${prefectureName}）`
             : prefectureName}
-          の{jobCategoryName}の求人情報
+          {jobCategoryName ? `の${jobCategoryName}の求人情報` : "の求人情報"}
         </h1>
         <div className="flex items-center space-x-4">
           <span className="text-lg text-gray-600">

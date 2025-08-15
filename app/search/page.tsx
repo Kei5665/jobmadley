@@ -84,10 +84,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     const totalPages = Math.ceil(totalCount / 10)
     const currentPage = Math.min(Math.max(page, 1), totalPages || 1)
 
-    // 選択された職種名を取得（未選択の場合はデフォルトでタクシー運転手とする）
+    // 選択された職種名を取得（未選択・未一致の場合は空文字＝全職種）
     const jobCategoryName = jobCategoryId
-      ? jobCategories.find((c) => c.id === jobCategoryId)?.name ?? "タクシー運転手"
-      : "タクシー運転手"
+      ? jobCategories.find((c) => c.id === jobCategoryId)?.name ?? ""
+      : ""
 
     // 職種ごとのヒーロー画像を決定
     const heroImageSrc = (() => {
