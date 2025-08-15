@@ -33,11 +33,15 @@ export async function POST(request: Request) {
         : 'https://ridejob.jp'
 
     // 内部フォーム専用エンドポイントへそのまま転送
+    const headers: Record<string, string> = { "Content-Type": "application/json" }
+    const bypassToken = process.env.VERCEL_AUTOMATION_BYPASS_SECRET
+    if (bypassToken) {
+      headers["x-vercel-protection-bypass"] = bypassToken
+    }
+
     const res = await fetch(`${baseUrl}/api/applications-internal`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify(incoming),
     })
 
