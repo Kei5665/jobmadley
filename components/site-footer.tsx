@@ -24,41 +24,23 @@ export default function SiteFooter() {
           <div>
             <h3 className="font-bold text-lg mb-4">ライドジョブについて</h3>
             <ul className="space-y-2 text-sm text-indigo-700">
-              <li><Link href="#" className="hover:underline">ご利用規約</Link></li>
-              <li><Link href="#" className="hover:underline">ミッション</Link></li>
-              <li><Link href="#" className="hover:underline">転職体験談</Link></li>
               <li><Link href="/privacy" className="hover:underline">プライバシーポリシー</Link></li>
               <li><Link href="https://pmagent.jp/" target="_blank" rel="noopener noreferrer" className="hover:underline">運営会社情報</Link></li>
-              <li><Link href="#" className="hover:underline">お問い合わせ</Link></li>
+              <li><Link href="https://ridejob.jp/media/contact" target="_blank" rel="noopener noreferrer" className="hover:underline">お問い合わせ</Link></li>
             </ul>
           </div>
 
-          {/* Recruiters */}
-          <div>
-            <h3 className="font-bold text-lg mb-4">採用担当者様へ</h3>
-            <ul className="space-y-2 text-sm text-indigo-700">
-              <li><Link href="#" className="hover:underline">求人掲載をお考えの企業様</Link></li>
-            </ul>
-          </div>
+
 
           {/* Media */}
           <div>
             <h3 className="font-bold text-lg mb-4">運営メディア</h3>
             <ul className="space-y-2 text-sm text-indigo-700">
-              <li><Link href="https://ridejob-cms.online/blogs" target="_blank" className="hover:underline">ライドジョブ</Link></li>
+              <li><Link href="https://ridejob.jp/media/" target="_blank" className="hover:underline">ライドジョブ</Link></li>
             </ul>
           </div>
         </div>
 
-        {/* Contact button */}
-        <div className="text-center md:text-left">
-          <Link href="#" className="inline-block">
-            <Button className="bg-[#2000d8] hover:bg-[#1800b6] text-white px-8 py-4 rounded-full inline-flex items-center gap-2">
-              各種ご相談 お問い合わせ窓口
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </Link>
-        </div>
       </div>
     </footer>
   )

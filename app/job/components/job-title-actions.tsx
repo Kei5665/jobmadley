@@ -44,11 +44,6 @@ export default function JobTitleActions({ job }: JobTitleActionsProps) {
           <Link href={`/apply/${job.id}`} className="block w-full sm:w-auto">
             <Button className="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white px-8 py-3 text-lg">
               応募画面へ進む
-              <div className="text-xs ml-2 bg-white text-red-500 px-2 py-1 rounded">
-                約1分!
-                <br />
-                すぐ完了
-              </div>
             </Button>
           </Link>
         </div>
