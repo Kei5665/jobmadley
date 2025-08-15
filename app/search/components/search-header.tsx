@@ -40,19 +40,6 @@ export default function SearchHeader({
         </div>
       </div>
 
-      {/* Hero Image */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-        <div className="relative h-48 rounded-lg overflow-hidden">
-          <Image
-            src={heroImageSrc}
-            alt="hero-image"
-            fill
-            sizes="100vw"
-            className="object-cover"
-          />
-        </div>
-      </div>
-
       {/* Page Title */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
         <h1 className="text-2xl font-bold text-gray-800 mb-2">
