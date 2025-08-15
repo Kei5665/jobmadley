@@ -25,7 +25,7 @@ function buildInternalLarkCard(input: any) {
     msg_type: "interactive",
     card: {
       elements: [
-        { tag: "div", text: { tag: "lark_md", content: `**🟦 内部フォーム応募通知**\n応募日時: ${appliedAt}` } },
+        { tag: "div", text: { tag: "lark_md", content: `**🟦 ライドジョブ求人サイト応募通知**\n応募日時: ${appliedAt}` } },
         { tag: "hr" },
         { tag: "div", text: { tag: "lark_md", content: `**📋 応募内容**\n${details}` } },
         ...(jobLines.length > 0 ? [
