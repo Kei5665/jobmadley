@@ -1,5 +1,42 @@
 import { NextResponse } from "next/server"
 
+function buildInternalLarkCard(input: any) {
+  const appliedAt = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
+  const details = [
+    `1. 氏名: ${input.lastName ?? ''} ${input.firstName ?? ''}`,
+    `2. ふりがな: ${input.lastNameKana ?? ''} ${input.firstNameKana ?? ''}`,
+    `3. 生年月日: ${input.birthDate ?? ''}`,
+    `4. 電話番号: ${input.phone ?? ''}`,
+    `5. メールアドレス: ${input.email ?? ''}`,
+    `6. 住所: ${input.address ?? ''}`,
+  ].join('\n')
+
+  const jobLines: string[] = []
+  if (input.companyName || input.jobName || input.jobUrl || input.jobId) {
+    jobLines.push(
+      `会社名: ${input.companyName ?? '—'}`,
+      `求人名: ${input.jobName ?? '—'}`,
+      `求人URL: ${input.jobUrl ?? '—'}`,
+      `求人ID: ${input.jobId ?? '—'}`,
+    )
+  }
+
+  return {
+    msg_type: "interactive",
+    card: {
+      elements: [
+        { tag: "div", text: { tag: "lark_md", content: `**🟦 内部フォーム応募通知**\n応募日時: ${appliedAt}` } },
+        { tag: "hr" },
+        { tag: "div", text: { tag: "lark_md", content: `**📋 応募内容**\n${details}` } },
+        ...(jobLines.length > 0 ? [
+          { tag: "hr" },
+          { tag: "div", text: { tag: "lark_md", content: `**💼 求人情報**\n${jobLines.join('\n')}` } },
+        ] : []),
+      ]
+    }
+  }
+}
+
 export async function POST(request: Request) {
   try {
     // 詳細なリクエスト情報をログ出力
@@ -26,38 +63,38 @@ export async function POST(request: Request) {
     console.log("[INFO] Raw Request Data (Pretty Formatted):")
     console.log(JSON.stringify(incoming, null, 2))
 
-    const baseUrl = process.env.NODE_ENV === 'development'
-      ? 'http://localhost:3000'
-      : process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : 'https://ridejob.jp'
-
-    // 内部フォーム専用エンドポイントへそのまま転送
-    const headers: Record<string, string> = { "Content-Type": "application/json" }
-    const bypassToken = process.env.VERCEL_AUTOMATION_BYPASS_SECRET
-    if (bypassToken) {
-      headers["x-vercel-protection-bypass"] = bypassToken
+    const webhookUrl = process.env.LARK_WEBHOOK_INTERNAL ?? process.env.LARK_WEBHOOK
+    if (!webhookUrl) {
+      console.error("[ERROR] Lark webhook is not configured")
+      return NextResponse.json({ success: false, message: "Webhook not configured" }, { status: 500 })
     }
 
-    const res = await fetch(`${baseUrl}/api/applications-internal`, {
+    const card = buildInternalLarkCard(incoming)
+    const response = await fetch(webhookUrl, {
       method: "POST",
-      headers,
-      body: JSON.stringify(incoming),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(card),
     })
 
-    const text = await res.text()
-    if (!res.ok) {
-      console.error("=".repeat(80))
-      console.error(`[ERROR] ${new Date().toISOString()} - Applications Internal API Error`)
-      console.error(`[ERROR] Status: ${res.status}`)
-      console.error(`[ERROR] Response: ${text}`)
-      console.error("=".repeat(80))
-      return NextResponse.json({ success: false, message: text }, { status: res.status })
+    const responseText = await response.text()
+    let ok = response.ok
+    try {
+      const parsed = JSON.parse(responseText)
+      if (typeof parsed?.code === 'number') ok = ok && parsed.code === 0
+      if (typeof parsed?.StatusCode === 'number') ok = ok && parsed.StatusCode === 0
+    } catch (_) {
+      // 非JSONレスポンスはHTTPステータスのみで判定
     }
 
-    console.log("=".repeat(80))
-    console.log(`[SUCCESS] ${new Date().toISOString()} - Successfully sent to applications-internal API`)
-    console.log("=".repeat(80))
+    if (!ok) {
+      console.error("[ERROR] Failed to send to Lark:", { status: response.status, body: responseText })
+      return NextResponse.json(
+        { success: false, message: "Failed to send to Lark" },
+        { status: response.ok ? 502 : response.status }
+      )
+    }
+
+    console.log("[SUCCESS] Sent internal application to Lark")
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("=".repeat(80))
