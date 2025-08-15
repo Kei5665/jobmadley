@@ -16,8 +16,7 @@ function buildInternalLarkCard(input: any) {
     jobLines.push(
       `会社名: ${input.companyName ?? '—'}`,
       `求人名: ${input.jobName ?? '—'}`,
-      `求人URL: ${input.jobUrl ?? '—'}`,
-      `求人ID: ${input.jobId ?? '—'}`,
+      `求人URL: https://ridejob.jp/job/${input.jobId ?? '—'}`,
     )
   }
 
