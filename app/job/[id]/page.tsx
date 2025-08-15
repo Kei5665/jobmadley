@@ -19,10 +19,11 @@ interface JobPageProps {
   params: Promise<{ id: string }>
 }
 
-async function JobDetailPage({ jobId }: { jobId: string }) {
+export default async function JobPage({ params }: JobPageProps) {
+  const { id } = await params
   try {
     const job = await withErrorHandling(
-      () => getJob(jobId),
+      () => getJob(id),
       "getJob"
     )
 
@@ -43,7 +44,6 @@ async function JobDetailPage({ jobId }: { jobId: string }) {
       )
     }
 
-    // 関連求人を取得
     const relatedJobsRaw = await withErrorHandling(
       () => getJobs({
         municipalityId: job.municipality?.id,
@@ -62,13 +62,13 @@ async function JobDetailPage({ jobId }: { jobId: string }) {
     return (
       <div className="min-h-screen bg-white">
         <SiteHeader />
-        
+
         <JobBreadcrumb job={job} />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-8">
             <div>
-              <JobImageCarousel 
+              <JobImageCarousel
                 images={job.images}
                 imageUrl={job.imageUrl}
                 altText={job.jobName ?? job.title}
@@ -83,7 +83,10 @@ async function JobDetailPage({ jobId }: { jobId: string }) {
           </div>
         </div>
 
-        <RidejobMediaSection companyArticles={companyArticles} interviewArticles={interviewArticles} />
+        <RidejobMediaSection
+          companyArticles={companyArticles}
+          interviewArticles={interviewArticles}
+        />
         <SiteFooter />
       </div>
     )
@@ -102,14 +105,4 @@ async function JobDetailPage({ jobId }: { jobId: string }) {
       </div>
     )
   }
-}
-
-export default async function JobPage({ params }: JobPageProps) {
-  const { id } = await params
-
-  return (
-    <Suspense fallback={<Loading message="求人詳細を読み込み中..." />}>
-      <JobDetailPage jobId={id} />
-    </Suspense>
-  )
 }
