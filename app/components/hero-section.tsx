@@ -26,7 +26,7 @@ export default function HeroSection() {
   return (
     <section className="relative mb-12">
       {/* 背景画像（Next/Imageで最適化し、端末解像度に応じて高画質配信） */}
-      <div className="relative h-[320px] md:h-[380px] lg:h-[420px] w-full overflow-hidden">
+      <div className="relative h-[320px] md:h-[380px] lg:h-[420px] w-full">
         {/* モバイル */}
         <Image
           src="/images/m-top-bg.png"
