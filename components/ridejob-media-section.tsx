@@ -28,7 +28,7 @@ export default function RidejobMediaSection({ companyArticles, interviewArticles
               {companyArticles.map((a) => {
                 const img = a.eyecatch?.url ?? "/placeholder.jpg"
                 return (
-                  <Link key={a.id} href={`https://ridejob-cms.vercel.app/blogs/${a.slug ?? a.id}`} target="_blank" className="block group">
+                  <Link key={a.id} href={`https://ridejob.jp/media/blog/${a.slug ?? a.id}`} target="_blank" className="block group">
                     <div className="flex gap-4 items-start border-b border-gray-200">
                       <Image src={img} alt="" width={100} height={80} className="w-24 h-20 object-cover rounded" />
                       <div className="flex-1 pb-4">
@@ -57,7 +57,7 @@ export default function RidejobMediaSection({ companyArticles, interviewArticles
               {interviewArticles.map((a) => {
                 const img = a.eyecatch?.url ?? "/placeholder.jpg"
                 return (
-                  <Link key={a.id} href={`https://ridejob-cms.vercel.app/blogs/${a.slug ?? a.id}`} target="_blank" className="block group">
+                  <Link key={a.id} href={`https://ridejob.jp/media/blog/${a.slug ?? a.id}`} target="_blank" className="block group">
                     <div className="flex gap-4 items-start border-b border-gray-200">
                       <Image src={img} alt="" width={100} height={80} className="w-24 h-20 object-cover rounded" />
                       <div className="flex-1 pb-4">
@@ -80,7 +80,7 @@ export default function RidejobMediaSection({ companyArticles, interviewArticles
 
         {/* more button */}
         <div className="text-center mt-12">
-          <Link href="https://ridejob-cms.online/blogs" target="_blank" rel="noopener noreferrer">
+          <Link href="https://ridejob.jp/media/blog" target="_blank" rel="noopener noreferrer">
             <Button className="bg-[#2000d8] hover:bg-[#1800b6] text-white px-8 py-4 rounded-full inline-flex items-center gap-2">
               記事をもっと見る
               <ChevronRight className="w-4 h-4" />
