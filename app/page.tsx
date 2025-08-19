@@ -1,7 +1,7 @@
 import { ChevronRight, Home } from "lucide-react"
 import { getPrefectureGroups } from "@/lib/getPrefectures"
 import { getJobCount, getJobs } from "@/lib/getJobs"
-import { microcmsClient2 } from "@/lib/microcms"
+import { getMediaArticles } from "@/lib/getMediaArticles"
 import { withErrorHandling } from "@/lib/error-handling"
 import { ErrorDisplay } from "@/components/ui/error-display"
 import SiteHeader from "@/components/site-header"
@@ -10,34 +10,24 @@ import RegionSearchSection from "@/components/prefecture-region-section"
 import HeroSection from "./components/hero-section"
 import LatestJobsSection from "./components/latest-jobs-section"
 import MediaSection from "./components/media-section"
-import type { BlogArticle } from "@/lib/types"
 import { getTags } from "@/lib/getTags"
 import PopularTagsSection from "@/components/popular-tags-section"
 import { getJobCategories } from "@/lib/getJobCategories"
 import JobCategoriesSection from "@/components/job-categories-section"
 
+export const revalidate = 0
+
 export default async function HomePage() {
   try {
-    const [prefectures, latestJobs, companyArticles, interviewArticles, tags, jobCategories] = await Promise.all([
+    const [prefectures, latestJobs, mediaArticles, tags, jobCategories] = await Promise.all([
       withErrorHandling(() => getPrefectureGroups(), "getPrefectureGroups"),
       withErrorHandling(() => getJobs({ limit: 4, orders: "-publishedAt" }), "getLatestJobs"),
-      withErrorHandling(
-        () => microcmsClient2.get<{ contents: BlogArticle[] }>({
-          endpoint: "blogs",
-          queries: { filters: `category[equals]2`, limit: 3, orders: "-publishedAt" },
-        }),
-        "getCompanyArticles"
-      ).then(data => data.contents),
-      withErrorHandling(
-        () => microcmsClient2.get<{ contents: BlogArticle[] }>({
-          endpoint: "blogs",
-          queries: { filters: `category[equals]5`, limit: 3, orders: "-publishedAt" },
-        }),
-        "getInterviewArticles"
-      ).then(data => data.contents),
+      withErrorHandling(() => getMediaArticles(), "getMediaArticles"),
       withErrorHandling(() => getTags(), "getTags"),
       withErrorHandling(() => getJobCategories(), "getJobCategories"),
     ])
+
+    const { companyArticles, interviewArticles } = mediaArticles
 
     // 各都道府県の求人数を取得
     const prefList = Object.values(prefectures).flat()

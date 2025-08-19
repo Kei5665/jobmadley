@@ -48,10 +48,10 @@ export default function RidejobMediaSection({ companyArticles, interviewArticles
             </div>
           </div>
 
-          {/* Interview Column */}
+          {/* Voice Column */}
           <div>
-            <h3 className="text-2xl font-bold mb-1">インタビュー</h3>
-            <p className="text-sm text-gray-600 mb-6">転職活動に役立つノウハウや、現場のリアルな声を交えた業界情報をお届け！</p>
+            <h3 className="text-2xl font-bold mb-1">ご利用者様の声</h3>
+            <p className="text-sm text-gray-600 mb-6">転職活動に役立つノウハウや、現場のリアルな声をお届け！</p>
 
             <div className="space-y-6">
               {interviewArticles.map((a) => {
@@ -62,7 +62,7 @@ export default function RidejobMediaSection({ companyArticles, interviewArticles
                       <Image src={img} alt="" width={100} height={80} className="w-24 h-20 object-cover rounded" />
                       <div className="flex-1 pb-4">
                         <div className="flex items-center text-[10px] text-gray-500 gap-2 mb-1">
-                          <span className="inline-block bg-indigo-600 text-white px-2 py-0.5 rounded-sm">インタビュー</span>
+                          <span className="inline-block bg-indigo-600 text-white px-2 py-0.5 rounded-sm">ご利用者様の声</span>
                           <span>{a.publishedAt?.slice(0, 10) ?? ""}</span>
                         </div>
                         <p className="text-sm font-semibold text-gray-900 line-clamp-2 group-hover:underline">
