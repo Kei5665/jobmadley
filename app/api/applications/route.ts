@@ -3,22 +3,35 @@ import { NextResponse } from "next/server"
 interface Applicant {
   firstName: string
   lastName: string
-  firstNameKana: string
-  lastNameKana: string
+  firstNameKana?: string
+  lastNameKana?: string
+  pronunciationFirstName?: string
+  pronunciationLastName?: string
   email: string
-  phone: string
+  phone?: string
+  phoneNumber?: string
   birthday: string
   gender: string
-  address: string
+  address?: string
+  prefecture?: string
+  city?: string
   occupation: string
+  fullName?: string
+  pronunciationFullName?: string
+  coverLetter?: string
 }
 
 interface Job {
-  id: string
-  title: string
-  url: string
-  companyName: string
-  location: string
+  id?: string
+  title?: string
+  url?: string
+  companyName?: string
+  location?: string
+  jobId?: string
+  jobTitle?: string
+  jobUrl?: string
+  jobCompany?: string
+  jobLocation?: string
 }
 
 interface Analytics {
@@ -33,13 +46,19 @@ interface QuestionAndAnswer {
   answer: string
 }
 
+interface QuestionsAndAnswersWrapper {
+  url?: string
+  retrievedOnMillis?: number
+  questionsAndAnswers: QuestionAndAnswer[]
+}
+
 interface ApplicationData {
   id: string
   appliedOnMillis: number
   job: Job
   applicant: Applicant
   analytics: Analytics
-  questionsAndAnswers: QuestionAndAnswer[]
+  questionsAndAnswers: QuestionAndAnswer[] | QuestionsAndAnswersWrapper
 }
 
 function formatLarkMessage(data: ApplicationData): any {
@@ -52,15 +71,15 @@ function formatLarkMessage(data: ApplicationData): any {
     minute: '2-digit'
   })
 
-  const formatValue = (value: string | undefined, defaultValue: string = 'undefined'): string => {
-    return value && value !== 'undefined' ? value : defaultValue
+  const formatValue = (value: string | undefined | null, defaultValue: string = '未設定'): string => {
+    return value && value !== 'undefined' && value !== '' ? value : defaultValue
   }
 
-  const formatName = (lastName: string, firstName: string, lastNameKana: string, firstNameKana: string): string => {
+  const formatName = (lastName: string | undefined, firstName: string | undefined, lastNameKana?: string, firstNameKana?: string): string => {
     const fullName = `${formatValue(lastName)} ${formatValue(firstName)}`
     const fullNameKana = `${formatValue(lastNameKana)} ${formatValue(firstNameKana)}`
 
-    if (lastNameKana !== 'undefined' && firstNameKana !== 'undefined' && lastNameKana && firstNameKana) {
+    if (lastNameKana && firstNameKana && lastNameKana !== 'undefined' && firstNameKana !== 'undefined') {
       return `${fullName} (${fullNameKana})`
     }
     return fullName
@@ -84,7 +103,7 @@ function formatLarkMessage(data: ApplicationData): any {
           tag: "div",
           text: {
             tag: "lark_md",
-            content: `**👤 応募者情報**\n氏名: ${formatName(data.applicant.lastName, data.applicant.firstName, data.applicant.pronunciationLastName, data.applicant.pronunciationFirstName)}\n生年月日: ${formatValue(data.applicant.birthday)}\n性別: ${data.applicant.gender === 'male' || data.applicant.gender === '男性' ? '男性' : data.applicant.gender === 'female' || data.applicant.gender === '女性' ? '女性' : formatValue(data.applicant.gender)}\n職業: ${formatValue(data.applicant.occupation)}\n住所: ${formatValue(data.applicant.prefecture)}${data.applicant.city ? ` ${data.applicant.city}` : ''}\nメール: ${formatValue(data.applicant.email)}\n電話: ${formatValue(data.applicant.phone || data.applicant.phoneNumber)}`
+            content: `**👤 応募者情報**\n氏名: ${formatName(data.applicant.lastName, data.applicant.firstName, data.applicant.pronunciationLastName, data.applicant.pronunciationFirstName)}\n生年月日: ${formatValue(data.applicant.birthday)}\n性別: ${data.applicant.gender === 'male' || data.applicant.gender === '男性' ? '男性' : data.applicant.gender === 'female' || data.applicant.gender === '女性' ? '女性' : formatValue(data.applicant.gender)}\n職業: ${formatValue(data.applicant.occupation)}\n住所: ${formatValue(data.applicant.prefecture || '')}${data.applicant.city ? ` ${data.applicant.city}` : ''}\nメール: ${formatValue(data.applicant.email)}\n電話: ${formatValue(data.applicant.phone || data.applicant.phoneNumber || '')}`
           }
         },
         {
@@ -98,7 +117,7 @@ function formatLarkMessage(data: ApplicationData): any {
           }
         },
         ...((data.questionsAndAnswers && Array.isArray(data.questionsAndAnswers) && data.questionsAndAnswers.length > 0) ||
-             (data.questionsAndAnswers && data.questionsAndAnswers.questionsAndAnswers && data.questionsAndAnswers.questionsAndAnswers.length > 0) ? [
+             (data.questionsAndAnswers && !Array.isArray(data.questionsAndAnswers) && (data.questionsAndAnswers as QuestionsAndAnswersWrapper).questionsAndAnswers && (data.questionsAndAnswers as QuestionsAndAnswersWrapper).questionsAndAnswers.length > 0) ? [
           {
             tag: "hr"
           },
@@ -106,7 +125,7 @@ function formatLarkMessage(data: ApplicationData): any {
             tag: "div",
             text: {
               tag: "lark_md",
-              content: `**❓ 質問・回答**\n${(Array.isArray(data.questionsAndAnswers) ? data.questionsAndAnswers : data.questionsAndAnswers.questionsAndAnswers || []).map((qa: any, index: number) => `**質問 ${index + 1}:** ${qa.question}\n**回答:** ${qa.answer}`).join('\n\n')}`
+              content: `**❓ 質問・回答**\n${(Array.isArray(data.questionsAndAnswers) ? data.questionsAndAnswers : (data.questionsAndAnswers as QuestionsAndAnswersWrapper).questionsAndAnswers || []).map((qa: any, index: number) => `**質問 ${index + 1}:** ${qa.question}\n**回答:** ${qa.answer}`).join('\n\n')}`
             }
           }
         ] : [])
