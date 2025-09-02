@@ -96,7 +96,7 @@ function formatLarkMessage(data: ApplicationData): any {
           tag: "div",
           text: {
             tag: "lark_md",
-            content: `**🎯 求人ボックスから応募がありました！`
+            content: `🎯 求人ボックスから応募がありました！`
           }
         },
         {
