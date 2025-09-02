@@ -265,6 +265,8 @@ export async function POST(request: Request) {
         phone: normalized.applicant.phone ?? "",
         birthday: normalized.applicant.birthday ?? "",
         gender: typeof normalized.applicant.gender === 'string' ? normalized.applicant.gender : "",
+        prefecture: normalized.applicant.prefecture ?? "",
+        city: normalized.applicant.city ?? "",
         address: [normalized.applicant.prefecture, normalized.applicant.city].filter(Boolean).join(" "),
         occupation: normalized.applicant.occupation ?? "",
       },
