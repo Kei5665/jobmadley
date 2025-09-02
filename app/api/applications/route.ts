@@ -60,7 +60,7 @@ function formatLarkMessage(data: ApplicationData): any {
     const fullName = `${formatValue(lastName)} ${formatValue(firstName)}`
     const fullNameKana = `${formatValue(lastNameKana)} ${formatValue(firstNameKana)}`
 
-    if (lastNameKana !== 'undefined' && firstNameKana !== 'undefined') {
+    if (lastNameKana !== 'undefined' && firstNameKana !== 'undefined' && lastNameKana && firstNameKana) {
       return `${fullName} (${fullNameKana})`
     }
     return fullName
@@ -84,7 +84,7 @@ function formatLarkMessage(data: ApplicationData): any {
           tag: "div",
           text: {
             tag: "lark_md",
-            content: `**👤 応募者情報**\n氏名: ${formatName(data.applicant.lastName, data.applicant.firstName, data.applicant.lastNameKana, data.applicant.firstNameKana)}\n生年月日: ${formatValue(data.applicant.birthday)}\n性別: ${data.applicant.gender === 'male' ? '男性' : data.applicant.gender === 'female' ? '女性' : formatValue(data.applicant.gender)}\n職業: ${formatValue(data.applicant.occupation, '派遣社員')}\n住所: ${formatValue(data.applicant.address)}\nメール: ${formatValue(data.applicant.email)}\n電話: ${formatValue(data.applicant.phone)}`
+            content: `**👤 応募者情報**\n氏名: ${formatName(data.applicant.lastName, data.applicant.firstName, data.applicant.pronunciationLastName, data.applicant.pronunciationFirstName)}\n生年月日: ${formatValue(data.applicant.birthday)}\n性別: ${data.applicant.gender === 'male' || data.applicant.gender === '男性' ? '男性' : data.applicant.gender === 'female' || data.applicant.gender === '女性' ? '女性' : formatValue(data.applicant.gender)}\n職業: ${formatValue(data.applicant.occupation)}\n住所: ${formatValue(data.applicant.prefecture)}${data.applicant.city ? ` ${data.applicant.city}` : ''}\nメール: ${formatValue(data.applicant.email)}\n電話: ${formatValue(data.applicant.phone || data.applicant.phoneNumber)}`
           }
         },
         {
@@ -94,10 +94,11 @@ function formatLarkMessage(data: ApplicationData): any {
           tag: "div",
           text: {
             tag: "lark_md",
-            content: `**💼 求人情報**\n求人タイトル: ${formatValue(data.job.title)}\n会社名: ${formatValue(data.job.companyName)}\n勤務地: ${formatValue(data.job.location)}\n求人URL: ${formatValue(data.job.url)}`
+            content: `**💼 求人情報**\n求人ID: ${formatValue(data.job.id || data.job.jobId)}\n求人タイトル: ${formatValue(data.job.title || data.job.jobTitle)}\n会社名: ${formatValue(data.job.companyName || data.job.jobCompany)}\n勤務地: ${formatValue(data.job.location || data.job.jobLocation)}\n求人URL: ${formatValue(data.job.url || data.job.jobUrl)}`
           }
         },
-        ...(data.questionsAndAnswers.length > 0 ? [
+        ...((data.questionsAndAnswers && Array.isArray(data.questionsAndAnswers) && data.questionsAndAnswers.length > 0) ||
+             (data.questionsAndAnswers && data.questionsAndAnswers.questionsAndAnswers && data.questionsAndAnswers.questionsAndAnswers.length > 0) ? [
           {
             tag: "hr"
           },
@@ -105,7 +106,7 @@ function formatLarkMessage(data: ApplicationData): any {
             tag: "div",
             text: {
               tag: "lark_md",
-              content: `**❓ 質問・回答**\n${data.questionsAndAnswers.map(qa => `**${qa.question}**\n${qa.answer}`).join('\n\n')}`
+              content: `**❓ 質問・回答**\n${(Array.isArray(data.questionsAndAnswers) ? data.questionsAndAnswers : data.questionsAndAnswers.questionsAndAnswers || []).map((qa: any, index: number) => `**質問 ${index + 1}:** ${qa.question}\n**回答:** ${qa.answer}`).join('\n\n')}`
             }
           }
         ] : [])
