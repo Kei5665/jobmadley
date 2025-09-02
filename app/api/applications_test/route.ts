@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { normalizeApplication, type NormalizedApplication } from "../../../lib/normalize-application"
-import { getJob } from "../../../lib/getJob"
+import { microcmsClient } from "../../../lib/microcms"
+import type { MicroCMSListResponse } from "../../../lib/types"
 
 interface Applicant {
   firstName: string
@@ -190,16 +191,18 @@ export async function POST(request: Request) {
 
     // microCMS 上の求人存在確認（存在しなければ 404 を返す）
     try {
-      await getJob(jobId)
-    } catch (e: any) {
-      const status: number | undefined = e?.status || e?.response?.status
-      if (status === 404) {
+      const r = await microcmsClient.get<MicroCMSListResponse<{ id: string }>>({
+        endpoint: "jobs",
+        queries: { limit: 0, filters: `id[equals]${jobId}` },
+      })
+      if (!r || typeof r.totalCount !== 'number' || r.totalCount === 0) {
         return NextResponse.json(
           { success: false, message: 'Job Not Found' },
           { status: 404 }
         )
       }
-      console.error("[applications_test] Failed to verify job on microCMS:", e)
+    } catch (e) {
+      console.error("[applications_test] Failed to verify job on microCMS (list check):", e)
       return NextResponse.json(
         { success: false, message: 'Upstream error while verifying job' },
         { status: 502 }
