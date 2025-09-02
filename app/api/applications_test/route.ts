@@ -124,44 +124,8 @@ function formatRawDataMessage(data: any): any {
     minute: '2-digit'
   })
 
-  const formatValue = (value: string | undefined, defaultValue: string = '未設定'): string => {
-    return value && value !== 'undefined' && value !== '' ? value : defaultValue
-  }
-
-  const formatName = (lastName: string, firstName: string, lastNameKana: string, firstNameKana: string): string => {
-    const fullName = `${formatValue(lastName)} ${formatValue(firstName)}`
-    const fullNameKana = `${formatValue(lastNameKana)} ${formatValue(firstNameKana)}`
-
-    if (lastNameKana !== 'undefined' && firstNameKana !== 'undefined' && lastNameKana !== '' && firstNameKana !== '') {
-      return `${fullName} (${fullNameKana})`
-    }
-    return fullName
-  }
-
-  // 応募者情報を読みやすいテキストに変換
-  const applicantInfo = data.applicant ? `**👤 応募者情報**
-氏名: ${formatName(data.applicant.lastName, data.applicant.firstName, data.applicant.lastNameKana, data.applicant.firstNameKana)}
-生年月日: ${formatValue(data.applicant.birthday)}
-性別: ${data.applicant.gender === 'male' ? '男性' : data.applicant.gender === 'female' ? '女性' : formatValue(data.applicant.gender)}
-職業: ${formatValue(data.applicant.occupation)}
-住所: ${formatValue(data.applicant.address)}
-メール: ${formatValue(data.applicant.email)}
-電話: ${formatValue(data.applicant.phone)}` : '**👤 応募者情報**\nデータなし'
-
-  // 求人情報を読みやすいテキストに変換
-  const jobInfo = data.job ? `**💼 求人情報**
-求人ID: ${formatValue(data.job.id)}
-求人タイトル: ${formatValue(data.job.title)}
-会社名: ${formatValue(data.job.companyName)}
-勤務地: ${formatValue(data.job.location)}
-求人URL: ${formatValue(data.job.url)}` : '**💼 求人情報**\nデータなし'
-
-  // 質問・回答を読みやすいテキストに変換
-  const questionsInfo = data.questionsAndAnswers && data.questionsAndAnswers.length > 0
-    ? `**❓ 質問・回答**\n${data.questionsAndAnswers.map((qa: any, index: number) =>
-        `**質問 ${index + 1}:** ${qa.question}\n**回答:** ${qa.answer}`
-      ).join('\n\n')}`
-    : '**❓ 質問・回答**\nなし'
+  // testEndpointフラグを除いた完全な生データを表示
+  const { testEndpoint, ...fullRawData } = data
 
   return {
     msg_type: "interactive",
@@ -171,7 +135,7 @@ function formatRawDataMessage(data: any): any {
           tag: "div",
           text: {
             tag: "lark_md",
-            content: `**求人ボックスからの応募がありました!**`
+            content: `**🧪 テスト生データ応募通知 (完全版)**\n応募ID: ${data.id}\n応募日時: ${appliedDate}`
           }
         },
         {
@@ -181,27 +145,7 @@ function formatRawDataMessage(data: any): any {
           tag: "div",
           text: {
             tag: "lark_md",
-            content: applicantInfo
-          }
-        },
-        {
-          tag: "hr"
-        },
-        {
-          tag: "div",
-          text: {
-            tag: "lark_md",
-            content: jobInfo
-          }
-        },
-        {
-          tag: "hr"
-        },
-        {
-          tag: "div",
-          text: {
-            tag: "lark_md",
-            content: questionsInfo
+            content: `**📊 受信した完全な生データ (JSON形式)**\n\`\`\`json\n${JSON.stringify(fullRawData, null, 2)}\n\`\`\``
           }
         }
       ]
