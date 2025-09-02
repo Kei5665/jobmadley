@@ -43,28 +43,44 @@ interface ApplicationData {
 }
 
 function formatLarkMessage(data: ApplicationData): any {
-  const appliedDate = new Date(data.appliedOnMillis).toLocaleString('ja-JP', {
-    timeZone: 'Asia/Tokyo',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-
-  const formatValue = (value: string | undefined, defaultValue: string = 'undefined'): string => {
-    return value && value !== 'undefined' ? value : defaultValue
+  const formatValue = (value: string | undefined, defaultValue: string = '未設定'): string => {
+    return value && value !== 'undefined' && value !== '' ? value : defaultValue
   }
 
   const formatName = (lastName: string, firstName: string, lastNameKana: string, firstNameKana: string): string => {
     const fullName = `${formatValue(lastName)} ${formatValue(firstName)}`
     const fullNameKana = `${formatValue(lastNameKana)} ${formatValue(firstNameKana)}`
-    
-    if (lastNameKana !== 'undefined' && firstNameKana !== 'undefined') {
+
+    if (lastNameKana !== 'undefined' && firstNameKana !== 'undefined' && lastNameKana !== '' && firstNameKana !== '') {
       return `${fullName} (${fullNameKana})`
     }
     return fullName
   }
+
+  // 応募者情報を読みやすいテキストに変換
+  const applicantInfo = `**👤 応募者情報**
+氏名: ${formatName(data.applicant.lastName, data.applicant.firstName, data.applicant.lastNameKana, data.applicant.firstNameKana)}
+生年月日: ${formatValue(data.applicant.birthday)}
+性別: ${data.applicant.gender === 'male' ? '男性' : data.applicant.gender === 'female' ? '女性' : formatValue(data.applicant.gender)}
+職業: ${formatValue(data.applicant.occupation)}
+住所: ${formatValue(data.applicant.address)}
+メール: ${formatValue(data.applicant.email)}
+電話: ${formatValue(data.applicant.phone)}`
+
+  // 求人情報を読みやすいテキストに変換
+  const jobInfo = `**💼 求人情報**
+求人ID: ${formatValue(data.job.id)}
+求人タイトル: ${formatValue(data.job.title)}
+会社名: ${formatValue(data.job.companyName)}
+勤務地: ${formatValue(data.job.location)}
+求人URL: ${formatValue(data.job.url)}`
+
+  // 質問・回答を読みやすいテキストに変換
+  const questionsInfo = data.questionsAndAnswers && data.questionsAndAnswers.length > 0
+    ? `**❓ 質問・回答**\n${data.questionsAndAnswers.map((qa, index) =>
+        `**質問 ${index + 1}:** ${qa.question}\n**回答:** ${qa.answer}`
+      ).join('\n\n')}`
+    : '**❓ 質問・回答**\nなし'
 
   return {
     msg_type: "interactive",
@@ -74,7 +90,7 @@ function formatLarkMessage(data: ApplicationData): any {
           tag: "div",
           text: {
             tag: "lark_md",
-            content: `**🎯 新規応募通知**\n応募ID: ${data.id}\n応募日時: ${appliedDate}`
+            content: `**求人ボックスからの応募がありました!**`
           }
         },
         {
@@ -84,7 +100,7 @@ function formatLarkMessage(data: ApplicationData): any {
           tag: "div",
           text: {
             tag: "lark_md",
-            content: `**👤 応募者情報**\n氏名: ${formatName(data.applicant.lastName, data.applicant.firstName, data.applicant.lastNameKana, data.applicant.firstNameKana)}\n生年月日: ${formatValue(data.applicant.birthday)}\n性別: ${data.applicant.gender === 'male' ? '男性' : data.applicant.gender === 'female' ? '女性' : formatValue(data.applicant.gender)}\n職業: ${formatValue(data.applicant.occupation, '派遣社員')}\n住所: ${formatValue(data.applicant.address)}\nメール: ${formatValue(data.applicant.email)}\n電話: ${formatValue(data.applicant.phone)}`
+            content: applicantInfo
           }
         },
         {
@@ -94,21 +110,19 @@ function formatLarkMessage(data: ApplicationData): any {
           tag: "div",
           text: {
             tag: "lark_md",
-            content: `**💼 求人情報**\n求人タイトル: ${formatValue(data.job.title)}\n会社名: ${formatValue(data.job.companyName)}\n勤務地: ${formatValue(data.job.location)}\n求人URL: ${formatValue(data.job.url)}`
+            content: jobInfo
           }
         },
-        ...(data.questionsAndAnswers.length > 0 ? [
-          {
-            tag: "hr"
-          },
-          {
-            tag: "div",
-            text: {
-              tag: "lark_md",
-              content: `**❓ 質問・回答**\n${data.questionsAndAnswers.map(qa => `**${qa.question}**\n${qa.answer}`).join('\n\n')}`
-            }
+        {
+          tag: "hr"
+        },
+        {
+          tag: "div",
+          text: {
+            tag: "lark_md",
+            content: questionsInfo
           }
-        ] : [])
+        }
       ]
     }
   }
