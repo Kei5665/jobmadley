@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { normalizeApplication, type NormalizedApplication } from "../../../lib/normalize-application"
 
 interface Applicant {
   firstName: string
@@ -257,8 +258,44 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true })
     }
 
-    // 通常の変換済みデータの処理
-    const larkMessage = formatLarkMessage(body)
+    // 受信データを正規化してから通知用データにマッピング
+    const normalized: NormalizedApplication = normalizeApplication(body)
+
+    const mappedForFormatter: ApplicationData = {
+      id: normalized.id ?? "",
+      appliedOnMillis: normalized.appliedOnMillis ?? Date.now(),
+      job: {
+        id: normalized.job.id,
+        title: normalized.job.title,
+        url: normalized.job.url,
+        companyName: normalized.job.companyName,
+        location: normalized.job.location,
+      },
+      applicant: {
+        firstName: normalized.applicant.firstName,
+        lastName: normalized.applicant.lastName,
+        firstNameKana: normalized.applicant.firstNameKana ?? "",
+        lastNameKana: normalized.applicant.lastNameKana ?? "",
+        email: normalized.applicant.email,
+        phone: normalized.applicant.phone ?? "",
+        birthday: normalized.applicant.birthday ?? "",
+        gender: typeof normalized.applicant.gender === 'string' ? normalized.applicant.gender : "",
+        address: [normalized.applicant.prefecture, normalized.applicant.city].filter(Boolean).join(" "),
+        occupation: normalized.applicant.occupation ?? "",
+      },
+      analytics: {
+        userAgent: body?.analytics?.userAgent ?? "",
+        ipAddress: body?.analytics?.ip ?? body?.analytics?.ipAddress ?? "",
+        referrer: body?.analytics?.referrer ?? "",
+      },
+      questionsAndAnswers: (normalized.questionsAndAnswers || []).map((qa, idx) => ({
+        questionId: String(idx + 1),
+        question: qa.question,
+        answer: qa.answer,
+      })),
+    }
+
+    const larkMessage = formatLarkMessage(mappedForFormatter)
 
     const response = await fetch(LARK_WEBHOOK, {
       method: "POST",

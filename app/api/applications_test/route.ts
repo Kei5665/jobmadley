@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { normalizeApplication, type NormalizedApplication } from "../../../lib/normalize-application"
 
 interface Applicant {
   firstName: string
@@ -248,21 +249,46 @@ export async function POST(request: Request) {
     console.log("Timestamp:", new Date().toISOString())
     console.log("=" .repeat(80))
 
-    // テストエンドポイントでは常に生データとして処理
-    console.log("[applications_test] Processing as raw data for Lark")
-    console.log("[applications_test] LARK_WEBHOOK URL:", LARK_WEBHOOK ? "SET" : "NOT SET")
-    
-    // 生データメッセージを作成（isRawDataフラグを付加）
-    const rawDataWithFlag = {
-      ...body,
-      isRawData: true,
-      testEndpoint: true
+    // テストエンドポイントでは正規化＋可読フォーマットを送る
+    console.log("[applications_test] Processing normalized data for Lark")
+    const normalized: NormalizedApplication = normalizeApplication(body)
+    const mappedForFormatter: ApplicationData = {
+      id: normalized.id ?? "",
+      appliedOnMillis: normalized.appliedOnMillis ?? Date.now(),
+      job: {
+        id: normalized.job.id,
+        title: normalized.job.title,
+        url: normalized.job.url,
+        companyName: normalized.job.companyName,
+        location: normalized.job.location,
+      },
+      applicant: {
+        firstName: normalized.applicant.firstName,
+        lastName: normalized.applicant.lastName,
+        firstNameKana: normalized.applicant.firstNameKana ?? "",
+        lastNameKana: normalized.applicant.lastNameKana ?? "",
+        email: normalized.applicant.email,
+        phone: normalized.applicant.phone ?? "",
+        birthday: normalized.applicant.birthday ?? "",
+        gender: typeof normalized.applicant.gender === 'string' ? normalized.applicant.gender : "",
+        address: [normalized.applicant.prefecture, normalized.applicant.city].filter(Boolean).join(" "),
+        occupation: normalized.applicant.occupation ?? "",
+      },
+      analytics: {
+        userAgent: body?.analytics?.userAgent ?? "",
+        ipAddress: body?.analytics?.ip ?? body?.analytics?.ipAddress ?? "",
+        referrer: body?.analytics?.referrer ?? "",
+      },
+      questionsAndAnswers: (normalized.questionsAndAnswers || []).map((qa, idx) => ({
+        questionId: String(idx + 1),
+        question: qa.question,
+        answer: qa.answer,
+      })),
     }
+    const rawLarkMessage = formatLarkMessage(mappedForFormatter)
     
-    const rawLarkMessage = formatRawDataMessage(rawDataWithFlag)
-    
-    console.log("[applications_test] 📤 Sending raw data to Lark webhook...")
-    console.log("Raw Lark Message:", JSON.stringify(rawLarkMessage, null, 2))
+    console.log("[applications_test] 📤 Sending normalized data to Lark webhook...")
+    console.log("Normalized Lark Message:", JSON.stringify(rawLarkMessage, null, 2))
     
     try {
       const response = await fetch(LARK_WEBHOOK, {
