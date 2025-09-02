@@ -94,7 +94,7 @@ function formatLarkMessage(data: ApplicationData): any {
           tag: "div",
           text: {
             tag: "lark_md",
-            content: `**🎯 新規応募通知**\n応募ID: ${data.id}\n応募日時: ${appliedDate}`
+            content: `**🎯 求人ボックスから応募がありました！`
           }
         },
         {
