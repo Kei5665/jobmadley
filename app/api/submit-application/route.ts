@@ -62,9 +62,9 @@ export async function POST(request: Request) {
     console.log("[INFO] Raw Request Data (Pretty Formatted):")
     console.log(JSON.stringify(incoming, null, 2))
 
-    const webhookUrl = process.env.LARK_WEBHOOK_INTERNAL ?? process.env.LARK_WEBHOOK
+    const webhookUrl = process.env.LARK_WEBHOOK
     if (!webhookUrl) {
-      console.error("[ERROR] Lark webhook is not configured")
+      console.error("[ERROR] Lark webhook is not configured (LARK_WEBHOOK)")
       return NextResponse.json({ success: false, message: "Webhook not configured" }, { status: 500 })
     }
 
