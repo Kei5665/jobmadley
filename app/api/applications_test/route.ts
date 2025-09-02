@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { normalizeApplication, type NormalizedApplication } from "../../../lib/normalize-application"
+import { getJob } from "../../../lib/getJob"
 
 interface Applicant {
   firstName: string
@@ -178,55 +179,30 @@ export async function POST(request: Request) {
   try {
     const body: any = await request.json()
 
-    // テストモード: 求人ボックス連携テスト用の強制分岐
-    // APPLY_TEST_MODE=1 のときも Lark 通知を行った上で、job.id / job.jobId に応じて固定ステータスを返す
-    if (process.env.APPLY_TEST_MODE === '1') {
-      const jobId: string | undefined = body?.job?.id ?? body?.job?.jobId
-      const forcedStatus = jobId === 'test-404' ? 404 : jobId === 'test-410' ? 410 : 200
+    // job.id の必須チェック
+    const jobId: string | undefined = body?.job?.id
+    if (!jobId || typeof jobId !== 'string') {
+      return NextResponse.json(
+        { success: false, message: 'Bad Request: job.id is required' },
+        { status: 400 }
+      )
+    }
 
-      // テストモードでも通知を実施（失敗しても固定レスポンスは維持）
-      const LARK_WEBHOOK = process.env.LARK_WEBHOOK
-      if (LARK_WEBHOOK) {
-        try {
-          // テストエンドポイントでは常に生データとして処理
-          const rawDataWithFlag = {
-            ...body,
-            isRawData: true,
-            testEndpoint: true
-          }
-          const rawLarkMessage = formatRawDataMessage(rawDataWithFlag)
-          const response = await fetch(LARK_WEBHOOK, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(rawLarkMessage),
-          })
-          if (!response.ok) {
-            console.error("[applications_test][test-mode] Lark webhook error:", response.status)
-          }
-        } catch (e) {
-          console.error("[applications_test][test-mode] Failed to send raw data to Lark:", e)
-        }
-      } else {
-        console.warn("[applications_test][test-mode] LARK_WEBHOOK is not set. Skipping notification.")
-      }
-
-      if (forcedStatus === 404) {
+    // microCMS 上の求人存在確認（存在しなければ 404 を返す）
+    try {
+      await getJob(jobId)
+    } catch (e: any) {
+      const status: number | undefined = e?.status || e?.response?.status
+      if (status === 404) {
         return NextResponse.json(
           { success: false, message: 'Job Not Found' },
           { status: 404 }
         )
       }
-      if (forcedStatus === 410) {
-        return NextResponse.json(
-          { success: false, message: 'Job Expired' },
-          { status: 410 }
-        )
-      }
+      console.error("[applications_test] Failed to verify job on microCMS:", e)
       return NextResponse.json(
-        { success: true, message: 'OK' },
-        { status: 200 }
+        { success: false, message: 'Upstream error while verifying job' },
+        { status: 502 }
       )
     }
 
