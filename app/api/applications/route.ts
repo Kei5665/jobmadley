@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 import { normalizeApplication, type NormalizedApplication } from "../../../lib/normalize-application"
+import { microcmsClient } from "../../../lib/microcms"
+import type { MicroCMSListResponse } from "../../../lib/types"
 
 interface Applicant {
   firstName: string
@@ -175,54 +177,37 @@ export async function POST(request: Request) {
   try {
     const body: any = await request.json()
 
-    // テストモード: 求人ボックス連携テスト用の強制分岐
-    // APPLY_TEST_MODE=1 のときも Lark 通知を行った上で、job.id に応じて固定ステータスを返す
-    if (process.env.APPLY_TEST_MODE === '1') {
-      // job.id（変換後）と job.jobId（生データ）どちらでも判定できるように両対応
-      const jobId: string | undefined = body?.job?.id ?? body?.job?.jobId
-      const forcedStatus = jobId === 'test-404' ? 404 : jobId === 'test-410' ? 410 : 200
+    // job.id または job.jobId の必須チェック（いずれか必須）
+    const jobId: string | undefined = body?.job?.id ?? body?.job?.jobId
+    if (!jobId || typeof jobId !== 'string' || jobId.trim() === '') {
+      return NextResponse.json(
+        { success: false, message: 'Bad Request: job.id or job.jobId is required' },
+        { status: 400 }
+      )
+    }
 
-      // テストモードでも通知を実施（失敗しても固定レスポンスは維持）
-      const LARK_WEBHOOK = process.env.LARK_WEBHOOK
-      if (LARK_WEBHOOK) {
-        try {
-          const payload = body.isRawData ? formatRawDataMessage(body) : formatLarkMessage(body)
-          const response = await fetch(LARK_WEBHOOK, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          })
-          if (!response.ok) {
-            console.error("[applications][test-mode] Lark webhook error:", response.status)
-          }
-        } catch (e) {
-          console.error("[applications][test-mode] Failed to send to Lark:", e)
-        }
-      } else {
-        console.warn("[applications][test-mode] LARK_WEBHOOK is not set. Skipping notification.")
-      }
-
-      if (forcedStatus === 404) {
+    // microCMS 上の求人存在確認（存在しなければ 404 を返す）
+    try {
+      const r = await microcmsClient.get<MicroCMSListResponse<{ id: string }>>({
+        endpoint: "jobs",
+        queries: { limit: 0, filters: `id[equals]${jobId}` },
+      })
+      if (!r || typeof r.totalCount !== 'number' || r.totalCount === 0) {
         return NextResponse.json(
           { success: false, message: 'Job Not Found' },
           { status: 404 }
         )
       }
-      if (forcedStatus === 410) {
-        return NextResponse.json(
-          { success: false, message: 'Job Expired' },
-          { status: 410 }
-        )
-      }
+    } catch (e) {
+      console.error("[applications] Failed to verify job on microCMS (list check):", e)
       return NextResponse.json(
-        { success: true, message: 'OK' },
-        { status: 200 }
+        { success: false, message: 'Upstream error while verifying job' },
+        { status: 502 }
       )
     }
 
     console.log("[applications] Received application data:", body)
 
-    // ここから先はテストモードではなく通常フロー。
     const LARK_WEBHOOK = process.env.LARK_WEBHOOK
     if (!LARK_WEBHOOK) {
       console.error("[applications] LARK_WEBHOOK environment variable is not set")
