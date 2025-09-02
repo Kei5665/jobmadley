@@ -180,11 +180,11 @@ export async function POST(request: Request) {
   try {
     const body: any = await request.json()
 
-    // job.id の必須チェック
-    const jobId: string | undefined = body?.job?.id
-    if (!jobId || typeof jobId !== 'string') {
+    // job.id または job.jobId の必須チェック（いずれか必須）
+    const jobId: string | undefined = body?.job?.id ?? body?.job?.jobId
+    if (!jobId || typeof jobId !== 'string' || jobId.trim() === '') {
       return NextResponse.json(
-        { success: false, message: 'Bad Request: job.id is required' },
+        { success: false, message: 'Bad Request: job.id or job.jobId is required' },
         { status: 400 }
       )
     }
