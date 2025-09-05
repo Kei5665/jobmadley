@@ -200,27 +200,25 @@ function buildLarkBasePayloadFromNormalized(normalized: NormalizedApplication, r
   const qa = (normalized.questionsAndAnswers || []).map((q) => ({ question: q.question, answer: q.answer }))
 
   return {
-    fields: {
-      "応募ID": normalized.id || "",
-      "応募日時": appliedIso,
-      "求人ID": job.id || "",
-      "求人タイトル": job.title || "",
-      "求人URL": job.url || "",
-      "会社名": job.companyName || "",
-      "勤務地": job.location || "",
-      "氏名": fullName || "",
-      "氏名カナ": fullNameKana || "",
-      "メール": applicant.email || "",
-      "電話番号": applicant.phone || "",
-      "生年月日": applicant.birthday || "",
-      "性別": typeof applicant.gender === 'string' ? applicant.gender : "",
-      "都道府県": applicant.prefecture || "",
-      "市区町村": applicant.city || "",
-      "質問回答": JSON.stringify(qa),
-      "UA": rawBody?.analytics?.userAgent || "",
-      "リファラ": rawBody?.analytics?.referrer || "",
-      "IP": rawBody?.analytics?.ip || rawBody?.analytics?.ipAddress || "",
-    }
+    "応募ID": normalized.id || "",
+    "応募日時": appliedIso,
+    "求人ID": job.id || "",
+    "求人タイトル": job.title || "",
+    "求人URL": job.url || "",
+    "会社名": job.companyName || "",
+    "勤務地": job.location || "",
+    "氏名": fullName || "",
+    "氏名カナ": fullNameKana || "",
+    "メール": applicant.email || "",
+    "電話番号": applicant.phone || "",
+    "生年月日": applicant.birthday || "",
+    "性別": typeof applicant.gender === 'string' ? applicant.gender : "",
+    "都道府県": applicant.prefecture || "",
+    "市区町村": applicant.city || "",
+    "質問回答": JSON.stringify(qa),
+    "UA": rawBody?.analytics?.userAgent || "",
+    "リファラ": rawBody?.analytics?.referrer || "",
+    "IP": rawBody?.analytics?.ip || rawBody?.analytics?.ipAddress || "",
   }
 }
 
@@ -404,8 +402,8 @@ export async function POST(request: Request) {
     }
 
     try {
-      const basePayload = buildLarkBasePayloadFromNormalized(normalized, body)
-      const baseBody = JSON.stringify(basePayload)
+      const baseFields = buildLarkBasePayloadFromNormalized(normalized, body)
+      const baseBody = JSON.stringify(baseFields)
       console.log("[applications] Posting to Lark Base webhook with payload:", baseBody)
       // Base 送信ペイロードを dev.log に追記
       try {
