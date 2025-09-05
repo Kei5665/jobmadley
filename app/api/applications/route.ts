@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server"
+import { appendFile } from "fs/promises"
+import path from "path"
 import { normalizeApplication, type NormalizedApplication } from "../../../lib/normalize-application"
 import { microcmsClient } from "../../../lib/microcms"
 import type { MicroCMSListResponse } from "../../../lib/types"
@@ -226,6 +228,14 @@ export async function POST(request: Request) {
   try {
     const body: any = await request.json()
     const LARK_WEBHOOK = process.env.LARK_WEBHOOK
+    // 受信ボディを dev.log に追記
+    try {
+      const logPath = path.join(process.cwd(), "dev.log")
+      const logEntry = `\n${"=".repeat(80)}\n[${new Date().toISOString()}] [applications] Incoming Request Body\n${JSON.stringify(body, null, 2)}\n`
+      await appendFile(logPath, logEntry)
+    } catch (fileErr) {
+      console.error("[applications] Failed to append incoming body to dev.log:", fileErr)
+    }
 
     // job.id または job.jobId の必須チェック（いずれか必須）
     const jobId: string | undefined = body?.job?.id ?? body?.job?.jobId
@@ -395,17 +405,31 @@ export async function POST(request: Request) {
 
     try {
       const basePayload = buildLarkBasePayloadFromNormalized(normalized, body)
+      const baseBody = JSON.stringify(basePayload)
+      console.log("[applications] Posting to Lark Base webhook with payload:", baseBody)
+      // Base 送信ペイロードを dev.log に追記
+      try {
+        const logPath = path.join(process.cwd(), "dev.log")
+        const logEntry = `\n${"-".repeat(80)}\n[${new Date().toISOString()}] [applications] Lark Base Payload\n${baseBody}\n`
+        await appendFile(logPath, logEntry)
+      } catch (fileErr) {
+        console.error("[applications] Failed to append base payload to dev.log:", fileErr)
+      }
       const baseRes = await fetch(LARK_BASE_WEBHOOK, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(basePayload),
+        body: baseBody,
       })
       const baseText = await baseRes.text()
-      if (!baseRes.ok) {
-        console.error("[applications] Lark Base webhook error:", { status: baseRes.status, body: baseText })
-        return NextResponse.json({ success: true, base: { sent: false, status: baseRes.status } })
+      let baseParsed: any = null
+      try { baseParsed = JSON.parse(baseText) } catch (_) {}
+      const baseCode: number | undefined = baseParsed?.code
+      const baseMsg: string | undefined = baseParsed?.msg
+      if (!baseRes.ok || (typeof baseCode === 'number' && baseCode !== 0)) {
+        console.error("[applications] Lark Base webhook error:", { status: baseRes.status, body: baseText, code: baseCode, msg: baseMsg })
+        return NextResponse.json({ success: true, base: { sent: false, status: baseRes.status, code: baseCode, msg: baseMsg } })
       }
-      return NextResponse.json({ success: true, base: { sent: true, status: baseRes.status } })
+      return NextResponse.json({ success: true, base: { sent: true, status: baseRes.status, code: baseCode ?? 0 } })
     } catch (baseErr) {
       console.error("[applications] Error posting to Lark Base webhook:", baseErr)
       return NextResponse.json({ success: true, base: { sent: false, error: 'network_or_runtime_error' } })
