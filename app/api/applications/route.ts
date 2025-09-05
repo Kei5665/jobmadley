@@ -187,6 +187,41 @@ function formatErrorLarkMessage(title: string, description: string, details?: Re
   }
 }
 
+function buildLarkBasePayloadFromNormalized(normalized: NormalizedApplication, rawBody: any): any {
+  const applicant = normalized.applicant
+  const job = normalized.job
+
+  const fullName = `${applicant.lastName || ''} ${applicant.firstName || ''}`.trim()
+  const fullNameKana = `${applicant.lastNameKana || ''} ${applicant.firstNameKana || ''}`.trim()
+  const appliedIso = new Date(normalized.appliedOnMillis || Date.now()).toISOString()
+
+  const qa = (normalized.questionsAndAnswers || []).map((q) => ({ question: q.question, answer: q.answer }))
+
+  return {
+    fields: {
+      "応募ID": normalized.id || "",
+      "応募日時": appliedIso,
+      "求人ID": job.id || "",
+      "求人タイトル": job.title || "",
+      "求人URL": job.url || "",
+      "会社名": job.companyName || "",
+      "勤務地": job.location || "",
+      "氏名": fullName || "",
+      "氏名カナ": fullNameKana || "",
+      "メール": applicant.email || "",
+      "電話番号": applicant.phone || "",
+      "生年月日": applicant.birthday || "",
+      "性別": typeof applicant.gender === 'string' ? applicant.gender : "",
+      "都道府県": applicant.prefecture || "",
+      "市区町村": applicant.city || "",
+      "質問回答": JSON.stringify(qa),
+      "UA": rawBody?.analytics?.userAgent || "",
+      "リファラ": rawBody?.analytics?.referrer || "",
+      "IP": rawBody?.analytics?.ip || rawBody?.analytics?.ipAddress || "",
+    }
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const body: any = await request.json()
@@ -351,7 +386,30 @@ export async function POST(request: Request) {
     }
 
     console.log("[applications] Successfully sent to Lark", { body: responseText })
-    return NextResponse.json({ success: true })
+
+    // Lark通知が成功したら、Lark BaseのWebhookにも登録（設定されている場合のみ）
+    const LARK_BASE_WEBHOOK = process.env.LARK_BASE_WEBHOOK
+    if (!LARK_BASE_WEBHOOK) {
+      return NextResponse.json({ success: true, base: { sent: false, reason: 'Base webhook not configured' } })
+    }
+
+    try {
+      const basePayload = buildLarkBasePayloadFromNormalized(normalized, body)
+      const baseRes = await fetch(LARK_BASE_WEBHOOK, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(basePayload),
+      })
+      const baseText = await baseRes.text()
+      if (!baseRes.ok) {
+        console.error("[applications] Lark Base webhook error:", { status: baseRes.status, body: baseText })
+        return NextResponse.json({ success: true, base: { sent: false, status: baseRes.status } })
+      }
+      return NextResponse.json({ success: true, base: { sent: true, status: baseRes.status } })
+    } catch (baseErr) {
+      console.error("[applications] Error posting to Lark Base webhook:", baseErr)
+      return NextResponse.json({ success: true, base: { sent: false, error: 'network_or_runtime_error' } })
+    }
 
   } catch (error) {
     console.error("[applications] Error processing application:", error)
