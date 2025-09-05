@@ -160,9 +160,37 @@ function formatRawDataMessage(data: any): any {
   }
 }
 
+function formatErrorLarkMessage(title: string, description: string, details?: Record<string, unknown>): any {
+  return {
+    msg_type: "interactive",
+    card: {
+      elements: [
+        {
+          tag: "div",
+          text: {
+            tag: "lark_md",
+            content: `**${title}**\n${description}`
+          }
+        },
+        ...(details ? [
+          { tag: "hr" },
+          {
+            tag: "div",
+            text: {
+              tag: "lark_md",
+              content: `\`\`\`json\n${JSON.stringify(details, null, 2)}\n\`\`\``
+            }
+          }
+        ] : [])
+      ]
+    }
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const body: any = await request.json()
+    const LARK_WEBHOOK = process.env.LARK_WEBHOOK
 
     // job.id または job.jobId の必須チェック（いずれか必須）
     const jobId: string | undefined = body?.job?.id ?? body?.job?.jobId
@@ -180,8 +208,29 @@ export async function POST(request: Request) {
         queries: { limit: 0, filters: `id[equals]${jobId}` },
       })
       if (!r || typeof r.totalCount !== 'number' || r.totalCount === 0) {
+        // 求人未存在をLarkに通知（Webhookが設定されている場合のみ）
+        if (LARK_WEBHOOK) {
+          try {
+            const errorMessage = formatErrorLarkMessage(
+              "❌ 求人未存在エラー",
+              "指定された求人IDが microCMS 上に見つかりませんでした。",
+              { jobId, source: "applications", receivedAt: new Date().toISOString() }
+            )
+            const notifyRes = await fetch(LARK_WEBHOOK, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(errorMessage),
+            })
+            const notifyText = await notifyRes.text()
+            if (!notifyRes.ok) {
+              console.error("[applications] Failed to notify not-found to Lark:", notifyText)
+            }
+          } catch (notifyErr) {
+            console.error("[applications] Error while notifying not-found to Lark:", notifyErr)
+          }
+        }
         return NextResponse.json(
-          { success: false, message: 'Job Not Found' },
+          { success: false, message: 'Job Not Found', notification: LARK_WEBHOOK ? { sent: true } : { sent: false, reason: 'Webhook not configured' } },
           { status: 404 }
         )
       }
@@ -195,7 +244,6 @@ export async function POST(request: Request) {
 
     console.log("[applications] Received application data:", body)
 
-    const LARK_WEBHOOK = process.env.LARK_WEBHOOK
     if (!LARK_WEBHOOK) {
       console.error("[applications] LARK_WEBHOOK environment variable is not set")
       return NextResponse.json(
