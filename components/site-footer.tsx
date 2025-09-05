@@ -24,6 +24,7 @@ export default function SiteFooter() {
           <div>
             <h3 className="font-bold text-lg mb-4">ライドジョブについて</h3>
             <ul className="space-y-2 text-sm text-indigo-700">
+              <li><Link href="/about" className="hover:underline">会社情報</Link></li>
               <li><Link href="/privacy" className="hover:underline">プライバシーポリシー</Link></li>
               <li><Link href="https://pmagent.jp/" target="_blank" rel="noopener noreferrer" className="hover:underline">運営会社情報</Link></li>
               <li><Link href="https://ridejob.jp/media/contact" target="_blank" rel="noopener noreferrer" className="hover:underline">お問い合わせ</Link></li>

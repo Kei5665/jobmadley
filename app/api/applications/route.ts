@@ -118,20 +118,7 @@ function formatLarkMessage(data: ApplicationData): any {
             tag: "lark_md",
             content: `**💼 求人情報**\n求人ID: ${formatValue(data.job.id || data.job.jobId)}\n求人タイトル: ${formatValue(data.job.title || data.job.jobTitle)}\n会社名: ${formatValue(data.job.companyName || data.job.jobCompany)}\n勤務地: ${formatValue(data.job.location || data.job.jobLocation)}\n求人URL: ${formatValue(data.job.url || data.job.jobUrl)}`
           }
-        },
-        ...((data.questionsAndAnswers && Array.isArray(data.questionsAndAnswers) && data.questionsAndAnswers.length > 0) ||
-             (data.questionsAndAnswers && !Array.isArray(data.questionsAndAnswers) && (data.questionsAndAnswers as QuestionsAndAnswersWrapper).questionsAndAnswers && (data.questionsAndAnswers as QuestionsAndAnswersWrapper).questionsAndAnswers.length > 0) ? [
-          {
-            tag: "hr"
-          },
-          {
-            tag: "div",
-            text: {
-              tag: "lark_md",
-              content: `**❓ 質問・回答**\n${(Array.isArray(data.questionsAndAnswers) ? data.questionsAndAnswers : (data.questionsAndAnswers as QuestionsAndAnswersWrapper).questionsAndAnswers || []).map((qa: any, index: number) => `**質問 ${index + 1}:** ${qa.question}\n**回答:** ${qa.answer}`).join('\n\n')}`
-            }
-          }
-        ] : [])
+        }
       ]
     }
   }

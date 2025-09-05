@@ -16,7 +16,10 @@ export default function SiteHeader() {
           </Link>
 
           {/* CTA Buttons (Desktop) */}
-          <div className="hidden md:flex space-x-3">
+          <div className="hidden md:flex space-x-3 items-center">
+            <Link href="/about" className="text-sm text-gray-700 hover:text-gray-900 mr-2">
+              会社情報
+            </Link>
             <a href="https://ridejob.pmagent.jp/" target="_blank" rel="noopener noreferrer">
               <Button className="bg-[#05AADB] hover:bg-[#0399C6] text-white px-4 py-2 text-sm rounded">
                 まずお話を聞く
@@ -42,6 +45,9 @@ export default function SiteHeader() {
                   <SheetTitle className="sr-only">メニュー</SheetTitle>
                 </SheetHeader>
                 <div className="space-y-4 mt-8">
+                  <Link href="/about" className="block text-left text-gray-700 hover:text-gray-900">
+                    会社情報
+                  </Link>
                   <a href="https://ridejob.pmagent.jp/" target="_blank" rel="noopener noreferrer">
                     <Button className="w-full bg-[#05AADB] hover:bg-[#0399C6] text-white">
                       まずお話を聞く
