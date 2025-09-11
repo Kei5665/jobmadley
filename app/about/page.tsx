@@ -5,6 +5,94 @@ import SiteHeader from "@/components/site-header"
 import SiteFooter from "@/components/site-footer"
 import { Button } from "@/components/ui/button"
 
+type SymbolMarkProps = {
+  type: "circle" | "triangle" | "cross"
+  size?: number
+  strokeWidth?: number
+  className?: string
+}
+
+const SymbolMark = ({
+  type,
+  size = 28,
+  strokeWidth = 3,
+  className = "",
+}: SymbolMarkProps) => {
+  const padding = strokeWidth * 1.5
+  const half = size / 2
+
+  if (type === "circle") {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        className={className}
+        aria-hidden
+      >
+        <circle
+          cx={half}
+          cy={half}
+          r={half - strokeWidth}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+        />
+      </svg>
+    )
+  }
+
+  if (type === "triangle") {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        className={className}
+        aria-hidden
+      >
+        <polygon
+          points={`${half},${padding} ${size - padding},${size - padding} ${padding},${size - padding}`}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          strokeLinejoin="round"
+        />
+      </svg>
+    )
+  }
+
+  // cross
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      className={className}
+      aria-hidden
+    >
+      <line
+        x1={padding}
+        y1={padding}
+        x2={size - padding}
+        y2={size - padding}
+        stroke="currentColor"
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+      />
+      <line
+        x1={size - padding}
+        y1={padding}
+        x2={padding}
+        y2={size - padding}
+        stroke="currentColor"
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
 export const metadata: Metadata = {
   title: "会社情報",
   description: "ライドジョブを運営する株式会社PM Agentの会社情報ページです。ミッション、事業内容、所在地などをご紹介します。",
@@ -202,6 +290,160 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
+
+                {/* 他社採用サービス比較 */}
+        <section className="bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-16 md:py-24">
+            <h2 className="text-center text-2xl md:text-3xl font-bold tracking-tight text-neutral-900">
+              他社採用サービス比較
+            </h2>
+
+            <div className="mt-10 overflow-x-auto">
+              <table className="min-w-[960px] w-full text-sm md:text-base border border-neutral-200 rounded-2xl overflow-hidden">
+                <thead>
+                  <tr className="text-neutral-900">
+                    <th className="bg-neutral-50 text-left align-middle font-semibold p-4 md:p-5 w-36">項目</th>
+                    <th className="bg-blue-50/70 p-4 md:p-5 text-center">
+                      <div className="inline-flex flex-col items-center gap-1">
+                        <span className="rounded-xl bg-blue-100 text-[#1f1fff] font-bold px-3 py-1">RIDE JOB</span>
+                        <span className="text-xs text-neutral-600">ライドジョブ</span>
+                      </div>
+                    </th>
+                    <th className="bg-white p-4 md:p-5 text-center font-semibold">人材紹介</th>
+                    <th className="bg-white p-4 md:p-5 text-center font-semibold">ハローワーク</th>
+                    <th className="bg-white p-4 md:p-5 text-center font-semibold">掲載型求人媒体</th>
+                  </tr>
+                </thead>
+                <tbody className="[&_tr]:border-t [&_tr]:border-neutral-200">
+                  {/* 料金 */}
+                  <tr>
+                    <th className="bg-neutral-50 text-left align-top font-semibold p-4 md:p-5">料金</th>
+                    <td className="bg-blue-50/70 p-4 md:p-5">
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <span className="text-[#1f1fff]"><SymbolMark type="circle" size={36} strokeWidth={4} /></span>
+                        <p className="text-xs text-neutral-700 leading-relaxed">
+                          成果報酬型（採用決定時のみ費用発生）
+                        </p>
+                      </div>
+                    </td>
+                    <td className="p-4 md:p-5">
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <SymbolMark type="triangle" size={36} strokeWidth={4} />
+                        <p className="text-xs text-neutral-700 leading-relaxed">紹介料が高額</p>
+                      </div>
+                    </td>
+                    <td className="p-4 md:p-5">
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <SymbolMark type="circle" size={36} strokeWidth={4} />
+                        <p className="text-xs text-neutral-700 leading-relaxed">無料</p>
+                      </div>
+                    </td>
+                    <td className="p-4 md:p-5">
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <SymbolMark type="triangle" size={36} strokeWidth={4} />
+                        <p className="text-xs text-neutral-700 leading-relaxed">
+                          掲載課金制（固定費用）
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+
+                  {/* 母体形成方法 */}
+                  <tr>
+                    <th className="bg-neutral-50 text-left align-top font-semibold p-4 md:p-5">母体形成方法</th>
+                    <td className="bg-blue-50/70 p-4 md:p-5">
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <span className="text-[#1f1fff]"><SymbolMark type="circle" size={36} strokeWidth={4} /></span>
+                        <p className="text-xs text-neutral-700 leading-relaxed">
+                          独自メディア・求人サイト＋Indeedなどのデジタル広告連携
+                        </p>
+                      </div>
+                    </td>
+                    <td className="p-4 md:p-5">
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <SymbolMark type="triangle" size={36} strokeWidth={4} />
+                        <p className="text-xs text-neutral-700 leading-relaxed">自社データベースに依存</p>
+                      </div>
+                    </td>
+                    <td className="p-4 md:p-5">
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <SymbolMark type="triangle" size={36} strokeWidth={4} />
+                        <p className="text-xs text-neutral-700 leading-relaxed">来所者・利用者中心</p>
+                      </div>
+                    </td>
+                    <td className="p-4 md:p-5">
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <SymbolMark type="triangle" size={36} strokeWidth={4} />
+                        <p className="text-xs text-neutral-700 leading-relaxed">媒体ユーザーに依存</p>
+                      </div>
+                    </td>
+                  </tr>
+
+                  {/* 採用工数 */}
+                  <tr>
+                    <th className="bg-neutral-50 text-left align-top font-semibold p-4 md:p-5">採用工数</th>
+                    <td className="bg-blue-50/70 p-4 md:p-5">
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <span className="text-[#1f1fff]"><SymbolMark type="circle" size={36} strokeWidth={4} /></span>
+                        <p className="text-xs text-neutral-700 leading-relaxed">
+                          専任コンサルが候補者面談・選考調整を代行
+                        </p>
+                      </div>
+                    </td>
+                    <td className="p-4 md:p-5">
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <SymbolMark type="triangle" size={36} strokeWidth={4} />
+                        <p className="text-xs text-neutral-700 leading-relaxed">調整代行あり</p>
+                      </div>
+                    </td>
+                    <td className="p-4 md:p-5">
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <SymbolMark type="triangle" size={36} strokeWidth={4} />
+                        <p className="text-xs text-neutral-700 leading-relaxed">企業側で選考調整が必要</p>
+                      </div>
+                    </td>
+                    <td className="p-4 md:p-5">
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <SymbolMark type="triangle" size={36} strokeWidth={4} />
+                        <p className="text-xs text-neutral-700 leading-relaxed">企業側で選考調整が必要</p>
+                      </div>
+                    </td>
+                  </tr>
+
+                  {/* 定着支援 */}
+                  <tr>
+                    <th className="bg-neutral-50 text-left align-top font-semibold p-4 md:p-5">定着支援</th>
+                    <td className="bg-blue-50/70 p-4 md:p-5">
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <span className="text-[#1f1fff]"><SymbolMark type="circle" size={36} strokeWidth={4} /></span>
+                        <p className="text-xs text-neutral-700 leading-relaxed">入社前後のフォローあり</p>
+                      </div>
+                    </td>
+                    <td className="p-4 md:p-5">
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <SymbolMark type="triangle" size={36} strokeWidth={4} />
+                        <p className="text-xs text-neutral-700 leading-relaxed">企業によりフォロー有無が異なる</p>
+                      </div>
+                    </td>
+                    <td className="p-4 md:p-5">
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <SymbolMark type="cross" size={36} strokeWidth={4} />
+                        <p className="text-xs text-neutral-700 leading-relaxed">フォローはほぼ無し</p>
+                      </div>
+                    </td>
+                    <td className="p-4 md:p-5">
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <SymbolMark type="cross" size={36} strokeWidth={4} />
+                        <p className="text-xs text-neutral-700 leading-relaxed">フォローは無し</p>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
 
       </main>
 
