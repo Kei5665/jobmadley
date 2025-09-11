@@ -124,7 +124,7 @@ export default function AboutPage() {
                 />
                 <div className="mt-6">
                   <Button asChild className="bg-[#2000d8] hover:bg-[#1800b6] text-white rounded-full px-6 py-6 text-base md:text-lg">
-                    <Link href="/#contact">お問い合わせはこちら</Link>
+                    <Link href="#contact">お問い合わせはこちら</Link>
                   </Button>
                 </div>
               </div>
