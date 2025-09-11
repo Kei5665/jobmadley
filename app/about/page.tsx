@@ -501,7 +501,7 @@ export default function AboutPage() {
                   <p className="text-xs md:text-sm text-neutral-700">無料で求人掲載スタート！</p>
                   <div className="mt-4">
                     <Button asChild className="w-full rounded-2xl bg-[#1f1fff] hover:bg-[#1800b6] text-white text-base md:text-lg py-6">
-                      <Link href="/#contact" className="flex items-center justify-center gap-2">
+                      <Link href="#contact" className="flex items-center justify-center gap-2">
                         無料相談はこちら
                         <span aria-hidden>›</span>
                       </Link>
