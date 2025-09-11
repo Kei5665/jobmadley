@@ -147,92 +147,6 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* お問い合わせ セクション */}
-        <section id="contact" className="bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-16 md:py-24">
-            <p className="text-center text-sm md:text-base text-neutral-700">
-              ご質問や不明点等ございましたら、以下のフォームよりお気軽にお問い合わせください
-            </p>
-            <h2 className="mt-3 text-center text-2xl md:text-3xl font-bold tracking-tight text-neutral-900">
-              お問い合わせ
-            </h2>
-
-            <div className="mt-10 rounded-3xl bg-sky-50 p-4 md:p-8">
-              <div className="mx-auto max-w-3xl rounded-2xl bg-white p-6 md:p-10 ring-1 ring-neutral-200/70">
-                <form action="#" method="post" className="space-y-6">
-                  {/* 会社名（必須） */}
-                  <div>
-                    <Label htmlFor="company" className="flex items-center gap-2">
-                      <span>会社名</span>
-                      <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600 ring-1 ring-red-200">必須</span>
-                    </Label>
-                    <Input id="company" name="company" required aria-required className="mt-2" />
-                  </div>
-
-                  {/* ご担当者名（必須） */}
-                  <div>
-                    <Label htmlFor="contactName" className="flex items-center gap-2">
-                      <span>ご担当者名</span>
-                      <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600 ring-1 ring-red-200">必須</span>
-                    </Label>
-                    <Input id="contactName" name="contactName" required aria-required className="mt-2" />
-                  </div>
-
-                  {/* 会社のメールアドレス（必須） */}
-                  <div>
-                    <Label htmlFor="email" className="flex items-center gap-2">
-                      <span>会社のメールアドレス</span>
-                      <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600 ring-1 ring-red-200">必須</span>
-                    </Label>
-                    <Input id="email" name="email" type="email" required aria-required className="mt-2" />
-                  </div>
-
-                  {/* 電話番号（必須） */}
-                  <div>
-                    <Label htmlFor="phone" className="flex items-center gap-2">
-                      <span>電話番号</span>
-                      <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600 ring-1 ring-red-200">必須</span>
-                    </Label>
-                    <Input id="phone" name="phone" type="tel" required aria-required className="mt-2" />
-                  </div>
-
-                  {/* お問い合わせ内容（必須・選択） */}
-                  <div>
-                    <Label className="flex items-center gap-2">
-                      <span>お問い合わせ内容</span>
-                      <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600 ring-1 ring-red-200">必須</span>
-                    </Label>
-                    <div className="mt-2">
-                      <Select>
-                        <SelectTrigger aria-label="お問い合わせ内容を選択">
-                          <SelectValue placeholder="選択してください" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="consult">採用について相談したい</SelectItem>
-                          <SelectItem value="service">サービス内容を知りたい</SelectItem>
-                          <SelectItem value="other">その他</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  {/* お問い合わせ詳細（自由記述） */}
-                  <div>
-                    <Label htmlFor="detail">お問い合わせ詳細（自由記述）</Label>
-                    <Textarea id="detail" name="detail" className="mt-2 min-h-[140px]" placeholder="ご相談内容・ご要望などをご記入ください" />
-                  </div>
-
-                  <div className="pt-2">
-                    <Button type="submit" className="w-full rounded-2xl bg-[#1f1fff] hover:bg-[#1800b6] text-white py-6 text-base md:text-lg">
-                      送信
-                    </Button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* 採用課題セクション */}
         <section className="relative overflow-hidden bg-gradient-to-b from-sky-50 to-white">
           <div className="mx-auto max-w-6xl px-4 pt-14 pb-28 md:pt-20 md:pb-36">
@@ -603,6 +517,92 @@ export default function AboutPage() {
                   <p className="text-sm md:text-base text-[#1f1fff]">電話で相談する</p>
                   <p className="mt-3 text-2xl md:text-4xl font-extrabold tracking-wide text-[#1f1fff]">03-6824-7476</p>
                 </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* お問い合わせ セクション */}
+        <section id="contact" className="bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-16 md:py-24">
+            <p className="text-center text-sm md:text-base text-neutral-700">
+              ご質問や不明点等ございましたら、以下のフォームよりお気軽にお問い合わせください
+            </p>
+            <h2 className="mt-3 text-center text-2xl md:text-3xl font-bold tracking-tight text-neutral-900">
+              お問い合わせ
+            </h2>
+
+            <div className="mt-10 rounded-3xl bg-sky-50 p-4 md:p-8">
+              <div className="mx-auto max-w-3xl rounded-2xl bg-white p-6 md:p-10 ring-1 ring-neutral-200/70">
+                <form action="/api/contact" method="post" className="space-y-6">
+                  {/* 会社名（必須） */}
+                  <div>
+                    <Label htmlFor="company" className="flex items-center gap-2">
+                      <span>会社名</span>
+                      <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600 ring-1 ring-red-200">必須</span>
+                    </Label>
+                    <Input id="company" name="company" required aria-required className="mt-2" />
+                  </div>
+
+                  {/* ご担当者名（必須） */}
+                  <div>
+                    <Label htmlFor="contactName" className="flex items-center gap-2">
+                      <span>ご担当者名</span>
+                      <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600 ring-1 ring-red-200">必須</span>
+                    </Label>
+                    <Input id="contactName" name="contactName" required aria-required className="mt-2" />
+                  </div>
+
+                  {/* 会社のメールアドレス（必須） */}
+                  <div>
+                    <Label htmlFor="email" className="flex items-center gap-2">
+                      <span>会社のメールアドレス</span>
+                      <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600 ring-1 ring-red-200">必須</span>
+                    </Label>
+                    <Input id="email" name="email" type="email" required aria-required className="mt-2" />
+                  </div>
+
+                  {/* 電話番号（必須） */}
+                  <div>
+                    <Label htmlFor="phone" className="flex items-center gap-2">
+                      <span>電話番号</span>
+                      <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600 ring-1 ring-red-200">必須</span>
+                    </Label>
+                    <Input id="phone" name="phone" type="tel" required aria-required className="mt-2" />
+                  </div>
+
+                  {/* お問い合わせ内容（必須・選択） */}
+                  <div>
+                    <Label className="flex items-center gap-2">
+                      <span>お問い合わせ内容</span>
+                      <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600 ring-1 ring-red-200">必須</span>
+                    </Label>
+                    <div className="mt-2">
+                      <Select name="topic">
+                        <SelectTrigger aria-label="お問い合わせ内容を選択">
+                          <SelectValue placeholder="選択してください" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="consult">採用について相談したい</SelectItem>
+                          <SelectItem value="service">サービス内容を知りたい</SelectItem>
+                          <SelectItem value="other">その他</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* お問い合わせ詳細（自由記述） */}
+                  <div>
+                    <Label htmlFor="detail">お問い合わせ詳細（自由記述）</Label>
+                    <Textarea id="detail" name="detail" className="mt-2 min-h-[140px]" placeholder="ご相談内容・ご要望などをご記入ください" />
+                  </div>
+
+                  <div className="pt-2">
+                    <Button type="submit" className="w-full rounded-2xl bg-[#1f1fff] hover:bg-[#1800b6] text-white py-6 text-base md:text-lg">
+                      送信
+                    </Button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
