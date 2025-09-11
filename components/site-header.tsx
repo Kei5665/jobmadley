@@ -17,7 +17,11 @@ export default function SiteHeader() {
 
           {/* Nav + CTA (Desktop) */}
           <div className="hidden md:flex space-x-3 items-center">
-            <Link href="/about" className="text-sm text-neutral-700 hover:text-neutral-900 mr-2">会社情報</Link>
+            <Link href="/about">
+              <Button className="bg-[#1600FF] hover:bg-[#0E00D1] text-white px-4 py-2 text-sm rounded">
+                法人向けのご案内
+              </Button>
+            </Link>
             <a href="https://ridejob.pmagent.jp/" target="_blank" rel="noopener noreferrer">
               <Button className="bg-[#05AADB] hover:bg-[#0399C6] text-white px-4 py-2 text-sm rounded">
                 まずお話を聞く
@@ -43,7 +47,11 @@ export default function SiteHeader() {
                   <SheetTitle className="sr-only">メニュー</SheetTitle>
                 </SheetHeader>
                 <div className="space-y-4 mt-8">
-                  <Link href="/about" className="block text-base text-neutral-700 hover:text-neutral-900">会社情報</Link>
+                  <Link href="/about">
+                    <Button className="w-full bg-[#1600FF] hover:bg-[#0E00D1] text-white">
+                      法人向けのご案内
+                    </Button>
+                  </Link>
                   <a href="https://ridejob.pmagent.jp/" target="_blank" rel="noopener noreferrer">
                     <Button className="w-full bg-[#05AADB] hover:bg-[#0399C6] text-white">
                       まずお話を聞く
