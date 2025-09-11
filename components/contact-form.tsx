@@ -9,7 +9,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 
 type SubmitState = 'idle' | 'submitting' | 'success' | 'error'
 
-export default function ContactForm(): JSX.Element {
+export default function ContactForm() {
   const [topic, setTopic] = useState<string>('')
   const [state, setState] = useState<SubmitState>('idle')
   const [message, setMessage] = useState<string>('')
