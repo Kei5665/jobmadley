@@ -162,30 +162,38 @@ function formatRawDataMessage(data: any): any {
   }
 }
 
-function formatErrorLarkMessage(title: string, description: string, details?: Record<string, unknown>): any {
+function formatErrorLarkMessage(title: string, description: string, details?: unknown): any {
+  const elements: any[] = [
+    {
+      tag: "div",
+      text: {
+        tag: "lark_md",
+        content: `**${title}**\n${description}`
+      }
+    }
+  ]
+
+  if (details != null) {
+    elements.push({ tag: "hr" })
+    if (typeof details === 'string') {
+      elements.push({
+        tag: "div",
+        text: { tag: "lark_md", content: details }
+      })
+    } else {
+      elements.push({
+        tag: "div",
+        text: {
+          tag: "lark_md",
+          content: `\`\`\`json\n${JSON.stringify(details, null, 2)}\n\`\`\``
+        }
+      })
+    }
+  }
+
   return {
     msg_type: "interactive",
-    card: {
-      elements: [
-        {
-          tag: "div",
-          text: {
-            tag: "lark_md",
-            content: `**${title}**\n${description}`
-          }
-        },
-        ...(details ? [
-          { tag: "hr" },
-          {
-            tag: "div",
-            text: {
-              tag: "lark_md",
-              content: `\`\`\`json\n${JSON.stringify(details, null, 2)}\n\`\`\``
-            }
-          }
-        ] : [])
-      ]
-    }
+    card: { elements }
   }
 }
 
@@ -254,29 +262,54 @@ export async function POST(request: Request) {
         // 求人未存在をLarkに通知（Webhookが設定されている場合のみ）
         if (LARK_WEBHOOK) {
           try {
+            const format = (value: unknown, fallback = '未設定') => {
+              if (typeof value === 'string' && value.trim() !== '' && value !== 'undefined') return value
+              return fallback
+            }
+
+            const applicantName = ((): string => {
+              const full = `${format(body?.applicant?.lastName, '')} ${format(body?.applicant?.firstName, '')}`.trim()
+              if (full) return full
+              return format(body?.applicant?.fullName)
+            })()
+            const applicantKana = ((): string => {
+              const kana = `${format(body?.applicant?.lastNameKana, '')} ${format(body?.applicant?.firstNameKana, '')}`.trim()
+              if (kana) return kana
+              const pron = `${format(body?.applicant?.pronunciationLastName, '')} ${format(body?.applicant?.pronunciationFirstName, '')}`.trim()
+              return pron || '未設定'
+            })()
+            const applicantAddress = ((): string => {
+              if (format(body?.applicant?.address, '') !== '') return String(body?.applicant?.address)
+              const joined = [body?.applicant?.prefecture, body?.applicant?.city].filter(Boolean).join(' ')
+              return joined || '未設定'
+            })()
+            const applicantPhone = body?.applicant?.phone ?? body?.applicant?.phoneNumber ?? ''
+
+            const jobTitle = body?.job?.title ?? body?.job?.jobTitle
+            const company = body?.job?.companyName ?? body?.job?.jobCompany
+            const location = body?.job?.location ?? body?.job?.jobLocation
+
+            const detailsText = [
+              `**対象求人**`,
+              `求人ID: ${format(jobId)}`,
+              `求人タイトル: ${format(jobTitle)}`,
+              `会社名: ${format(company)}`,
+              `勤務地: ${format(location)}`,
+              ``,
+              `**応募者情報**`,
+              `氏名: ${format(applicantName)}`,
+              `ふりがな: ${format(applicantKana)}`,
+              `生年月日: ${format(body?.applicant?.birthday)}`,
+              `住所: ${format(applicantAddress)}`,
+              `電話番号: ${format(applicantPhone)}`,
+              ``,
+              `_source: applications | receivedAt: ${new Date().toISOString()}_`
+            ].join('\n')
+
             const errorMessage = formatErrorLarkMessage(
               "❌ 求人未存在エラー",
               "指定された求人IDが microCMS 上に見つかりませんでした。",
-              {
-                jobId,
-                jobTitle: body?.job?.title ?? body?.job?.jobTitle ?? null,
-                source: "applications",
-                receivedAt: new Date().toISOString(),
-                applicant: body?.applicant
-                  ? {
-                      name:
-                        (typeof body?.applicant?.lastName === "string" || typeof body?.applicant?.firstName === "string")
-                          ? `${body?.applicant?.lastName ?? ""} ${body?.applicant?.firstName ?? ""}`.trim()
-                          : (body?.applicant?.fullName ?? null),
-                      birthday: body?.applicant?.birthday ?? null,
-                      address:
-                        (body?.applicant?.address && body?.applicant?.address !== "")
-                          ? body?.applicant?.address
-                          : [body?.applicant?.prefecture, body?.applicant?.city].filter(Boolean).join(" ") || null,
-                      phone: body?.applicant?.phone ?? body?.applicant?.phoneNumber ?? null,
-                    }
-                  : null,
-              }
+              detailsText
             )
             const notifyRes = await fetch(LARK_WEBHOOK, {
               method: "POST",
