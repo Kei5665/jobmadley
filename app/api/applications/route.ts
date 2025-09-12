@@ -259,6 +259,7 @@ export async function POST(request: Request) {
               "指定された求人IDが microCMS 上に見つかりませんでした。",
               {
                 jobId,
+                jobTitle: body?.job?.title ?? body?.job?.jobTitle ?? null,
                 source: "applications",
                 receivedAt: new Date().toISOString(),
                 applicant: body?.applicant
