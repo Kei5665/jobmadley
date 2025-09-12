@@ -252,6 +252,7 @@ export async function POST(request: Request) {
       )
     }
 
+
     // microCMS 上の求人存在確認（存在しなければ 404 を返す）
     try {
       const r = await microcmsClient.get<MicroCMSListResponse<{ id: string }>>({
@@ -320,9 +321,10 @@ export async function POST(request: Request) {
             console.error("[applications] Error while notifying not-found to Lark:", notifyErr)
           }
         }
+        // 2xxでリトライ抑止
         return NextResponse.json(
-          { success: false, message: 'Job Not Found', notification: LARK_WEBHOOK ? { sent: true } : { sent: false, reason: 'Webhook not configured' } },
-          { status: 404 }
+          { success: true, error: 'JOB_NOT_FOUND', notification: LARK_WEBHOOK ? { sent: true } : { sent: false, reason: 'Webhook not configured' } },
+          { status: 200 }
         )
       }
     } catch (e) {
