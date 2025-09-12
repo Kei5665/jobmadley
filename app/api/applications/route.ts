@@ -257,7 +257,25 @@ export async function POST(request: Request) {
             const errorMessage = formatErrorLarkMessage(
               "❌ 求人未存在エラー",
               "指定された求人IDが microCMS 上に見つかりませんでした。",
-              { jobId, source: "applications", receivedAt: new Date().toISOString() }
+              {
+                jobId,
+                source: "applications",
+                receivedAt: new Date().toISOString(),
+                applicant: body?.applicant
+                  ? {
+                      name:
+                        (typeof body?.applicant?.lastName === "string" || typeof body?.applicant?.firstName === "string")
+                          ? `${body?.applicant?.lastName ?? ""} ${body?.applicant?.firstName ?? ""}`.trim()
+                          : (body?.applicant?.fullName ?? null),
+                      birthday: body?.applicant?.birthday ?? null,
+                      address:
+                        (body?.applicant?.address && body?.applicant?.address !== "")
+                          ? body?.applicant?.address
+                          : [body?.applicant?.prefecture, body?.applicant?.city].filter(Boolean).join(" ") || null,
+                      phone: body?.applicant?.phone ?? body?.applicant?.phoneNumber ?? null,
+                    }
+                  : null,
+              }
             )
             const notifyRes = await fetch(LARK_WEBHOOK, {
               method: "POST",
