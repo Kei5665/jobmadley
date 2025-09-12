@@ -290,8 +290,6 @@ export async function POST(request: Request) {
             const location = body?.job?.location ?? body?.job?.jobLocation
 
             const detailsText = [
-              `**対象求人**`,
-              `求人ID: ${format(jobId)}`,
               `求人タイトル: ${format(jobTitle)}`,
               `会社名: ${format(company)}`,
               `勤務地: ${format(location)}`,
@@ -301,14 +299,12 @@ export async function POST(request: Request) {
               `ふりがな: ${format(applicantKana)}`,
               `生年月日: ${format(body?.applicant?.birthday)}`,
               `住所: ${format(applicantAddress)}`,
-              `電話番号: ${format(applicantPhone)}`,
-              ``,
-              `_source: applications | receivedAt: ${new Date().toISOString()}_`
+              `電話番号: ${format(applicantPhone)}`
             ].join('\n')
 
             const errorMessage = formatErrorLarkMessage(
               "❌ 求人未存在エラー",
-              "指定された求人IDが microCMS 上に見つかりませんでした。",
+              "求人ボックスから応募がありましたが、ライドジョブ内で求人が見つかりませんでした。",
               detailsText
             )
             const notifyRes = await fetch(LARK_WEBHOOK, {
