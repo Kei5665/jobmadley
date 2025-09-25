@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Textarea } from "@/components/ui/textarea"
 import SiteHeader from "@/components/site-header"
 import SiteFooter from "@/components/site-footer"
 import type { ApplicationFormData, JobDetail } from "@/lib/types"
@@ -25,7 +24,6 @@ const schema = z.object({
   birthDay: z.string().min(1, "生年月日を入力してください"),
   phone: z.string().min(1, "電話番号を入力してください"),
   email: z.string().email("有効なメールアドレスを入力してください"),
-  address: z.string().min(1, "住所を入力してください"),
   agreement: z.boolean().refine((val) => val === true, "利用規約に同意してください"),
 })
 
@@ -40,7 +38,6 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
     register,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -59,7 +56,6 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
         birthDate,
         phone: data.phone,
         email: data.email,
-        address: data.address,
         companyName: job?.companyName || "",
         jobName: job?.jobName || "",
         jobUrl: window.location.href,
@@ -245,24 +241,6 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
                 />
                 {errors.email && (
                   <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-                )}
-              </div>
-            </div>
-
-            {/* 住所 */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
-              <label className="text-sm font-medium text-gray-700 md:text-right md:pt-2">
-                住所 <span className="text-red-500">必須</span>
-              </label>
-              <div className="md:col-span-3">
-                <Textarea 
-                  placeholder="例: 東京都渋谷区宇田川町1-1-1" 
-                  {...register("address")}
-                  className="w-full"
-                  rows={3}
-                />
-                {errors.address && (
-                  <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>
                 )}
               </div>
             </div>

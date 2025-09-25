@@ -184,7 +184,6 @@ export interface ApplicationFormData {
   birthDate: string
   phone: string
   email: string
-  address: string
   companyName: string
   jobName: string
   jobUrl: string

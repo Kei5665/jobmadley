@@ -8,7 +8,6 @@ function buildInternalLarkCard(input: any) {
     `3. 生年月日: ${input.birthDate ?? ''}`,
     `4. 電話番号: ${input.phone ?? ''}`,
     `5. メールアドレス: ${input.email ?? ''}`,
-    `6. 住所: ${input.address ?? ''}`,
   ].join('\n')
 
   const jobLines: string[] = []
