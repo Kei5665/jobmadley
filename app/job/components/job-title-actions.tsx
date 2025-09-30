@@ -7,9 +7,11 @@ import type { JobDetail } from "@/lib/types"
 
 interface JobTitleActionsProps {
   job: JobDetail
+  applyUrl?: string
+  isStandby?: boolean
 }
 
-export default function JobTitleActions({ job }: JobTitleActionsProps) {
+export default function JobTitleActions({ job, applyUrl, isStandby = false }: JobTitleActionsProps) {
   const isNewJob = isNew(job.publishedAt, job.createdAt)
   const salaryText = formatSalary(job.salaryMin, job.salaryMax)
 
@@ -41,7 +43,11 @@ export default function JobTitleActions({ job }: JobTitleActionsProps) {
           )}
         </div>
         <div className="hidden sm:flex sm:w-auto flex-col space-y-3 sm:ml-6">
-          <Link href={`/apply/${job.id}`} className="block w-full sm:w-auto">
+          <Link
+            href={applyUrl ?? `/apply/${job.id}`}
+            className="block w-full sm:w-auto"
+            prefetch={!isStandby}
+          >
             <Button className="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white px-8 py-3 text-lg">
               応募画面へ進む
             </Button>

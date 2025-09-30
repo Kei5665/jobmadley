@@ -1,4 +1,3 @@
-import { Suspense } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import SiteHeader from "@/components/site-header"
@@ -7,22 +6,21 @@ import RidejobMediaSection from "@/components/ridejob-media-section"
 import { getJob } from "@/lib/getJob"
 import { getJobs } from "@/lib/getJobs"
 import { withErrorHandling } from "@/lib/error-handling"
-import { Loading } from "@/components/ui/loading"
-import { ErrorDisplay } from "@/components/ui/error-display"
-import { NotFound } from "@/components/ui/error-display"
-import JobBreadcrumb from "../components/job-breadcrumb"
-import JobImageCarousel from "../components/job-image-carousel"
-import JobTitleActions from "../components/job-title-actions"
-import JobDescription from "../components/job-description"
-import RelatedJobs from "../components/related-jobs"
+import { ErrorDisplay, NotFound } from "@/components/ui/error-display"
+import JobBreadcrumb from "../../components/job-breadcrumb"
+import JobImageCarousel from "../../components/job-image-carousel"
+import JobTitleActions from "../../components/job-title-actions"
+import JobDescription from "../../components/job-description"
+import RelatedJobs from "../../components/related-jobs"
 import { getMediaArticles } from "@/lib/getMediaArticles"
 
-interface JobPageProps {
+interface StandbyJobPageProps {
   params: { id: string }
 }
 
-export default async function JobPage({ params }: JobPageProps) {
+export default async function StandbyJobPage({ params }: StandbyJobPageProps) {
   const { id } = params
+
   try {
     const job = await withErrorHandling(
       () => getJob(id),
@@ -46,6 +44,8 @@ export default async function JobPage({ params }: JobPageProps) {
       )
     }
 
+    const applyUrl = `/apply/${job.id}?source=standby`
+
     const relatedJobsRaw = await withErrorHandling(
       () => getJobs({
         municipalityId: job.municipality?.id,
@@ -65,6 +65,12 @@ export default async function JobPage({ params }: JobPageProps) {
       <div className="min-h-screen bg-white">
         <SiteHeader />
 
+        <div className="bg-blue-50 border-b border-blue-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <p className="text-sm text-blue-700">スタンバイ経由での応募専用ページです。このページから応募するとスタンバイ経由として処理されます。</p>
+          </div>
+        </div>
+
         <JobBreadcrumb job={job} />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -76,7 +82,7 @@ export default async function JobPage({ params }: JobPageProps) {
                 altText={job.jobName ?? job.title}
               />
 
-              <JobTitleActions job={job} />
+              <JobTitleActions job={job} applyUrl={applyUrl} isStandby />
 
               <JobDescription job={job} />
 
@@ -89,16 +95,16 @@ export default async function JobPage({ params }: JobPageProps) {
           companyArticles={companyArticles}
           interviewArticles={interviewArticles}
         />
-        {/* Mobile sticky apply button */}
+
         <div className="sm:hidden fixed inset-x-0 bottom-0 z-40 bg-white border-t border-gray-200 p-3">
-          <Link href={`/apply/${job.id}`} className="block">
+          <Link href={applyUrl} className="block">
             <Button className="w-full bg-red-500 hover:bg-red-600 text-white text-base py-3">
               応募画面へ進む
             </Button>
           </Link>
         </div>
-        {/* Spacer to avoid content being hidden behind sticky bar on mobile */}
         <div className="h-20 sm:hidden" />
+
         <SiteFooter />
       </div>
     )
@@ -118,3 +124,4 @@ export default async function JobPage({ params }: JobPageProps) {
     )
   }
 }
+

@@ -167,10 +167,6 @@ export interface JobDetailPageProps {
 }
 
 /** 応募フォームページ Props */
-export interface ApplicationFormPageProps {
-  job: JobDetail
-}
-
 // =====================
 // フォーム型定義
 // =====================
@@ -187,6 +183,7 @@ export interface ApplicationFormData {
   companyName: string
   jobName: string
   jobUrl: string
+  applicationSource: string
 }
 
 // =====================

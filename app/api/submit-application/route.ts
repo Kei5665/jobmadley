@@ -1,6 +1,22 @@
 import { NextResponse } from "next/server"
 
-function buildInternalLarkCard(input: any) {
+interface ApplicationPayload {
+  lastName?: string
+  firstName?: string
+  lastNameKana?: string
+  firstNameKana?: string
+  birthDate?: string
+  phone?: string
+  email?: string
+  applicationSource?: string
+  companyName?: string
+  jobName?: string
+  jobUrl?: string
+  jobId?: string
+  [key: string]: unknown
+}
+
+function buildInternalLarkCard(input: ApplicationPayload) {
   const appliedAt = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
   const details = [
     `1. 氏名: ${input.lastName ?? ''} ${input.firstName ?? ''}`,
@@ -8,6 +24,7 @@ function buildInternalLarkCard(input: any) {
     `3. 生年月日: ${input.birthDate ?? ''}`,
     `4. 電話番号: ${input.phone ?? ''}`,
     `5. メールアドレス: ${input.email ?? ''}`,
+    `6. 応募経路: ${input.applicationSource ?? '不明'}`,
   ].join('\n')
 
   const jobLines: string[] = []
@@ -15,7 +32,7 @@ function buildInternalLarkCard(input: any) {
     jobLines.push(
       `会社名: ${input.companyName ?? '—'}`,
       `求人名: ${input.jobName ?? '—'}`,
-      `求人URL: https://ridejob.jp/job/${input.jobId ?? '—'}`,
+      `求人URL: ${input.jobUrl ?? `https://ridejob.jp/job/${input.jobId ?? '—'}`}`,
     )
   }
 
@@ -56,7 +73,7 @@ export async function POST(request: Request) {
     console.log(`  - Referer: ${referer}`)
     console.log("=".repeat(80))
 
-    const incoming: any = await request.json()
+    const incoming = await request.json() as ApplicationPayload
 
     console.log("[INFO] Raw Request Data (Pretty Formatted):")
     console.log(JSON.stringify(incoming, null, 2))

@@ -49,6 +49,26 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
   const onSubmit = async (data: FormData) => {
     try {
       const birthDate = `${data.birthYear}-${data.birthMonth.padStart(2, '0')}-${data.birthDay.padStart(2, '0')}`
+      let applicationSource = "unknown"
+      let jobUrl = ""
+
+      if (typeof window !== "undefined") {
+        const searchParams = new URLSearchParams(window.location.search)
+        const rawSource = searchParams.get("source")
+        applicationSource = rawSource && rawSource.trim() ? rawSource.trim() : "unknown"
+        if (!rawSource) {
+          searchParams.set("source", applicationSource)
+        }
+        jobUrl = `${window.location.origin}${window.location.pathname}`
+        const queryString = searchParams.toString()
+        if (queryString) {
+          jobUrl = `${jobUrl}?${queryString}`
+        }
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState(null, "", jobUrl)
+        }
+      }
+
       const applicationData: ApplicationFormData = {
         lastName: data.lastName,
         firstName: data.firstName,
@@ -59,15 +79,22 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
         email: data.email,
         companyName: job?.companyName || "",
         jobName: job?.jobName || "",
-        jobUrl: window.location.href,
+        jobUrl,
+        applicationSource,
+      }
+
+      const payload = {
+        ...applicationData,
+        jobId: job?.id ?? "",
+        applicationSource,
       }
 
       await fetch("/api/submit-application", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...applicationData, jobId: job?.id }),
+        body: JSON.stringify(payload),
       })
-      if (typeof window !== "undefined" && !hasPushedStandbyCv.current) {
+      if (typeof window !== "undefined" && applicationSource === "standby" && !hasPushedStandbyCv.current) {
         const win = window as typeof window & { dataLayer?: Record<string, unknown>[] }
         win.dataLayer = win.dataLayer ?? []
         win.dataLayer.push({
@@ -75,6 +102,8 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
           jobId: job?.id ?? "",
           jobName: job?.jobName ?? "",
           companyName: job?.companyName ?? "",
+          jobUrl,
+          source: applicationSource,
         })
         hasPushedStandbyCv.current = true
       }
