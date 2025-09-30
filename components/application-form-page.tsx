@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useRef, useState } from "react"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -44,6 +44,7 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
   })
 
   const [agreement, setAgreement] = useState(false)
+  const hasPushedStandbyCv = useRef(false)
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -66,6 +67,17 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...applicationData, jobId: job?.id }),
       })
+      if (typeof window !== "undefined" && !hasPushedStandbyCv.current) {
+        const win = window as typeof window & { dataLayer?: Record<string, unknown>[] }
+        win.dataLayer = win.dataLayer ?? []
+        win.dataLayer.push({
+          event: "standby_cv_submit",
+          jobId: job?.id ?? "",
+          jobName: job?.jobName ?? "",
+          companyName: job?.companyName ?? "",
+        })
+        hasPushedStandbyCv.current = true
+      }
       alert("応募が送信されました！")
     } catch (err) {
       alert("応募送信に失敗しました")
