@@ -15,11 +15,11 @@ import RelatedJobs from "../../components/related-jobs"
 import { getMediaArticles } from "@/lib/getMediaArticles"
 
 interface StandbyJobPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default async function StandbyJobPage({ params }: StandbyJobPageProps) {
-  const { id } = params
+  const { id } = await params
 
   try {
     const job = await withErrorHandling(
