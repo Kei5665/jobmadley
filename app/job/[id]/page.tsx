@@ -18,11 +18,11 @@ import RelatedJobs from "../components/related-jobs"
 import { getMediaArticles } from "@/lib/getMediaArticles"
 
 interface JobPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default async function JobPage({ params }: JobPageProps) {
-  const { id } = params
+  const { id } = await params
   try {
     const job = await withErrorHandling(
       () => getJob(id),
