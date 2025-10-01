@@ -65,12 +65,6 @@ export default async function StandbyJobPage({ params }: StandbyJobPageProps) {
       <div className="min-h-screen bg-white">
         <SiteHeader />
 
-        <div className="bg-blue-50 border-b border-blue-100">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <p className="text-sm text-blue-700">スタンバイ経由での応募専用ページです。このページから応募するとスタンバイ経由として処理されます。</p>
-          </div>
-        </div>
-
         <JobBreadcrumb job={job} />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

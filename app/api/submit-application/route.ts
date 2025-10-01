@@ -18,13 +18,14 @@ interface ApplicationPayload {
 
 function buildInternalLarkCard(input: ApplicationPayload) {
   const appliedAt = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
+  const normalizedSource = (input.applicationSource ?? (typeof input.jobUrl === 'string' && input.jobUrl.includes('source=standby') ? 'standby' : undefined))?.trim().toLowerCase()
+  const isStandby = normalizedSource === 'standby'
   const details = [
     `1. 氏名: ${input.lastName ?? ''} ${input.firstName ?? ''}`,
     `2. ふりがな: ${input.lastNameKana ?? ''} ${input.firstNameKana ?? ''}`,
     `3. 生年月日: ${input.birthDate ?? ''}`,
     `4. 電話番号: ${input.phone ?? ''}`,
     `5. メールアドレス: ${input.email ?? ''}`,
-    `6. 応募経路: ${input.applicationSource ?? '不明'}`,
   ].join('\n')
 
   const jobLines: string[] = []
@@ -40,7 +41,7 @@ function buildInternalLarkCard(input: ApplicationPayload) {
     msg_type: "interactive",
     card: {
       elements: [
-        { tag: "div", text: { tag: "lark_md", content: `**🟦 ライドジョブ求人サイト応募通知**\n応募日時: ${appliedAt}` } },
+        { tag: "div", text: { tag: "lark_md", content: `**${isStandby ? '🟦 スタンバイからの応募がありました！' : '🟦 ライドジョブ求人サイトから応募がありました！'}**\n応募日時: ${appliedAt}` } },
         { tag: "hr" },
         { tag: "div", text: { tag: "lark_md", content: `**📋 応募内容**\n${details}` } },
         ...(jobLines.length > 0 ? [
