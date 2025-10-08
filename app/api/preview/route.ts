@@ -28,7 +28,8 @@ export async function GET(request: NextRequest) {
     return new NextResponse("Unsupported preview type", { status: 400 })
   }
 
-  draftMode().enable()
+  const draft = await draftMode()
+  draft.enable()
 
   const redirectUrl = new URL(`/preview/${type}/${id}`, request.url)
   redirectUrl.searchParams.set("draftKey", draftKey)
