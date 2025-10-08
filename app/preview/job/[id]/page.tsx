@@ -13,19 +13,19 @@ import { AppError, ErrorType, withErrorHandling } from "@/lib/error-handling"
 export const revalidate = 0
 
 interface JobPreviewPageProps {
-  params: { id: string }
-  searchParams?: { draftKey?: string }
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ draftKey?: string }>
 }
 
 export default async function JobPreviewPage({ params, searchParams }: JobPreviewPageProps) {
-  const { id } = params
-  const draftKey = searchParams?.draftKey
+  const { id } = await params
+  const { draftKey } = await searchParams
 
   if (!draftKey) {
     notFound()
   }
 
-  let job
+  let job: Awaited<ReturnType<typeof getJob>>
   try {
     job = await withErrorHandling(
       () => getJob(id, { draftKey }),
