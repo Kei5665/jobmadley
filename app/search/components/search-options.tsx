@@ -6,6 +6,7 @@ import type { PrefectureGroup } from "@/lib/types"
 import TagDialog from "@/components/tags-dialog"
 import JobCategoryDialog from "@/components/job-category-dialog"
 import type { Tag, JobCategory } from "@/lib/types"
+import KeywordInput from "./keyword-input"
 
 interface SearchOptionsProps {
   keyword?: string
@@ -32,6 +33,15 @@ export default function SearchOptions({
 }: SearchOptionsProps) {
   return (
     <>
+      {/* フリーワード検索 */}
+      <KeywordInput
+        keyword={keyword}
+        prefectureId={prefectureId}
+        municipalityId={municipalityId}
+        tagIds={tagIds}
+        jobCategoryId={jobCategoryId}
+      />
+
       {/* Search Options */}
       <div className="grid grid-cols-2 gap-4 mb-8">
         {/* 都道府県 */}
