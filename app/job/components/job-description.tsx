@@ -50,7 +50,7 @@ export default function JobDescription({ job }: JobDescriptionProps) {
             }
           </div>
           {job.salaryNote && (
-            <p className="text-gray-600 text-sm mt-2">{job.salaryNote}</p>
+            <p className="text-gray-600 text-sm mt-2 whitespace-pre-wrap">{job.salaryNote}</p>
           )}
         </div>
       )}
@@ -59,7 +59,7 @@ export default function JobDescription({ job }: JobDescriptionProps) {
       {job.workStyle && (
         <div className="border-t pt-8">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">勤務形態</h3>
-          <p className="text-gray-700">{job.workStyle}</p>
+          <p className="text-gray-700 whitespace-pre-wrap">{job.workStyle}</p>
         </div>
       )}
 
@@ -111,7 +111,7 @@ export default function JobDescription({ job }: JobDescriptionProps) {
       {job.holidays && (
         <div className="border-t pt-8">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">休日</h3>
-          <p className="text-gray-700">{job.holidays}</p>
+          <p className="text-gray-700 whitespace-pre-wrap">{job.holidays}</p>
         </div>
       )}
 
