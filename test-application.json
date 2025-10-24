@@ -1,0 +1,35 @@
+{
+  "id": "test-app-20251024-002",
+  "appliedOnMillis": 1737705600000,
+  "job": {
+    "id": "4mzu6bz69",
+    "title": "タクシー運転手（二種免許取得支援あり）",
+    "url": "https://ridejob.jp/job/4mzu6bz69",
+    "companyName": "テスト交通株式会社",
+    "location": "東京都渋谷区"
+  },
+  "applicant": {
+    "firstName": "太郎",
+    "lastName": "テスト",
+    "firstNameKana": "たろう",
+    "lastNameKana": "てすと",
+    "email": "test-taro@example.com",
+    "phone": "090-1234-5678",
+    "birthday": "1990-05-15",
+    "gender": "male",
+    "prefecture": "東京都",
+    "city": "渋谷区",
+    "occupation": "会社員"
+  },
+  "analytics": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+    "ipAddress": "203.0.113.50",
+    "referrer": "https://xn--pckua2a7gp15089zb.com/search"
+  },
+  "questionsAndAnswers": [
+    {
+      "question": "運転経験年数を教えてください",
+      "answer": "10年"
+    }
+  ]
+}
