@@ -221,6 +221,7 @@ function buildLarkBasePayloadFromNormalized(normalized: NormalizedApplication, r
     "電話番号": applicant.phone || "",
     "生年月日": applicant.birthday || "",
     "性別": typeof applicant.gender === 'string' ? applicant.gender : "",
+    "職業": applicant.occupation || "",
     "都道府県": applicant.prefecture || "",
     "市区町村": applicant.city || "",
     "質問回答": JSON.stringify(qa),
