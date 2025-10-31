@@ -44,9 +44,13 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
   })
 
   const [agreement, setAgreement] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const hasPushedStandbyCv = useRef(false)
 
   const onSubmit = async (data: FormData) => {
+    if (isLoading) return
+
+    setIsLoading(true)
     try {
       const birthDate = `${data.birthYear}-${data.birthMonth.padStart(2, '0')}-${data.birthDay.padStart(2, '0')}`
       let applicationSource = "unknown"
@@ -110,6 +114,8 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
       alert("応募が送信されました！")
     } catch (err) {
       alert("応募送信に失敗しました")
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -309,12 +315,12 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
 
             {/* 応募ボタン */}
             <div className="text-center pt-6">
-              <Button 
-                type="submit" 
-                disabled={isSubmitting}
+              <Button
+                type="submit"
+                disabled={isSubmitting || isLoading}
                 className="bg-red-500 hover:bg-red-600 text-white px-12 py-3 rounded-md text-lg font-medium"
               >
-                {isSubmitting ? "送信中..." : "応募する"}
+                {(isSubmitting || isLoading) ? "送信中..." : "応募する"}
               </Button>
             </div>
           </form>
