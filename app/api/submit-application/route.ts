@@ -16,7 +16,7 @@ interface ApplicationPayload {
   [key: string]: unknown
 }
 
-function buildInternalLarkCard(input: ApplicationPayload) {
+function buildInternalLarkCard(input: ApplicationPayload, isMechanic: boolean = false) {
   const appliedAt = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
   const normalizedSource = (input.applicationSource ?? (typeof input.jobUrl === 'string' && input.jobUrl.includes('source=standby') ? 'standby' : undefined))?.trim().toLowerCase()
   const isStandby = normalizedSource === 'standby'
@@ -37,11 +37,22 @@ function buildInternalLarkCard(input: ApplicationPayload) {
     )
   }
 
+  let titleEmoji = '🟦'
+  let titleText = 'ライドジョブ求人サイトから応募がありました！'
+
+  if (isMechanic) {
+    titleEmoji = '🔧'
+    titleText = '整備士の応募がありました！'
+  } else if (isStandby) {
+    titleEmoji = '🟦'
+    titleText = 'スタンバイからの応募がありました！'
+  }
+
   return {
     msg_type: "interactive",
     card: {
       elements: [
-        { tag: "div", text: { tag: "lark_md", content: `**${isStandby ? '🟦 スタンバイからの応募がありました！' : '🟦 ライドジョブ求人サイトから応募がありました！'}**\n応募日時: ${appliedAt}` } },
+        { tag: "div", text: { tag: "lark_md", content: `**${titleEmoji} ${titleText}**\n応募日時: ${appliedAt}` } },
         { tag: "hr" },
         { tag: "div", text: { tag: "lark_md", content: `**📋 応募内容**\n${details}` } },
         ...(jobLines.length > 0 ? [
@@ -79,13 +90,26 @@ export async function POST(request: Request) {
     console.log("[INFO] Raw Request Data (Pretty Formatted):")
     console.log(JSON.stringify(incoming, null, 2))
 
-    const webhookUrl = process.env.LARK_WEBHOOK
+    // 求人名に「整備士」が含まれているかチェック
+    const jobName = incoming.jobName ?? ''
+    const isMechanic = jobName.includes('整備士')
+
+    // 整備士の場合は専用webhookを使用、それ以外は通常のwebhookを使用
+    let webhookUrl: string | undefined
+    if (isMechanic) {
+      webhookUrl = process.env.LARK_WEBHOOK_MECHANIC
+      console.log("[INFO] Detected mechanic job, using LARK_WEBHOOK_MECHANIC")
+    } else {
+      webhookUrl = process.env.LARK_WEBHOOK
+    }
+
     if (!webhookUrl) {
-      console.error("[ERROR] Lark webhook is not configured (LARK_WEBHOOK)")
+      const webhookType = isMechanic ? 'LARK_WEBHOOK_MECHANIC' : 'LARK_WEBHOOK'
+      console.error(`[ERROR] Lark webhook is not configured (${webhookType})`)
       return NextResponse.json({ success: false, message: "Webhook not configured" }, { status: 500 })
     }
 
-    const card = buildInternalLarkCard(incoming)
+    const card = buildInternalLarkCard(incoming, isMechanic)
     const response = await fetch(webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
