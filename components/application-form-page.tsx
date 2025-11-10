@@ -111,7 +111,7 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
         })
         hasPushedStandbyCv.current = true
       }
-      alert("応募が送信されました！")
+      window.location.href = "https://ridejob.pmagent.jp/applicants/new"
     } catch (err) {
       alert("応募送信に失敗しました")
     } finally {
