@@ -64,6 +64,26 @@ function buildInternalLarkCard(input: ApplicationPayload, isMechanic: boolean = 
   }
 }
 
+function buildBaseRegistrationPayload(input: ApplicationPayload) {
+  const appliedAt = new Date().toISOString()
+
+  return {
+    lastName: input.lastName ?? '',
+    firstName: input.firstName ?? '',
+    lastNameKana: input.lastNameKana ?? '',
+    firstNameKana: input.firstNameKana ?? '',
+    birthDate: input.birthDate ?? '',
+    phone: input.phone ?? '',
+    email: input.email ?? '',
+    companyName: input.companyName ?? '',
+    jobName: input.jobName ?? '',
+    jobUrl: input.jobUrl ?? (input.jobId ? `https://ridejob.jp/job/${input.jobId}` : ''),
+    jobId: input.jobId ?? '',
+    applicationSource: input.applicationSource ?? '',
+    appliedAt,
+  }
+}
+
 export async function POST(request: Request) {
   try {
     // 詳細なリクエスト情報をログ出力
@@ -109,32 +129,109 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "Webhook not configured" }, { status: 500 })
     }
 
-    const card = buildInternalLarkCard(incoming, isMechanic)
-    const response = await fetch(webhookUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(card),
-    })
-
-    const responseText = await response.text()
-    let ok = response.ok
-    try {
-      const parsed = JSON.parse(responseText)
-      if (typeof parsed?.code === 'number') ok = ok && parsed.code === 0
-      if (typeof parsed?.StatusCode === 'number') ok = ok && parsed.StatusCode === 0
-    } catch (_) {
-      // 非JSONレスポンスはHTTPステータスのみで判定
+    // Base登録用のWebhook URL（整備士と通常で分岐）
+    let baseWebhookUrl: string | undefined
+    if (isMechanic) {
+      baseWebhookUrl = process.env.LARK_WEBHOOK_BASE_MECHANIC
+      console.log("[INFO] Using LARK_WEBHOOK_BASE_MECHANIC for base registration")
+    } else {
+      baseWebhookUrl = process.env.LARK_WEBHOOK_BASE
     }
 
-    if (!ok) {
-      console.error("[ERROR] Failed to send to Lark:", { status: response.status, body: responseText })
+    // Webhook送信を並列実行
+    const webhookPromises: Promise<{ name: string; success: boolean; error?: string }>[] = []
+
+    // 1. カード形式の通知をLarkに送信
+    const card = buildInternalLarkCard(incoming, isMechanic)
+    webhookPromises.push(
+      fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(card),
+      })
+        .then(async (response) => {
+          const responseText = await response.text()
+          let ok = response.ok
+          try {
+            const parsed = JSON.parse(responseText)
+            if (typeof parsed?.code === 'number') ok = ok && parsed.code === 0
+            if (typeof parsed?.StatusCode === 'number') ok = ok && parsed.StatusCode === 0
+          } catch (_) {
+            // 非JSONレスポンスはHTTPステータスのみで判定
+          }
+
+          if (!ok) {
+            console.error("[ERROR] Failed to send card to Lark:", { status: response.status, body: responseText })
+            return { name: 'notification', success: false, error: responseText }
+          }
+
+          console.log("[SUCCESS] Sent notification card to Lark")
+          return { name: 'notification', success: true }
+        })
+        .catch((error) => {
+          console.error("[ERROR] Exception sending card to Lark:", error)
+          return { name: 'notification', success: false, error: String(error) }
+        })
+    )
+
+    // 2. Base登録用のJSON形式データを送信（環境変数が設定されている場合のみ）
+    if (baseWebhookUrl) {
+      const basePayload = buildBaseRegistrationPayload(incoming)
+      webhookPromises.push(
+        fetch(baseWebhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(basePayload),
+        })
+          .then(async (response) => {
+            const responseText = await response.text()
+            let ok = response.ok
+            try {
+              const parsed = JSON.parse(responseText)
+              if (typeof parsed?.code === 'number') ok = ok && parsed.code === 0
+              if (typeof parsed?.StatusCode === 'number') ok = ok && parsed.StatusCode === 0
+            } catch (_) {
+              // 非JSONレスポンスはHTTPステータスのみで判定
+            }
+
+            if (!ok) {
+              console.error("[ERROR] Failed to send to Base webhook:", { status: response.status, body: responseText })
+              return { name: 'base_registration', success: false, error: responseText }
+            }
+
+            const webhookType = isMechanic ? 'LARK_WEBHOOK_BASE_MECHANIC' : 'LARK_WEBHOOK_BASE'
+            console.log(`[SUCCESS] Sent application data to Base webhook (${webhookType})`)
+            return { name: 'base_registration', success: true }
+          })
+          .catch((error) => {
+            const webhookType = isMechanic ? 'LARK_WEBHOOK_BASE_MECHANIC' : 'LARK_WEBHOOK_BASE'
+            console.error(`[ERROR] Exception sending to Base webhook (${webhookType}):`, error)
+            return { name: 'base_registration', success: false, error: String(error) }
+          })
+      )
+    } else {
+      const webhookType = isMechanic ? 'LARK_WEBHOOK_BASE_MECHANIC' : 'LARK_WEBHOOK_BASE'
+      console.log(`[INFO] ${webhookType} is not configured, skipping base registration`)
+    }
+
+    // すべてのWebhook送信を待機
+    const results = await Promise.all(webhookPromises)
+
+    // 通知Webhookの失敗は致命的エラーとして扱う
+    const notificationResult = results.find(r => r.name === 'notification')
+    if (notificationResult && !notificationResult.success) {
       return NextResponse.json(
-        { success: false, message: "Failed to send to Lark" },
-        { status: response.ok ? 502 : response.status }
+        { success: false, message: "Failed to send notification to Lark" },
+        { status: 502 }
       )
     }
 
-    console.log("[SUCCESS] Sent internal application to Lark")
+    // Base登録の失敗はログに記録するが、リクエストは成功として扱う
+    const baseResult = results.find(r => r.name === 'base_registration')
+    if (baseResult && !baseResult.success) {
+      console.warn("[WARNING] Base registration failed, but proceeding with success response")
+    }
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("=".repeat(80))
