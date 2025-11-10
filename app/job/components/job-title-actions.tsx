@@ -1,8 +1,6 @@
 import Link from "next/link"
-import clsx from "clsx"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Star } from "lucide-react"
 import { isNew, formatSalary, formatDate } from "@/lib/utils"
 import type { JobDetail } from "@/lib/types"
 
@@ -10,10 +8,9 @@ interface JobTitleActionsProps {
   job: JobDetail
   applyUrl?: string
   showApplyButton?: boolean
-  isStandby?: boolean
 }
 
-export default function JobTitleActions({ job, applyUrl, showApplyButton = true, isStandby = false }: JobTitleActionsProps) {
+export default function JobTitleActions({ job, applyUrl, showApplyButton = true }: JobTitleActionsProps) {
   const isNewJob = isNew(job.publishedAt, job.createdAt)
   const salaryText = formatSalary(job.salaryMin, job.salaryMax)
 
@@ -48,13 +45,10 @@ export default function JobTitleActions({ job, applyUrl, showApplyButton = true,
           <div className="hidden sm:flex sm:w-auto flex-col space-y-3 sm:ml-6">
             <Link
               href={applyUrl ?? `/apply/${job.id}`}
-              className={clsx("block w-full sm:w-auto", isStandby && "pointer-events-none opacity-60")}
-              prefetch={!isStandby}
-              aria-disabled={isStandby}
+              className="block w-full sm:w-auto"
             >
               <Button
                 className="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white px-8 py-3 text-lg"
-                disabled={isStandby}
               >
                 応募画面へ進む
               </Button>
