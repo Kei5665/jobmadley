@@ -76,7 +76,7 @@ export default async function StandbyJobPage({ params }: StandbyJobPageProps) {
                 altText={job.jobName ?? job.title}
               />
 
-              <JobTitleActions job={job} applyUrl={applyUrl} isStandby />
+              <JobTitleActions job={job} applyUrl={applyUrl} />
 
               <JobDescription job={job} />
 
