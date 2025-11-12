@@ -184,6 +184,8 @@ export interface ApplicationFormData {
   jobName: string
   jobUrl: string
   applicationSource: string
+  utmSource?: string
+  utmMedium?: string
 }
 
 // =====================

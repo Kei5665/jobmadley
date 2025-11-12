@@ -55,6 +55,8 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
       const birthDate = `${data.birthYear}-${data.birthMonth.padStart(2, '0')}-${data.birthDay.padStart(2, '0')}`
       let applicationSource = "unknown"
       let jobUrl = ""
+      let utmSource = ""
+      let utmMedium = ""
 
       if (typeof window !== "undefined") {
         const searchParams = new URLSearchParams(window.location.search)
@@ -71,6 +73,20 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
         if (window.history && window.history.replaceState) {
           window.history.replaceState(null, "", jobUrl)
         }
+
+        // CookieからUTM情報を取得
+        const cookies = document.cookie.split("; ").reduce((acc, cookie) => {
+          const [key, value] = cookie.split("=")
+          acc[key] = decodeURIComponent(value)
+          return acc
+        }, {} as Record<string, string>)
+
+        utmSource = cookies.utm_source || ""
+        utmMedium = cookies.utm_medium || ""
+
+        if (utmSource || utmMedium) {
+          console.log("[UTM] Retrieved from cookies:", { utmSource, utmMedium })
+        }
       }
 
       const applicationData: ApplicationFormData = {
@@ -85,6 +101,8 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
         jobName: job?.jobName || "",
         jobUrl,
         applicationSource,
+        utmSource,
+        utmMedium,
       }
 
       const payload = {

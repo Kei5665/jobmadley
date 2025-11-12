@@ -13,6 +13,8 @@ interface ApplicationPayload {
   jobName?: string
   jobUrl?: string
   jobId?: string
+  utmSource?: string
+  utmMedium?: string
   [key: string]: unknown
 }
 
@@ -37,6 +39,13 @@ function buildInternalLarkCard(input: ApplicationPayload, isMechanic: boolean = 
     )
   }
 
+  // UTM情報の追加
+  const utmLines: string[] = []
+  if (input.utmSource || input.utmMedium) {
+    if (input.utmSource) utmLines.push(`流入元: ${input.utmSource}`)
+    if (input.utmMedium) utmLines.push(`メディア: ${input.utmMedium}`)
+  }
+
   let titleEmoji = '🟦'
   let titleText = 'ライドジョブ求人サイトから応募がありました！'
 
@@ -59,6 +68,10 @@ function buildInternalLarkCard(input: ApplicationPayload, isMechanic: boolean = 
           { tag: "hr" },
           { tag: "div", text: { tag: "lark_md", content: `**💼 求人情報**\n${jobLines.join('\n')}` } },
         ] : []),
+        ...(utmLines.length > 0 ? [
+          { tag: "hr" },
+          { tag: "div", text: { tag: "lark_md", content: `**📊 流入経路**\n${utmLines.join('\n')}` } },
+        ] : []),
       ]
     }
   }
@@ -80,6 +93,8 @@ function buildBaseRegistrationPayload(input: ApplicationPayload) {
     jobUrl: input.jobUrl ?? (input.jobId ? `https://ridejob.jp/job/${input.jobId}` : ''),
     jobId: input.jobId ?? '',
     applicationSource: input.applicationSource ?? '',
+    utmSource: input.utmSource ?? '',
+    utmMedium: input.utmMedium ?? '',
     appliedAt,
   }
 }

@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
+import { Suspense } from 'react'
 import './globals.css'
 import { baseMetadata } from '@/lib/metadata'
+import UTMCapture from '@/components/utm-capture'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -70,6 +72,12 @@ export default function RootLayout({
           />
         </noscript>
         {/* End Google Tag Manager (noscript) */}
+        
+        {/* UTMパラメーターキャプチャ */}
+        <Suspense fallback={null}>
+          <UTMCapture />
+        </Suspense>
+        
         {children}
       </body>
     </html>
