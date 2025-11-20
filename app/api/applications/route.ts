@@ -456,8 +456,8 @@ export async function POST(request: Request) {
     console.log("[applications] Successfully sent to Lark", { body: responseText })
 
     // Lark通知が成功したら、Lark BaseのWebhookにも登録（設定されている場合のみ）
-    const LARK_BASE_WEBHOOK = isMechanic && process.env.LARK_WEBHOOK_BASE_MECHANIC
-      ? process.env.LARK_WEBHOOK_BASE_MECHANIC
+    const LARK_BASE_WEBHOOK = isMechanic && process.env.LARK_WEBHOOK_BASE_MECHANIC_KYUJIN
+      ? process.env.LARK_WEBHOOK_BASE_MECHANIC_KYUJIN
       : process.env.LARK_BASE_WEBHOOK
     if (!LARK_BASE_WEBHOOK) {
       return NextResponse.json({ success: true, base: { sent: false, reason: 'Base webhook not configured' } })
