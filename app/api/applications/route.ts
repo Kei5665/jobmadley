@@ -234,7 +234,16 @@ function buildLarkBasePayloadFromNormalized(normalized: NormalizedApplication, r
 export async function POST(request: Request) {
   try {
     const body: any = await request.json()
-    const LARK_WEBHOOK = process.env.LARK_WEBHOOK
+
+    // 整備士かどうかを判定（job.title または job.jobTitle に「整備士」が含まれるか）
+    const jobTitle = body?.job?.title || body?.job?.jobTitle || ''
+    const isMechanic = jobTitle.toLowerCase().includes('整備士'.toLowerCase())
+
+    // Webhook URLを切り替え（整備士用が未設定の場合はデフォルトを使用）
+    const LARK_WEBHOOK = isMechanic && process.env.LARK_WEBHOOK_MECHANIC
+      ? process.env.LARK_WEBHOOK_MECHANIC
+      : process.env.LARK_WEBHOOK
+
     // 受信ボディを dev.log に追記
     try {
       const logPath = path.join(process.cwd(), "dev.log")
@@ -447,7 +456,9 @@ export async function POST(request: Request) {
     console.log("[applications] Successfully sent to Lark", { body: responseText })
 
     // Lark通知が成功したら、Lark BaseのWebhookにも登録（設定されている場合のみ）
-    const LARK_BASE_WEBHOOK = process.env.LARK_BASE_WEBHOOK
+    const LARK_BASE_WEBHOOK = isMechanic && process.env.LARK_WEBHOOK_BASE_MECHANIC
+      ? process.env.LARK_WEBHOOK_BASE_MECHANIC
+      : process.env.LARK_BASE_WEBHOOK
     if (!LARK_BASE_WEBHOOK) {
       return NextResponse.json({ success: true, base: { sent: false, reason: 'Base webhook not configured' } })
     }
