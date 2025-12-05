@@ -49,9 +49,12 @@ function buildInternalLarkCard(input: ApplicationPayload, isMechanic: boolean = 
   let titleEmoji = '🟦'
   let titleText = 'ライドジョブ求人サイトから応募がありました！'
 
-  if (isMechanic) {
+  if (isMechanic && isStandby) {
     titleEmoji = '🔧'
-    titleText = '整備士の応募がありました！'
+    titleText = 'スタンバイから整備士の応募がありました！'
+  } else if (isMechanic) {
+    titleEmoji = '🔧'
+    titleText = 'ライドジョブ求人サイトから整備士の応募がありました！'
   } else if (isStandby) {
     titleEmoji = '🟦'
     titleText = 'スタンバイからの応募がありました！'
