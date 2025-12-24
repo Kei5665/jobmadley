@@ -243,10 +243,10 @@ export async function POST(request: Request) {
     const companyName = body?.job?.companyName || body?.job?.jobCompany || ''
     const isCPOne = companyName.includes('CP One Japan 合同会社')
 
-    // Webhook URLを切り替え（優先順位: CP One > 整備士 > デフォルト）
+    // Webhook URLを切り替え（優先順位: CP One(求人ボックス用) > 整備士 > デフォルト）
     const LARK_WEBHOOK = (() => {
-      if (isCPOne && process.env.LARK_WEBHOOK_CPONE) {
-        return process.env.LARK_WEBHOOK_CPONE
+      if (isCPOne && process.env.LARK_WEBHOOK_CPONE_KYUZINBOX) {
+        return process.env.LARK_WEBHOOK_CPONE_KYUZINBOX
       }
       if (isMechanic && process.env.LARK_WEBHOOK_MECHANIC) {
         return process.env.LARK_WEBHOOK_MECHANIC
@@ -467,8 +467,8 @@ export async function POST(request: Request) {
 
     // Lark通知が成功したら、Lark BaseのWebhookにも登録（設定されている場合のみ）
     const LARK_BASE_WEBHOOK = (() => {
-      if (isCPOne && process.env.LARK_WEBHOOK_BASE_CPONE) {
-        return process.env.LARK_WEBHOOK_BASE_CPONE
+      if (isCPOne && process.env.LARK_WEBHOOK_BASE_CPONE_KYUZINBOX) {
+        return process.env.LARK_WEBHOOK_BASE_CPONE_KYUZINBOX
       }
       if (isMechanic && process.env.LARK_WEBHOOK_BASE_MECHANIC_KYUJIN) {
         return process.env.LARK_WEBHOOK_BASE_MECHANIC_KYUJIN
