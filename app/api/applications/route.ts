@@ -239,10 +239,20 @@ export async function POST(request: Request) {
     const jobTitle = body?.job?.title || body?.job?.jobTitle || ''
     const isMechanic = jobTitle.toLowerCase().includes('整備士'.toLowerCase())
 
-    // Webhook URLを切り替え（整備士用が未設定の場合はデフォルトを使用）
-    const LARK_WEBHOOK = isMechanic && process.env.LARK_WEBHOOK_MECHANIC
-      ? process.env.LARK_WEBHOOK_MECHANIC
-      : process.env.LARK_WEBHOOK
+    // CP One Japan 合同会社かどうかを判定
+    const companyName = body?.job?.companyName || body?.job?.jobCompany || ''
+    const isCPOne = companyName.includes('CP One Japan 合同会社')
+
+    // Webhook URLを切り替え（優先順位: CP One > 整備士 > デフォルト）
+    const LARK_WEBHOOK = (() => {
+      if (isCPOne && process.env.LARK_WEBHOOK_CPONE) {
+        return process.env.LARK_WEBHOOK_CPONE
+      }
+      if (isMechanic && process.env.LARK_WEBHOOK_MECHANIC) {
+        return process.env.LARK_WEBHOOK_MECHANIC
+      }
+      return process.env.LARK_WEBHOOK
+    })()
 
     // 受信ボディを dev.log に追記
     try {
@@ -456,9 +466,15 @@ export async function POST(request: Request) {
     console.log("[applications] Successfully sent to Lark", { body: responseText })
 
     // Lark通知が成功したら、Lark BaseのWebhookにも登録（設定されている場合のみ）
-    const LARK_BASE_WEBHOOK = isMechanic && process.env.LARK_WEBHOOK_BASE_MECHANIC_KYUJIN
-      ? process.env.LARK_WEBHOOK_BASE_MECHANIC_KYUJIN
-      : process.env.LARK_BASE_WEBHOOK
+    const LARK_BASE_WEBHOOK = (() => {
+      if (isCPOne && process.env.LARK_WEBHOOK_BASE_CPONE) {
+        return process.env.LARK_WEBHOOK_BASE_CPONE
+      }
+      if (isMechanic && process.env.LARK_WEBHOOK_BASE_MECHANIC_KYUJIN) {
+        return process.env.LARK_WEBHOOK_BASE_MECHANIC_KYUJIN
+      }
+      return process.env.LARK_BASE_WEBHOOK
+    })()
     if (!LARK_BASE_WEBHOOK) {
       return NextResponse.json({ success: true, base: { sent: false, reason: 'Base webhook not configured' } })
     }
