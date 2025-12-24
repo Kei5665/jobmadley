@@ -2,6 +2,7 @@
 
 import React, { useRef, useState } from "react"
 import Link from "next/link"
+import Script from "next/script"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -117,7 +118,10 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
         body: JSON.stringify(payload),
       })
       if (typeof window !== "undefined" && applicationSource === "standby" && !hasPushedStandbyCv.current) {
-        const win = window as typeof window & { dataLayer?: Record<string, unknown>[] }
+        const win = window as typeof window & { 
+          dataLayer?: Record<string, unknown>[]
+          STANBY_CV?: { send: (siteCode: string, accountId: string) => void }
+        }
         win.dataLayer = win.dataLayer ?? []
         win.dataLayer.push({
           event: "standby_cv_submit",
@@ -127,6 +131,12 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
           jobUrl,
           source: applicationSource,
         })
+        
+        // スタンバイCV送信
+        if (win.STANBY_CV && win.STANBY_CV.send) {
+          win.STANBY_CV.send('ridejob-jp', '2171143810634182656')
+        }
+        
         hasPushedStandbyCv.current = true
       }
       window.location.href = "https://ridejob.pmagent.jp/applicants/new"
@@ -149,6 +159,13 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
 
   return (
     <div className="min-h-screen bg-white">
+      <Script
+        id="standby-cv-tracker"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `!function(){window.STANBY_CV=window.STANBY_CV||{},window.STANBY_CV.send=function(t,n){try{var e=new XMLHttpRequest;e.open("POST",i),e.setRequestHeader("Content-Type","application/json"),e.withCredentials=!0,e.timeout=1e4,e.send(function(t,n){var e=window.localStorage.getItem("stb_uid");return JSON.stringify({siteCode:t,accountId:n||null,uid:e||null,trackingVersion:"2"})}(t,n))}catch(t){}};var i="https://cv-tracker.stanby.com/v1/cv"}();`
+        }}
+      />
       <SiteHeader />
       
       <div className="max-w-4xl mx-auto px-4 py-8">

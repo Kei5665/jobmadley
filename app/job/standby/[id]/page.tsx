@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Script from "next/script"
 import { Button } from "@/components/ui/button"
 import SiteHeader from "@/components/site-header"
 import SiteFooter from "@/components/site-footer"
@@ -63,6 +64,13 @@ export default async function StandbyJobPage({ params }: StandbyJobPageProps) {
 
     return (
       <div className="min-h-screen bg-white">
+        <Script
+          id="standby-landing"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `!function(){try{var t=new RegExp("[?&]stb_uid(=([^&#]*)|&|#|$)").exec(window.location.href);if(!t||!t[2])return;window.localStorage.setItem("stb_uid",t[2])}catch(t){}}();`
+          }}
+        />
         <SiteHeader />
 
         <JobBreadcrumb job={job} />
