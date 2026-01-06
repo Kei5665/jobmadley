@@ -80,10 +80,13 @@ function buildInternalLarkCard(input: ApplicationPayload, isMechanic: boolean = 
   }
 }
 
-function buildBaseRegistrationPayload(input: ApplicationPayload) {
+function buildBaseRegistrationPayload(input: ApplicationPayload, isMechanic: boolean = false) {
   const appliedAt = new Date().toISOString()
 
-  return {
+  const normalizedSource = (input.applicationSource ?? (typeof input.jobUrl === 'string' && input.jobUrl.includes('source=standby') ? 'standby' : undefined))?.trim().toLowerCase()
+  const isStandby = normalizedSource === 'standby'
+
+  const payload: Record<string, unknown> = {
     lastName: input.lastName ?? '',
     firstName: input.firstName ?? '',
     lastNameKana: input.lastNameKana ?? '',
@@ -100,6 +103,12 @@ function buildBaseRegistrationPayload(input: ApplicationPayload) {
     utmMedium: input.utmMedium ?? '',
     appliedAt,
   }
+
+  if (isMechanic) {
+    payload.isStandby = isStandby
+  }
+
+  return payload
 }
 
 export async function POST(request: Request) {
@@ -156,9 +165,17 @@ export async function POST(request: Request) {
 
     // Base登録用のWebhook URL（会社名・求人名に応じて分岐）
     let baseWebhookUrl: string | undefined
+
+    // スタンバイ経由判定ロジック
+    const normalizedSource = (incoming.applicationSource ?? (typeof incoming.jobUrl === 'string' && incoming.jobUrl.includes('source=standby') ? 'standby' : undefined))?.trim().toLowerCase()
+    const isStandby = normalizedSource === 'standby'
+
     if (isCpOne) {
       baseWebhookUrl = process.env.LARK_WEBHOOK_BASE_CPONE
       console.log("[INFO] Using LARK_WEBHOOK_BASE_CPONE for base registration")
+    } else if (isMechanic && isStandby) {
+      baseWebhookUrl = process.env.LARK_WEBHOOK_BASE_MECHANIC_STANDBY
+      console.log("[INFO] Using LARK_WEBHOOK_BASE_MECHANIC_STANDBY for base registration")
     } else if (isMechanic) {
       baseWebhookUrl = process.env.LARK_WEBHOOK_BASE_MECHANIC
       console.log("[INFO] Using LARK_WEBHOOK_BASE_MECHANIC for base registration")
@@ -204,7 +221,7 @@ export async function POST(request: Request) {
 
     // 2. Base登録用のJSON形式データを送信（環境変数が設定されている場合のみ）
     if (baseWebhookUrl) {
-      const basePayload = buildBaseRegistrationPayload(incoming)
+      const basePayload = buildBaseRegistrationPayload(incoming, isMechanic)
       webhookPromises.push(
         fetch(baseWebhookUrl, {
           method: "POST",
@@ -227,18 +244,18 @@ export async function POST(request: Request) {
               return { name: 'base_registration', success: false, error: responseText }
             }
 
-            const webhookType = isCpOne ? 'LARK_WEBHOOK_BASE_CPONE' : isMechanic ? 'LARK_WEBHOOK_BASE_MECHANIC' : 'LARK_WEBHOOK_BASE'
+            const webhookType = isCpOne ? 'LARK_WEBHOOK_BASE_CPONE' : (isMechanic && isStandby) ? 'LARK_WEBHOOK_BASE_MECHANIC_STANDBY' : isMechanic ? 'LARK_WEBHOOK_BASE_MECHANIC' : 'LARK_WEBHOOK_BASE'
             console.log(`[SUCCESS] Sent application data to Base webhook (${webhookType})`)
             return { name: 'base_registration', success: true }
           })
           .catch((error) => {
-            const webhookType = isCpOne ? 'LARK_WEBHOOK_BASE_CPONE' : isMechanic ? 'LARK_WEBHOOK_BASE_MECHANIC' : 'LARK_WEBHOOK_BASE'
+            const webhookType = isCpOne ? 'LARK_WEBHOOK_BASE_CPONE' : (isMechanic && isStandby) ? 'LARK_WEBHOOK_BASE_MECHANIC_STANDBY' : isMechanic ? 'LARK_WEBHOOK_BASE_MECHANIC' : 'LARK_WEBHOOK_BASE'
             console.error(`[ERROR] Exception sending to Base webhook (${webhookType}):`, error)
             return { name: 'base_registration', success: false, error: String(error) }
           })
       )
     } else {
-      const webhookType = isCpOne ? 'LARK_WEBHOOK_BASE_CPONE' : isMechanic ? 'LARK_WEBHOOK_BASE_MECHANIC' : 'LARK_WEBHOOK_BASE'
+      const webhookType = isCpOne ? 'LARK_WEBHOOK_BASE_CPONE' : (isMechanic && isStandby) ? 'LARK_WEBHOOK_BASE_MECHANIC_STANDBY' : isMechanic ? 'LARK_WEBHOOK_BASE_MECHANIC' : 'LARK_WEBHOOK_BASE'
       console.log(`[INFO] ${webhookType} is not configured, skipping base registration`)
     }
 
