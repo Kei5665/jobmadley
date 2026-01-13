@@ -25,13 +25,23 @@ export default function JobDescription({ job }: JobDescriptionProps) {
           <h3 className="text-lg font-semibold text-gray-800 mb-4">写真</h3>
           <div className={`grid gap-4 ${getGridLayout(job.images.length)}`}>
             {job.images.map((image, index) => (
-              <div key={index} className="relative aspect-video rounded-lg overflow-hidden">
-                <Image
-                  src={image.url}
-                  alt={`職場の写真 ${index + 1}`}
-                  fill
-                  className="object-cover"
-                />
+              <div key={index}>
+                {image.width && image.height ? (
+                  <Image
+                    src={image.url}
+                    alt={`職場の写真 ${index + 1}`}
+                    width={image.width}
+                    height={image.height}
+                    className="h-auto w-auto max-w-full rounded-lg"
+                  />
+                ) : (
+                  <img
+                    src={image.url}
+                    alt={`職場の写真 ${index + 1}`}
+                    className="h-auto w-auto max-w-full rounded-lg"
+                    loading="lazy"
+                  />
+                )}
               </div>
             ))}
           </div>

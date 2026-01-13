@@ -11,7 +11,6 @@ import { Loading } from "@/components/ui/loading"
 import { ErrorDisplay } from "@/components/ui/error-display"
 import { NotFound } from "@/components/ui/error-display"
 import JobBreadcrumb from "../components/job-breadcrumb"
-import JobImageCarousel from "../components/job-image-carousel"
 import JobTitleActions from "../components/job-title-actions"
 import JobDescription from "../components/job-description"
 import RelatedJobs from "../components/related-jobs"
@@ -70,12 +69,6 @@ export default async function JobPage({ params }: JobPageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-8">
             <div>
-              <JobImageCarousel
-                images={job.images}
-                imageUrl={job.imageUrl}
-                altText={job.jobName ?? job.title}
-              />
-
               <JobTitleActions job={job} />
 
               <JobDescription job={job} />

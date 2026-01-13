@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button"
 import SiteHeader from "@/components/site-header"
 import SiteFooter from "@/components/site-footer"
 import JobBreadcrumb from "@/app/job/components/job-breadcrumb"
-import JobImageCarousel from "@/app/job/components/job-image-carousel"
 import JobTitleActions from "@/app/job/components/job-title-actions"
 import JobDescription from "@/app/job/components/job-description"
 import { getJob } from "@/lib/getJob"
@@ -57,12 +56,6 @@ export default async function JobPreviewPage({ params, searchParams }: JobPrevie
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8">
           <div>
-            <JobImageCarousel
-              images={job.images}
-              imageUrl={job.imageUrl}
-              altText={job.jobName ?? job.title}
-            />
-
             <JobTitleActions job={job} showApplyButton={false} />
 
             <JobDescription job={job} />
