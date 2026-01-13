@@ -33,12 +33,12 @@ export default function JobImageCarousel({
 
   return (
     <div className="relative mb-8">
-      <div className="relative h-96 rounded-lg overflow-hidden">
+      <div className="relative h-96 rounded-lg overflow-hidden bg-gray-100">
         <Image
           src={imageUrls[currentImageIndex]}
           alt={altText}
           fill
-          className="object-cover"
+          className="object-contain"
         />
         
         {imageUrls.length > 1 && (
