@@ -66,18 +66,18 @@ export default function JobPhotoGrid({ images }: JobPhotoGridProps) {
 
       {activeImage && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
           onClick={() => setActiveIndex(null)}
         >
           <div
-            className="relative max-h-[90vh] max-w-[90vw]"
+            className="relative max-h-[90vh] w-full max-w-[100vw]"
             onClick={(event) => event.stopPropagation()}
           >
             <button
               type="button"
               onClick={() => setActiveIndex(null)}
               aria-label="閉じる"
-              className="absolute -right-3 -top-3 rounded-full bg-white/90 px-3 py-1 text-sm text-gray-800 shadow hover:bg-white"
+              className="absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1 text-sm text-gray-800 shadow hover:bg-white"
             >
               ×
             </button>
@@ -88,13 +88,13 @@ export default function JobPhotoGrid({ images }: JobPhotoGridProps) {
                 width={activeImage.width}
                 height={activeImage.height}
                 sizes="90vw"
-                className="h-auto w-auto max-h-[90vh] max-w-[90vw] rounded-lg"
+                className="mx-auto h-auto w-full max-h-[90vh] max-w-full rounded-lg"
               />
             ) : (
               <img
                 src={activeImage.url}
                 alt="拡大表示"
-                className="h-auto w-auto max-h-[90vh] max-w-[90vw] rounded-lg"
+                className="mx-auto h-auto w-full max-h-[90vh] max-w-full rounded-lg"
               />
             )}
           </div>
