@@ -170,17 +170,32 @@ export async function POST(request: Request) {
     const normalizedSource = (incoming.applicationSource ?? (typeof incoming.jobUrl === 'string' && incoming.jobUrl.includes('source=standby') ? 'standby' : undefined))?.trim().toLowerCase()
     const isStandby = normalizedSource === 'standby'
 
+    let baseWebhookType = 'LARK_WEBHOOK_BASE'
     if (isCpOne) {
-      baseWebhookUrl = process.env.LARK_WEBHOOK_BASE_CPONE
-      console.log("[INFO] Using LARK_WEBHOOK_BASE_CPONE for base registration")
+      if (isStandby && process.env.LARK_WEBHOOK_BASE_CPONE_STANDBY) {
+        baseWebhookUrl = process.env.LARK_WEBHOOK_BASE_CPONE_STANDBY
+        baseWebhookType = 'LARK_WEBHOOK_BASE_CPONE_STANDBY'
+        console.log("[INFO] Using LARK_WEBHOOK_BASE_CPONE_STANDBY for base registration")
+      } else {
+        baseWebhookUrl = process.env.LARK_WEBHOOK_BASE_CPONE
+        baseWebhookType = 'LARK_WEBHOOK_BASE_CPONE'
+        if (isStandby) {
+          console.log("[INFO] LARK_WEBHOOK_BASE_CPONE_STANDBY is not configured, falling back to LARK_WEBHOOK_BASE_CPONE")
+        } else {
+          console.log("[INFO] Using LARK_WEBHOOK_BASE_CPONE for base registration")
+        }
+      }
     } else if (isMechanic && isStandby) {
       baseWebhookUrl = process.env.LARK_WEBHOOK_BASE_MECHANIC_STANDBY
+      baseWebhookType = 'LARK_WEBHOOK_BASE_MECHANIC_STANDBY'
       console.log("[INFO] Using LARK_WEBHOOK_BASE_MECHANIC_STANDBY for base registration")
     } else if (isMechanic) {
       baseWebhookUrl = process.env.LARK_WEBHOOK_BASE_MECHANIC
+      baseWebhookType = 'LARK_WEBHOOK_BASE_MECHANIC'
       console.log("[INFO] Using LARK_WEBHOOK_BASE_MECHANIC for base registration")
     } else {
       baseWebhookUrl = process.env.LARK_WEBHOOK_BASE
+      baseWebhookType = 'LARK_WEBHOOK_BASE'
     }
 
     // Webhook送信を並列実行
@@ -244,19 +259,16 @@ export async function POST(request: Request) {
               return { name: 'base_registration', success: false, error: responseText }
             }
 
-            const webhookType = isCpOne ? 'LARK_WEBHOOK_BASE_CPONE' : (isMechanic && isStandby) ? 'LARK_WEBHOOK_BASE_MECHANIC_STANDBY' : isMechanic ? 'LARK_WEBHOOK_BASE_MECHANIC' : 'LARK_WEBHOOK_BASE'
-            console.log(`[SUCCESS] Sent application data to Base webhook (${webhookType})`)
+            console.log(`[SUCCESS] Sent application data to Base webhook (${baseWebhookType})`)
             return { name: 'base_registration', success: true }
           })
           .catch((error) => {
-            const webhookType = isCpOne ? 'LARK_WEBHOOK_BASE_CPONE' : (isMechanic && isStandby) ? 'LARK_WEBHOOK_BASE_MECHANIC_STANDBY' : isMechanic ? 'LARK_WEBHOOK_BASE_MECHANIC' : 'LARK_WEBHOOK_BASE'
-            console.error(`[ERROR] Exception sending to Base webhook (${webhookType}):`, error)
+            console.error(`[ERROR] Exception sending to Base webhook (${baseWebhookType}):`, error)
             return { name: 'base_registration', success: false, error: String(error) }
           })
       )
     } else {
-      const webhookType = isCpOne ? 'LARK_WEBHOOK_BASE_CPONE' : (isMechanic && isStandby) ? 'LARK_WEBHOOK_BASE_MECHANIC_STANDBY' : isMechanic ? 'LARK_WEBHOOK_BASE_MECHANIC' : 'LARK_WEBHOOK_BASE'
-      console.log(`[INFO] ${webhookType} is not configured, skipping base registration`)
+      console.log(`[INFO] ${baseWebhookType} is not configured, skipping base registration`)
     }
 
     // すべてのWebhook送信を待機
