@@ -1,17 +1,8 @@
-import Image from "next/image"
 import type { JobDetail } from "@/lib/types"
+import JobPhotoGrid from "./job-photo-grid"
 
 interface JobDescriptionProps {
   job: JobDetail
-}
-
-// 画像枚数に応じたグリッドレイアウトを決定
-function getGridLayout(imageCount: number): string {
-  if (imageCount === 1) return "grid-cols-1"
-  if (imageCount === 2) return "grid-cols-1 sm:grid-cols-2"
-  if (imageCount === 3) return "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
-  if (imageCount >= 4) return "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-  return "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
 }
 
 export default function JobDescription({ job }: JobDescriptionProps) {
@@ -23,28 +14,7 @@ export default function JobDescription({ job }: JobDescriptionProps) {
       {job.images && job.images.length > 0 && (
         <div className="border-t pt-8">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">写真</h3>
-          <div className={`grid gap-4 ${getGridLayout(job.images.length)}`}>
-            {job.images.map((image, index) => (
-              <div key={index}>
-                {image.width && image.height ? (
-                  <Image
-                    src={image.url}
-                    alt={`職場の写真 ${index + 1}`}
-                    width={image.width}
-                    height={image.height}
-                    className="h-auto w-auto max-w-full rounded-lg"
-                  />
-                ) : (
-                  <img
-                    src={image.url}
-                    alt={`職場の写真 ${index + 1}`}
-                    className="h-auto w-auto max-w-full rounded-lg"
-                    loading="lazy"
-                  />
-                )}
-              </div>
-            ))}
-          </div>
+          <JobPhotoGrid images={job.images} />
         </div>
       )}
 
