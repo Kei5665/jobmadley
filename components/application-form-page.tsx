@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Script from "next/script"
 import { useForm } from "react-hook-form"
@@ -48,6 +48,19 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
   const [isLoading, setIsLoading] = useState(false)
   const hasPushedStandbyCv = useRef(false)
 
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    try {
+      const searchParams = new URLSearchParams(window.location.search)
+      const stbUid = searchParams.get("stb_uid")
+      if (stbUid) {
+        window.localStorage.setItem("stb_uid", stbUid)
+      }
+    } catch (_) {
+      // Ignore storage or URL parsing errors.
+    }
+  }, [])
+
   const onSubmit = async (data: FormData) => {
     if (isLoading) return
 
@@ -62,7 +75,8 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
       if (typeof window !== "undefined") {
         const searchParams = new URLSearchParams(window.location.search)
         const rawSource = searchParams.get("source")
-        applicationSource = rawSource && rawSource.trim() ? rawSource.trim() : "unknown"
+        const normalizedSource = rawSource?.trim().toLowerCase()
+        applicationSource = normalizedSource ? normalizedSource : "unknown"
         if (!rawSource) {
           searchParams.set("source", applicationSource)
         }
