@@ -56,6 +56,11 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
       if (stbUid) {
         window.localStorage.setItem("stb_uid", stbUid)
       }
+      const rawSource = searchParams.get("source")
+      const normalizedSource = rawSource?.trim().toLowerCase()
+      if (normalizedSource) {
+        window.localStorage.setItem("application_source", normalizedSource)
+      }
     } catch (_) {
       // Ignore storage or URL parsing errors.
     }
@@ -76,13 +81,18 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
         const searchParams = new URLSearchParams(window.location.search)
         const rawSource = searchParams.get("source")
         const normalizedSource = rawSource?.trim().toLowerCase()
-        applicationSource = normalizedSource ? normalizedSource : "unknown"
+        const storedSource = window.localStorage.getItem("application_source")?.trim().toLowerCase()
+        applicationSource = normalizedSource || storedSource || "unknown"
+        const shouldUpdateUrl = Boolean(rawSource)
+        if (!rawSource && storedSource) {
+          searchParams.set("source", storedSource)
+        }
         jobUrl = `${window.location.origin}${window.location.pathname}`
         const queryString = searchParams.toString()
         if (queryString) {
           jobUrl = `${jobUrl}?${queryString}`
         }
-        if (window.history && window.history.replaceState) {
+        if (shouldUpdateUrl && window.history && window.history.replaceState) {
           window.history.replaceState(null, "", jobUrl)
         }
 
