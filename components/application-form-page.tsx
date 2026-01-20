@@ -77,9 +77,6 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
         const rawSource = searchParams.get("source")
         const normalizedSource = rawSource?.trim().toLowerCase()
         applicationSource = normalizedSource ? normalizedSource : "unknown"
-        if (!rawSource) {
-          searchParams.set("source", applicationSource)
-        }
         jobUrl = `${window.location.origin}${window.location.pathname}`
         const queryString = searchParams.toString()
         if (queryString) {
