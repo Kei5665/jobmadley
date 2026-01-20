@@ -22,6 +22,7 @@ function buildInternalLarkCard(input: ApplicationPayload, isMechanic: boolean = 
   const appliedAt = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
   const normalizedSource = (input.applicationSource ?? (typeof input.jobUrl === 'string' && input.jobUrl.includes('source=standby') ? 'standby' : undefined))?.trim().toLowerCase()
   const isStandby = normalizedSource === 'standby'
+  const isKyujinbox = normalizedSource === 'kyujinbox'
   const details = [
     `1. 氏名: ${input.lastName ?? ''} ${input.firstName ?? ''}`,
     `2. ふりがな: ${input.lastNameKana ?? ''} ${input.firstNameKana ?? ''}`,
@@ -52,12 +53,18 @@ function buildInternalLarkCard(input: ApplicationPayload, isMechanic: boolean = 
   if (isMechanic && isStandby) {
     titleEmoji = '🔧'
     titleText = 'スタンバイから整備士の応募がありました！'
+  } else if (isMechanic && isKyujinbox) {
+    titleEmoji = '🔧'
+    titleText = '求人ボックスから整備士の応募がありました！'
   } else if (isMechanic) {
     titleEmoji = '🔧'
     titleText = 'ライドジョブ求人サイトから整備士の応募がありました！'
   } else if (isStandby) {
     titleEmoji = '🟦'
     titleText = 'スタンバイからの応募がありました！'
+  } else if (isKyujinbox) {
+    titleEmoji = '🟨'
+    titleText = '求人ボックスからの応募がありました！'
   }
 
   return {
