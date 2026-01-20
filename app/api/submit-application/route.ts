@@ -149,6 +149,33 @@ export async function POST(request: Request) {
     if (!incomingSource && resolvedSource) {
       incoming.applicationSource = resolvedSource
     }
+    const normalizedResolvedSource = typeof incoming.applicationSource === 'string'
+      ? incoming.applicationSource.trim().toLowerCase()
+      : ''
+    if (normalizedResolvedSource && normalizedResolvedSource !== 'unknown' && typeof incoming.jobUrl === 'string' && incoming.jobUrl) {
+      const rawJobUrl = incoming.jobUrl
+      let updatedJobUrl: string | undefined
+      try {
+        const parsed = new URL(rawJobUrl)
+        if (!parsed.searchParams.get('source')) {
+          parsed.searchParams.set('source', normalizedResolvedSource)
+          updatedJobUrl = parsed.toString()
+        }
+      } catch (_) {
+        try {
+          const parsed = new URL(rawJobUrl, 'https://ridejob.jp')
+          if (!parsed.searchParams.get('source')) {
+            parsed.searchParams.set('source', normalizedResolvedSource)
+            updatedJobUrl = parsed.toString()
+          }
+        } catch (_) {
+          // Ignore invalid URL formats.
+        }
+      }
+      if (updatedJobUrl) {
+        incoming.jobUrl = updatedJobUrl
+      }
+    }
 
     console.log("[INFO] Raw Request Data (Pretty Formatted):")
     console.log(JSON.stringify(incoming, null, 2))
