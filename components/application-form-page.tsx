@@ -58,8 +58,10 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
       }
       const rawSource = searchParams.get("source")
       const normalizedSource = rawSource?.trim().toLowerCase()
-      if (normalizedSource) {
+      if (normalizedSource && normalizedSource !== "unknown") {
         window.localStorage.setItem("application_source", normalizedSource)
+      } else if (normalizedSource === "unknown") {
+        window.localStorage.removeItem("application_source")
       }
     } catch (_) {
       // Ignore storage or URL parsing errors.
@@ -82,10 +84,11 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
         const rawSource = searchParams.get("source")
         const normalizedSource = rawSource?.trim().toLowerCase()
         const storedSource = window.localStorage.getItem("application_source")?.trim().toLowerCase()
-        applicationSource = normalizedSource || storedSource || "unknown"
+        const effectiveStoredSource = storedSource && storedSource !== "unknown" ? storedSource : ""
+        applicationSource = normalizedSource || effectiveStoredSource || "unknown"
         const shouldUpdateUrl = Boolean(rawSource)
-        if (!rawSource && storedSource) {
-          searchParams.set("source", storedSource)
+        if (!rawSource && effectiveStoredSource) {
+          searchParams.set("source", effectiveStoredSource)
         }
         jobUrl = `${window.location.origin}${window.location.pathname}`
         const queryString = searchParams.toString()
