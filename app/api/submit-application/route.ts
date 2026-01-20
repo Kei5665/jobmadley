@@ -119,6 +119,8 @@ export async function POST(request: Request) {
     const contentLength = request.headers.get('content-length') || 'unknown'
     const xForwardedFor = request.headers.get('x-forwarded-for') || 'unknown'
     const referer = request.headers.get('referer') || 'unknown'
+    const requestUrl = new URL(request.url)
+    const urlSource = requestUrl.searchParams.get('source')?.trim()
 
     console.log("=".repeat(80))
     console.log(`[INFO] ${timestamp} - submit-application POST Request Received`)
@@ -133,6 +135,13 @@ export async function POST(request: Request) {
     console.log("=".repeat(80))
 
     const incoming = await request.json() as ApplicationPayload
+    const incomingSource = typeof incoming.applicationSource === 'string' && incoming.applicationSource.trim()
+      ? incoming.applicationSource
+      : undefined
+    const resolvedSource = incomingSource ?? (urlSource || undefined)
+    if (!incomingSource && resolvedSource) {
+      incoming.applicationSource = resolvedSource
+    }
 
     console.log("[INFO] Raw Request Data (Pretty Formatted):")
     console.log(JSON.stringify(incoming, null, 2))
