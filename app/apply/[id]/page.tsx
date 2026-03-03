@@ -1,4 +1,5 @@
 import { Suspense } from "react"
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import ApplicationFormPage from "@/components/application-form-page"
 import { getJob } from "@/lib/getJob"
@@ -6,6 +7,13 @@ import { AppError, ErrorType, withErrorHandling } from "@/lib/error-handling"
 
 interface ApplicationPageProps {
   params: Promise<{ id: string }>
+}
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
 }
 
 export default async function ApplicationPage({ params }: ApplicationPageProps) {

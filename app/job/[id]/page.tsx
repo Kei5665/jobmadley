@@ -1,15 +1,15 @@
 import { Suspense } from "react"
 import Link from "next/link"
+import { notFound } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import SiteHeader from "@/components/site-header"
 import SiteFooter from "@/components/site-footer"
 import RidejobMediaSection from "@/components/ridejob-media-section"
 import { getJob } from "@/lib/getJob"
 import { getJobs } from "@/lib/getJobs"
-import { withErrorHandling } from "@/lib/error-handling"
+import { AppError, ErrorType, withErrorHandling } from "@/lib/error-handling"
 import { Loading } from "@/components/ui/loading"
 import { ErrorDisplay } from "@/components/ui/error-display"
-import { NotFound } from "@/components/ui/error-display"
 import JobBreadcrumb from "../components/job-breadcrumb"
 import JobTitleActions from "../components/job-title-actions"
 import JobDescription from "../components/job-description"
@@ -29,20 +29,7 @@ export default async function JobPage({ params }: JobPageProps) {
     )
 
     if (!job) {
-      return (
-        <div className="min-h-screen bg-white">
-          <SiteHeader />
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <NotFound
-              title="求人が見つかりません"
-              message="お探しの求人は見つかりませんでした。求人が削除されたか、URLが間違っている可能性があります。"
-              backLink="/search"
-              backLinkText="求人一覧に戻る"
-            />
-          </div>
-          <SiteFooter />
-        </div>
-      )
+      notFound()
     }
 
     const relatedJobsRaw = await withErrorHandling(
@@ -96,6 +83,10 @@ export default async function JobPage({ params }: JobPageProps) {
       </div>
     )
   } catch (error) {
+    if (error instanceof AppError && error.type === ErrorType.NOT_FOUND) {
+      notFound()
+    }
+
     return (
       <div className="min-h-screen bg-white">
         <SiteHeader />
@@ -103,7 +94,7 @@ export default async function JobPage({ params }: JobPageProps) {
           <ErrorDisplay
             error={error}
             title="求人詳細の取得に失敗しました"
-            onRetry={() => window.location.reload()}
+            showRetryButton={false}
           />
         </div>
         <SiteFooter />
