@@ -59,11 +59,11 @@ export const getErrorType = (error: unknown): ErrorType => {
   }
 
   if (error instanceof Error) {
-    if (error.message.includes("fetch")) {
-      return ErrorType.NETWORK
-    }
     if (error.message.includes("404")) {
       return ErrorType.NOT_FOUND
+    }
+    if (error.message.includes("fetch")) {
+      return ErrorType.NETWORK
     }
   }
 
