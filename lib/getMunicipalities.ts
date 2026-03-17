@@ -11,12 +11,20 @@ export const getMunicipalities = async (prefectureId?: string): Promise<Municipa
     queries.filters = `prefecture[equals]${prefectureId}`
   }
   
-  const data = await microcmsClient.get<MicroCMSListResponse<Municipality>>({
-    endpoint: "municipalities",
-    queries,
-  })
+  try {
+    const data = await microcmsClient.get<MicroCMSListResponse<Municipality>>({
+      endpoint: "municipalities",
+      queries,
+    })
 
-  return data.contents
+    return data.contents
+  } catch (error) {
+    console.error("[microCMS:getMunicipalities] Failed to fetch municipalities", {
+      prefectureId,
+      error,
+    })
+    throw error
+  }
 }
 
 /**

@@ -5,12 +5,17 @@ import type { JobCategory, MicroCMSListResponse } from "./types"
  * 職種カテゴリ一覧を取得
  */
 export const getJobCategories = async (): Promise<JobCategory[]> => {
-  const data = await microcmsClient.get<MicroCMSListResponse<JobCategory>>({
-    endpoint: "jobcategories",
-    queries: { limit: 100 },
-  })
+  try {
+    const data = await microcmsClient.get<MicroCMSListResponse<JobCategory>>({
+      endpoint: "jobcategories",
+      queries: { limit: 100 },
+    })
 
-  return data.contents
+    return data.contents
+  } catch (error) {
+    console.error("[microCMS:getJobCategories] Failed to fetch job categories", { error })
+    throw error
+  }
 }
 
 /**

@@ -119,7 +119,7 @@ export const buildSearchQuery = (params: {
   if (params.page && params.page > 1) {
     searchParams.set("page", String(params.page))
   }
-  if (params.sort) {
+  if (params.sort && params.sort !== "recommended") {
     searchParams.set("sort", params.sort)
   }
   

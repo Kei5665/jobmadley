@@ -9,7 +9,11 @@ export default function SortTabs() {
 
   const setSort = (value: "recommended" | "new") => {
     const p = new URLSearchParams(searchParams)
-    p.set("sort", value)
+    if (value === "recommended") {
+      p.delete("sort")
+    } else {
+      p.set("sort", value)
+    }
     // ページングはリセット
     p.delete("page")
     router.push(`/search?${p.toString()}`)
@@ -37,5 +41,4 @@ export default function SortTabs() {
     </div>
   )
 }
-
 

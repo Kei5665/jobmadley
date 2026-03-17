@@ -1,4 +1,4 @@
-import { Suspense } from "react"
+import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -8,97 +8,101 @@ import RidejobMediaSection from "@/components/ridejob-media-section"
 import { getJob } from "@/lib/getJob"
 import { getJobs } from "@/lib/getJobs"
 import { AppError, ErrorType, withErrorHandling } from "@/lib/error-handling"
-import { Loading } from "@/components/ui/loading"
-import { ErrorDisplay } from "@/components/ui/error-display"
 import JobBreadcrumb from "../components/job-breadcrumb"
 import JobTitleActions from "../components/job-title-actions"
 import JobDescription from "../components/job-description"
 import RelatedJobs from "../components/related-jobs"
 import { getMediaArticles } from "@/lib/getMediaArticles"
+import { generateJobMetadata } from "@/lib/metadata"
 
 interface JobPageProps {
   params: Promise<{ id: string }>
 }
 
+export async function generateMetadata({ params }: JobPageProps): Promise<Metadata> {
+  const { id } = await params
+
+  try {
+    const job = await withErrorHandling(() => getJob(id), "getJobMetadata")
+    return generateJobMetadata(job)
+  } catch (error) {
+    if (error instanceof AppError && error.type === ErrorType.NOT_FOUND) {
+      return {
+        title: "求人が見つかりません",
+        robots: {
+          index: false,
+          follow: false,
+        },
+      }
+    }
+    throw error
+  }
+}
+
 export default async function JobPage({ params }: JobPageProps) {
   const { id } = await params
+  let job: Awaited<ReturnType<typeof getJob>>
   try {
-    const job = await withErrorHandling(
-      () => getJob(id),
-      "getJob"
-    )
-
-    if (!job) {
-      notFound()
-    }
-
-    const relatedJobsRaw = await withErrorHandling(
-      () => getJobs({
-        municipalityId: job.municipality?.id,
-        prefectureId: job.municipality ? undefined : job.prefecture?.id,
-        limit: 4,
-      }),
-      "getRelatedJobs"
-    )
-    const relatedJobs = relatedJobsRaw.filter((j) => j.id !== job.id).slice(0, 4)
-
-    const { companyArticles, interviewArticles } = await withErrorHandling(
-      () => getMediaArticles(),
-      "getMediaArticles"
-    )
-
-    return (
-      <div className="min-h-screen bg-white">
-        <SiteHeader />
-
-        <JobBreadcrumb job={job} />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-8">
-            <div>
-              <JobTitleActions job={job} />
-
-              <JobDescription job={job} />
-
-              <RelatedJobs jobs={relatedJobs} title="類似求人" />
-            </div>
-          </div>
-        </div>
-
-        <RidejobMediaSection
-          companyArticles={companyArticles}
-          interviewArticles={interviewArticles}
-        />
-        {/* Mobile sticky apply button */}
-        <div className="sm:hidden fixed inset-x-0 bottom-0 z-40 bg-white border-t border-gray-200 p-3">
-          <Link href={`/apply/${job.id}`} className="block">
-            <Button className="w-full bg-red-500 hover:bg-red-600 text-white text-base py-3">
-              応募画面へ進む
-            </Button>
-          </Link>
-        </div>
-        {/* Spacer to avoid content being hidden behind sticky bar on mobile */}
-        <div className="h-20 sm:hidden" />
-        <SiteFooter />
-      </div>
-    )
+    job = await withErrorHandling(() => getJob(id), "getJob")
   } catch (error) {
     if (error instanceof AppError && error.type === ErrorType.NOT_FOUND) {
       notFound()
     }
-
-    return (
-      <div className="min-h-screen bg-white">
-        <SiteHeader />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <ErrorDisplay
-            error={error}
-            title="求人詳細の取得に失敗しました"
-            showRetryButton={false}
-          />
-        </div>
-        <SiteFooter />
-      </div>
-    )
+    throw error
   }
+
+  if (!job) {
+    notFound()
+  }
+
+  const relatedJobsRaw = await withErrorHandling(
+    () => getJobs({
+      municipalityId: job.municipality?.id,
+      prefectureId: job.municipality ? undefined : job.prefecture?.id,
+      limit: 4,
+    }),
+    "getRelatedJobs"
+  )
+  const relatedJobs = relatedJobsRaw.filter((j) => j.id !== job.id).slice(0, 4)
+
+  const { companyArticles, interviewArticles } = await withErrorHandling(
+    () => getMediaArticles(),
+    "getMediaArticles"
+  )
+
+  return (
+    <div className="min-h-screen bg-white">
+      <SiteHeader />
+
+      <JobBreadcrumb job={job} />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-8">
+          <div>
+            <JobTitleActions job={job} />
+
+            <JobDescription job={job} />
+
+            <RelatedJobs jobs={relatedJobs} title="類似求人" />
+          </div>
+        </div>
+      </div>
+
+      <RidejobMediaSection
+        companyArticles={companyArticles}
+        interviewArticles={interviewArticles}
+      />
+      {/* Mobile sticky apply button */}
+      <div className="sm:hidden fixed inset-x-0 bottom-0 z-40 bg-white border-t border-gray-200 p-3">
+        <Link href={`/apply/${job.id}`} className="block">
+          <Button className="w-full bg-red-500 hover:bg-red-600 text-white text-base py-3">
+            応募画面へ進む
+          </Button>
+        </Link>
+      </div>
+      {/* Spacer to avoid content being hidden behind sticky bar on mobile */}
+      <div className="h-20 sm:hidden" />
+      <SiteFooter />
+    </div>
+  )
 }

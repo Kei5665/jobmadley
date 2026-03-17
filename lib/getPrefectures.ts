@@ -5,12 +5,17 @@ import type { Prefecture, PrefectureGroup, MicroCMSListResponse } from "./types"
  * 都道府県一覧を取得
  */
 export const getPrefectures = async (): Promise<Prefecture[]> => {
-  const data = await microcmsClient.get<MicroCMSListResponse<Prefecture>>({
-    endpoint: "prefectures",
-    queries: { limit: 100 },
-  })
+  try {
+    const data = await microcmsClient.get<MicroCMSListResponse<Prefecture>>({
+      endpoint: "prefectures",
+      queries: { limit: 100 },
+    })
 
-  return data.contents
+    return data.contents
+  } catch (error) {
+    console.error("[microCMS:getPrefectures] Failed to fetch prefectures", { error })
+    throw error
+  }
 }
 
 /**

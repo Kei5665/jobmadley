@@ -1,4 +1,5 @@
 import Link from "next/link"
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import SiteHeader from "@/components/site-header"
@@ -10,6 +11,12 @@ import { getJob } from "@/lib/getJob"
 import { AppError, ErrorType, withErrorHandling } from "@/lib/error-handling"
 
 export const revalidate = 0
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+}
 
 interface JobPreviewPageProps {
   params: Promise<{ id: string }>

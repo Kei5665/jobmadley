@@ -7,7 +7,7 @@ import type { JobDetail, Job } from './types'
 
 const SITE_NAME = 'ライドジョブ | タクシー運転手の求人・転職サイト'
 const SITE_DESCRIPTION = 'ドライバー・運転職の求人情報サイト。タクシー運転手、配送ドライバー、介護ドライバーなど、あなたにぴったりの運転職求人を見つけよう。'
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://ridejob.jp'
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://ridejob.jp'
 const OGP_IMAGE = '/images/OGP.png'
 
 /**
@@ -37,9 +37,6 @@ export const baseMetadata: Metadata = {
     telephone: false,
   },
   metadataBase: new URL(SITE_URL),
-  alternates: {
-    canonical: '/',
-  },
   openGraph: {
     title: SITE_NAME,
     description: SITE_DESCRIPTION,

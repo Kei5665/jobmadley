@@ -1,5 +1,14 @@
+import type { Metadata } from "next"
 import SiteHeader from "@/components/site-header"
 import SiteFooter from "@/components/site-footer"
+
+export const metadata: Metadata = {
+  title: "プライバシーポリシー",
+  description: "ライドジョブのプライバシーポリシーです。",
+  alternates: {
+    canonical: "/privacy",
+  },
+}
 
 // サーバーコンポーネント
 export default function PrivacyPolicyPage() {

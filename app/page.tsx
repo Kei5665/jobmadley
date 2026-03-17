@@ -1,9 +1,9 @@
 import { ChevronRight, Home } from "lucide-react"
+import type { Metadata } from "next"
 import { getPrefectureGroups } from "@/lib/getPrefectures"
 import { getJobCount, getJobs } from "@/lib/getJobs"
 import { getMediaArticles } from "@/lib/getMediaArticles"
 import { withErrorHandling } from "@/lib/error-handling"
-import { ErrorDisplay } from "@/components/ui/error-display"
 import SiteHeader from "@/components/site-header"
 import SiteFooter from "@/components/site-footer"
 import RegionSearchSection from "@/components/prefecture-region-section"
@@ -14,77 +14,63 @@ import { getTags } from "@/lib/getTags"
 import PopularTagsSection from "@/components/popular-tags-section"
 import { getJobCategories } from "@/lib/getJobCategories"
 import JobCategoriesSection from "@/components/job-categories-section"
+import { generateHomeMetadata } from "@/lib/metadata"
 
 export const revalidate = 0
+export const metadata: Metadata = generateHomeMetadata()
 
 export default async function HomePage() {
-  try {
-    const [prefectures, latestJobs, mediaArticles, tags, jobCategories] = await Promise.all([
-      withErrorHandling(() => getPrefectureGroups(), "getPrefectureGroups"),
-      withErrorHandling(() => getJobs({ limit: 4, orders: "-publishedAt" }), "getLatestJobs"),
-      withErrorHandling(() => getMediaArticles(), "getMediaArticles"),
-      withErrorHandling(() => getTags(), "getTags"),
-      withErrorHandling(() => getJobCategories(), "getJobCategories"),
-    ])
+  const [prefectures, latestJobs, mediaArticles, tags, jobCategories] = await Promise.all([
+    withErrorHandling(() => getPrefectureGroups(), "getPrefectureGroups"),
+    withErrorHandling(() => getJobs({ limit: 4, orders: "-publishedAt" }), "getLatestJobs"),
+    withErrorHandling(() => getMediaArticles(), "getMediaArticles"),
+    withErrorHandling(() => getTags(), "getTags"),
+    withErrorHandling(() => getJobCategories(), "getJobCategories"),
+  ])
 
-    const { companyArticles, interviewArticles } = mediaArticles
+  const { companyArticles, interviewArticles } = mediaArticles
 
-    // 各都道府県の求人数を取得
-    const prefList = Object.values(prefectures).flat()
-    const countEntries = await Promise.all(
-      prefList.map(async (pref) => {
-        try {
-          const count = await withErrorHandling(
-            () => getJobCount({ prefectureId: pref.id }),
-            `getJobCount-${pref.id}`
-          )
-          return [pref.id, count] as const
-        } catch (error) {
-          console.warn(`Failed to get job count for ${pref.region}:`, error)
-          return [pref.id, 0] as const
-        }
-      })
-    )
-    const countMap = Object.fromEntries(countEntries) as Record<string, number>
+  // 各都道府県の求人数を取得
+  const prefList = Object.values(prefectures).flat()
+  const countEntries = await Promise.all(
+    prefList.map(async (pref) => {
+      try {
+        const count = await withErrorHandling(
+          () => getJobCount({ prefectureId: pref.id }),
+          `getJobCount-${pref.id}`
+        )
+        return [pref.id, count] as const
+      } catch (error) {
+        console.warn(`Failed to get job count for ${pref.region}:`, error)
+        return [pref.id, 0] as const
+      }
+    })
+  )
+  const countMap = Object.fromEntries(countEntries) as Record<string, number>
 
-    return (
-      <div className="min-h-screen bg-white">
-        <SiteHeader />
+  return (
+    <div className="min-h-screen bg-white">
+      <SiteHeader />
 
-        {/* Breadcrumb */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center text-sm text-gray-600">
-            <Home className="w-4 h-4 mr-1" />
-            <ChevronRight className="w-4 h-4 mx-1" />
-            <span>トップページ</span>
-          </div>
+      {/* Breadcrumb */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="flex items-center text-sm text-gray-600">
+          <Home className="w-4 h-4 mr-1" />
+          <ChevronRight className="w-4 h-4 mx-1" />
+          <span>トップページ</span>
         </div>
+      </div>
 
-        <HeroSection />
-        <RegionSearchSection prefectures={prefectures} countMap={countMap} />
-        <PopularTagsSection tags={tags} />
-        <JobCategoriesSection categories={jobCategories} />
-        <LatestJobsSection jobs={latestJobs} />
-        <MediaSection 
-          companyArticles={companyArticles}
-          interviewArticles={interviewArticles}
-        />
-        <SiteFooter />
-      </div>
-    )
-  } catch (error) {
-    return (
-      <div className="min-h-screen bg-white">
-        <SiteHeader />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <ErrorDisplay
-            error={error}
-            title="ページの読み込みに失敗しました"
-            onRetry={() => window.location.reload()}
-          />
-        </div>
-        <SiteFooter />
-      </div>
-    )
-  }
+      <HeroSection />
+      <RegionSearchSection prefectures={prefectures} countMap={countMap} />
+      <PopularTagsSection tags={tags} />
+      <JobCategoriesSection categories={jobCategories} />
+      <LatestJobsSection jobs={latestJobs} />
+      <MediaSection
+        companyArticles={companyArticles}
+        interviewArticles={interviewArticles}
+      />
+      <SiteFooter />
+    </div>
+  )
 }

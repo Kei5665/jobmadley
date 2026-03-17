@@ -13,14 +13,23 @@ export const getJob = async (
   jobId: string,
   options: GetJobOptions = {}
 ): Promise<JobDetail> => {
-  const data = await microcmsClient.get<JobDetail>({
-    endpoint: "jobs",
-    contentId: jobId,
-    queries: {
-      depth: 2,
-      ...(options.draftKey ? { draftKey: options.draftKey } : {}),
-    },
-  })
+  try {
+    const data = await microcmsClient.get<JobDetail>({
+      endpoint: "jobs",
+      contentId: jobId,
+      queries: {
+        depth: 2,
+        ...(options.draftKey ? { draftKey: options.draftKey } : {}),
+      },
+    })
 
-  return data
+    return data
+  } catch (error) {
+    console.error("[microCMS:getJob] Failed to fetch job", {
+      jobId,
+      hasDraftKey: Boolean(options.draftKey),
+      error,
+    })
+    throw error
+  }
 }

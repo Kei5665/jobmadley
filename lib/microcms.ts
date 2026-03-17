@@ -5,28 +5,29 @@ import { createClient } from "microcms-js-sdk"
 //   MICROCMS_API_KEY                     : 管理画面 -> API キー
 // フロント側に API キーを漏らさないように、API キーは NEXT_PUBLIC を付けずに環境変数を設定してください。
 
-if (!process.env.NEXT_PUBLIC_MICROCMS_SERVICE_DOMAIN) {
-  throw new Error("NEXT_PUBLIC_MICROCMS_SERVICE_DOMAIN が環境変数に設定されていません")
+const requireEnv = (name: string): string => {
+  const value = process.env[name]
+  if (!value) {
+    const message = `${name} が環境変数に設定されていません`
+    console.error(`[microCMS:config] ${message}`)
+    throw new Error(message)
+  }
+  return value
 }
 
-if (!process.env.MICROCMS_API_KEY) {
-  throw new Error("MICROCMS_API_KEY が環境変数に設定されていません")
-}
+const serviceDomain = requireEnv("NEXT_PUBLIC_MICROCMS_SERVICE_DOMAIN")
+const apiKey = requireEnv("MICROCMS_API_KEY")
 
 export const microcmsClient = createClient({
-  serviceDomain: process.env.NEXT_PUBLIC_MICROCMS_SERVICE_DOMAIN,
-  apiKey: process.env.MICROCMS_API_KEY,
+  serviceDomain,
+  apiKey,
 })
 
 // === 第２サービス: タクシー運転手メディア ===
-if (!process.env.NEXT_PUBLIC_MICROCMS_SERVICE_DOMAIN_2) {
-  throw new Error("NEXT_PUBLIC_MICROCMS_SERVICE_DOMAIN_2 が環境変数に設定されていません")
-}
-if (!process.env.MICROCMS_API_KEY_2) {
-  throw new Error("MICROCMS_API_KEY_2 が環境変数に設定されていません")
-}
+const serviceDomain2 = requireEnv("NEXT_PUBLIC_MICROCMS_SERVICE_DOMAIN_2")
+const apiKey2 = requireEnv("MICROCMS_API_KEY_2")
 
 export const microcmsClient2 = createClient({
-  serviceDomain: process.env.NEXT_PUBLIC_MICROCMS_SERVICE_DOMAIN_2,
-  apiKey: process.env.MICROCMS_API_KEY_2,
-}) 
+  serviceDomain: serviceDomain2,
+  apiKey: apiKey2,
+})

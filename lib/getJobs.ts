@@ -45,18 +45,32 @@ export const getJobs = async ({
 
   const filters = filterParts.join("[and]")
 
-  const data = await microcmsClient.get<MicroCMSListResponse<Job>>({
-    endpoint: "jobs",
-    queries: {
-      limit,
-      depth: 1, // タグの名前も取得
-      ...(keyword ? { q: keyword } : {}),
-      ...(orders ? { orders } : {}),
-      ...(filters ? { filters } : {}),
-    },
-  })
+  try {
+    const data = await microcmsClient.get<MicroCMSListResponse<Job>>({
+      endpoint: "jobs",
+      queries: {
+        limit,
+        depth: 1, // タグの名前も取得
+        ...(keyword ? { q: keyword } : {}),
+        ...(orders ? { orders } : {}),
+        ...(filters ? { filters } : {}),
+      },
+    })
 
-  return data.contents
+    return data.contents
+  } catch (error) {
+    console.error("[microCMS:getJobs] Failed to fetch jobs", {
+      prefectureId,
+      municipalityId,
+      tagIds,
+      jobCategoryId,
+      keyword,
+      limit,
+      orders,
+      error,
+    })
+    throw error
+  }
 }
 
 /** 求人数だけを取得（limit=0） */
@@ -75,16 +89,26 @@ export const getJobCount = async ({
 
   const filters = filterParts.join("[and]")
 
-  const data = await microcmsClient.get<MicroCMSListResponse<Job>>({
-    endpoint: "jobs",
-    queries: {
-      limit: 0, // 件数のみ取得
-      ...(keyword ? { q: keyword } : {}),
-      ...(filters ? { filters } : {}),
-    },
-  })
+  try {
+    const data = await microcmsClient.get<MicroCMSListResponse<Job>>({
+      endpoint: "jobs",
+      queries: {
+        limit: 0, // 件数のみ取得
+        ...(keyword ? { q: keyword } : {}),
+        ...(filters ? { filters } : {}),
+      },
+    })
 
-  return data.totalCount
+    return data.totalCount
+  } catch (error) {
+    console.error("[microCMS:getJobCount] Failed to fetch job count", {
+      prefectureId,
+      municipalityId,
+      keyword,
+      error,
+    })
+    throw error
+  }
 }
 
 /**
@@ -116,17 +140,32 @@ export const getJobsPaged = async ({
 
   const filters = filterParts.join("[and]")
 
-  const data = await microcmsClient.get<MicroCMSListResponse<Job>>({
-    endpoint: "jobs",
-    queries: {
+  try {
+    const data = await microcmsClient.get<MicroCMSListResponse<Job>>({
+      endpoint: "jobs",
+      queries: {
+        limit,
+        offset,
+        depth: 1,
+        ...(keyword ? { q: keyword } : {}),
+        ...(orders ? { orders } : {}),
+        ...(filters ? { filters } : {}),
+      },
+    })
+
+    return { contents: data.contents, totalCount: data.totalCount }
+  } catch (error) {
+    console.error("[microCMS:getJobsPaged] Failed to fetch paged jobs", {
+      prefectureId,
+      municipalityId,
+      tagIds,
+      jobCategoryId,
+      keyword,
       limit,
       offset,
-      depth: 1,
-      ...(keyword ? { q: keyword } : {}),
-      ...(orders ? { orders } : {}),
-      ...(filters ? { filters } : {}),
-    },
-  })
-
-  return { contents: data.contents, totalCount: data.totalCount }
-} 
+      orders,
+      error,
+    })
+    throw error
+  }
+}
