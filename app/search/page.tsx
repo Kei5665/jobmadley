@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import { permanentRedirect } from "next/navigation"
 import SiteHeader from "@/components/site-header"
 import SiteFooter from "@/components/site-footer"
 import RidejobMediaSection from "@/components/ridejob-media-section"
@@ -18,7 +17,7 @@ import SearchPagination from "./components/search-pagination"
 import SortTabs from "./components/sort-tabs"
 import FilterSidebar from "./components/filter-sidebar"
 import { generateSearchMetadata } from "@/lib/metadata"
-import { hasSearchQuery, normalizeSearchParams, toSearchQueryString } from "@/lib/search-params"
+import { hasSearchQuery, normalizeSearchParams } from "@/lib/search-params"
 
 interface SearchPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>
@@ -50,12 +49,7 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const rawParams = await searchParams
-  const { normalized, requiresRedirect } = normalizeSearchParams(rawParams)
-  const normalizedQuery = toSearchQueryString(normalized)
-
-  if (requiresRedirect) {
-    permanentRedirect(normalizedQuery ? `/search?${normalizedQuery}` : "/search")
-  }
+  const { normalized } = normalizeSearchParams(rawParams)
 
   const keyword = normalized.q
   const prefectureId = normalized.prefecture
