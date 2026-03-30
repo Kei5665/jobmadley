@@ -13,7 +13,7 @@ import JobTitleActions from "../components/job-title-actions"
 import JobDescription from "../components/job-description"
 import RelatedJobs from "../components/related-jobs"
 import { getMediaArticles } from "@/lib/getMediaArticles"
-import { generateJobMetadata } from "@/lib/metadata"
+import { generateBreadcrumbStructuredData, generateJobMetadata, generateJobPostingStructuredData } from "@/lib/metadata"
 
 interface JobPageProps {
   params: Promise<{ id: string }>
@@ -70,8 +70,36 @@ export default async function JobPage({ params }: JobPageProps) {
     "getMediaArticles"
   )
 
+  const jobPostingStructuredData = generateJobPostingStructuredData(job)
+  const breadcrumbItems: Array<{ name: string; url?: string }> = [{ name: "トップページ", url: "/" }]
+
+  if (job.prefecture?.id && job.prefecture.region) {
+    breadcrumbItems.push({
+      name: job.prefecture.region,
+      url: `/search?prefecture=${job.prefecture.id}`,
+    })
+  }
+
+  if (job.prefecture?.id && job.municipality?.id && job.municipality.name) {
+    breadcrumbItems.push({
+      name: job.municipality.name,
+      url: `/search?prefecture=${job.prefecture.id}&municipality=${job.municipality.id}`,
+    })
+  }
+
+  breadcrumbItems.push({ name: job.jobName ?? job.title ?? "求人詳細" })
+  const breadcrumbStructuredData = generateBreadcrumbStructuredData(breadcrumbItems)
+
   return (
     <div className="min-h-screen bg-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jobPostingStructuredData) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbStructuredData) }}
+      />
       <SiteHeader />
 
       <JobBreadcrumb job={job} />
