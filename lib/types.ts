@@ -90,6 +90,7 @@ export interface JobDetail extends JobBase {
   descriptionOther?: string
   access?: string
   dlNote?: string
+  applyEmail?: string
 }
 
 // =====================

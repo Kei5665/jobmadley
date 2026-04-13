@@ -133,6 +133,7 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
       const payload = {
         ...applicationData,
         jobId: job?.id ?? "",
+        applyEmail: job?.applyEmail ?? "",
         applicationSource,
       }
 

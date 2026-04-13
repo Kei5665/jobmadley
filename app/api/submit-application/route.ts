@@ -15,6 +15,7 @@ interface ApplicationPayload {
   jobId?: string
   utmSource?: string
   utmMedium?: string
+  applyEmail?: string
   [key: string]: unknown
 }
 
@@ -180,9 +181,10 @@ export async function POST(request: Request) {
     console.log("[INFO] Raw Request Data (Pretty Formatted):")
     console.log(JSON.stringify(incoming, null, 2))
 
-    // 求人名に「整備士」が含まれているかチェック
-    const jobName = incoming.jobName ?? ''
-    const isMechanic = jobName.includes('整備士')
+    // 応募用メールアドレスで整備士求人かどうかを判定
+    const MECHANIC_APPLY_EMAIL = 'ridejob.mechanic@pmagent.jp'
+    const applyEmail = incoming.applyEmail ?? ''
+    const isMechanic = applyEmail === MECHANIC_APPLY_EMAIL
 
     // 会社名に「CP One Japan」が含まれているかチェック
     const companyName = incoming.companyName ?? ''

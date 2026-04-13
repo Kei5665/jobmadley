@@ -235,24 +235,16 @@ export async function POST(request: Request) {
   try {
     const body: any = await request.json()
 
-    // 整備士かどうかを判定（job.title または job.jobTitle に「整備士」が含まれるか）
-    const jobTitle = body?.job?.title || body?.job?.jobTitle || ''
-    const isMechanic = jobTitle.toLowerCase().includes('整備士'.toLowerCase())
-
     // CP One Japan 合同会社かどうかを判定
     const companyName = body?.job?.companyName || body?.job?.jobCompany || ''
     const isCPOne = companyName.includes('CP One Japan 合同会社')
 
-    // Webhook URLを切り替え（優先順位: CP One(求人ボックス用) > 整備士 > デフォルト）
-    const LARK_WEBHOOK = (() => {
-      if (isCPOne && process.env.LARK_WEBHOOK_CPONE_KYUZINBOX) {
-        return process.env.LARK_WEBHOOK_CPONE_KYUZINBOX
-      }
-      if (isMechanic && process.env.LARK_WEBHOOK_MECHANIC) {
-        return process.env.LARK_WEBHOOK_MECHANIC
-      }
-      return process.env.LARK_WEBHOOK
-    })()
+    // 整備士判定用の定数
+    const MECHANIC_APPLY_EMAIL = 'ridejob.mechanic@pmagent.jp'
+
+    // isMechanic と LARK_WEBHOOK は microCMS から applyEmail を取得後に決定する
+    let isMechanic = false
+    let LARK_WEBHOOK: string | undefined
 
     // 受信ボディを dev.log に追記
     try {
@@ -273,15 +265,17 @@ export async function POST(request: Request) {
     }
 
 
-    // microCMS 上の求人存在確認（存在しなければ 404 を返す）
+    // microCMS 上の求人存在確認 + applyEmail 取得
     try {
-      const r = await microcmsClient.get<MicroCMSListResponse<{ id: string }>>({
+      const r = await microcmsClient.get<MicroCMSListResponse<{ id: string; applyEmail?: string }>>({
         endpoint: "jobs",
-        queries: { limit: 0, filters: `id[equals]${jobId}` },
+        queries: { limit: 1, fields: ['id', 'applyEmail'], filters: `id[equals]${jobId}` },
       })
       if (!r || typeof r.totalCount !== 'number' || r.totalCount === 0) {
+        // 求人未存在時はデフォルトのwebhookで通知
+        const fallbackWebhook = process.env.LARK_WEBHOOK
         // 求人未存在をLarkに通知（Webhookが設定されている場合のみ）
-        if (LARK_WEBHOOK) {
+        if (fallbackWebhook) {
           try {
             const format = (value: unknown, fallback = '未設定') => {
               if (typeof value === 'string' && value.trim() !== '' && value !== 'undefined') return value
@@ -328,7 +322,7 @@ export async function POST(request: Request) {
               "求人ボックスから応募がありましたが、ライドジョブ内で求人が見つかりませんでした。",
               detailsText
             )
-            const notifyRes = await fetch(LARK_WEBHOOK, {
+            const notifyRes = await fetch(fallbackWebhook, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(errorMessage),
@@ -343,9 +337,22 @@ export async function POST(request: Request) {
         }
         // 2xxでリトライ抑止
         return NextResponse.json(
-          { success: true, error: 'JOB_NOT_FOUND', notification: LARK_WEBHOOK ? { sent: true } : { sent: false, reason: 'Webhook not configured' } },
+          { success: true, error: 'JOB_NOT_FOUND', notification: fallbackWebhook ? { sent: true } : { sent: false, reason: 'Webhook not configured' } },
           { status: 200 }
         )
+      }
+
+      // microCMS から取得した applyEmail で整備士判定
+      const fetchedApplyEmail = r.contents[0]?.applyEmail ?? ''
+      isMechanic = fetchedApplyEmail === MECHANIC_APPLY_EMAIL
+
+      // Webhook URLを決定（優先順位: CP One(求人ボックス用) > 整備士 > デフォルト）
+      if (isCPOne && process.env.LARK_WEBHOOK_CPONE_KYUZINBOX) {
+        LARK_WEBHOOK = process.env.LARK_WEBHOOK_CPONE_KYUZINBOX
+      } else if (isMechanic && process.env.LARK_WEBHOOK_MECHANIC) {
+        LARK_WEBHOOK = process.env.LARK_WEBHOOK_MECHANIC
+      } else {
+        LARK_WEBHOOK = process.env.LARK_WEBHOOK
       }
     } catch (e) {
       console.error("[applications] Failed to verify job on microCMS (list check):", e)
