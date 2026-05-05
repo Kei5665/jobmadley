@@ -14,6 +14,12 @@ import SiteFooter from "@/shared/components/site-footer"
 import type { ApplicationFormData, JobDetail } from "@/shared/types"
 import { applicationFormSchema, type ApplicationFormValues } from "@/features/application/schema"
 import { useApplySourceCapture } from "@/features/application/hooks/useApplySourceCapture"
+import {
+  buildBirthDate,
+  postApplication,
+  pushStandbyCv,
+  resolveApplyContext,
+} from "@/features/application/lib/submitApplication"
 
 export interface ApplicationFormPageProps {
   job: JobDetail | null
@@ -40,53 +46,14 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
 
     setIsLoading(true)
     try {
-      const birthDate = `${data.birthYear}-${data.birthMonth.padStart(2, '0')}-${data.birthDay.padStart(2, '0')}`
-      let applicationSource = "unknown"
-      let jobUrl = ""
-      let utmSource = ""
-      let utmMedium = ""
-
-      if (typeof window !== "undefined") {
-        const searchParams = new URLSearchParams(window.location.search)
-        const rawSource = searchParams.get("source")
-        const normalizedSource = rawSource?.trim().toLowerCase()
-        const storedSource = window.localStorage.getItem("application_source")?.trim().toLowerCase()
-        const effectiveStoredSource = storedSource && storedSource !== "unknown" ? storedSource : ""
-        applicationSource = normalizedSource || effectiveStoredSource || "unknown"
-        const shouldUpdateUrl = Boolean(rawSource)
-        if (!rawSource && effectiveStoredSource) {
-          searchParams.set("source", effectiveStoredSource)
-        }
-        jobUrl = `${window.location.origin}${window.location.pathname}`
-        const queryString = searchParams.toString()
-        if (queryString) {
-          jobUrl = `${jobUrl}?${queryString}`
-        }
-        if (shouldUpdateUrl && window.history && window.history.replaceState) {
-          window.history.replaceState(null, "", jobUrl)
-        }
-
-        // CookieからUTM情報を取得
-        const cookies = document.cookie.split("; ").reduce((acc, cookie) => {
-          const [key, value] = cookie.split("=")
-          acc[key] = decodeURIComponent(value)
-          return acc
-        }, {} as Record<string, string>)
-
-        utmSource = cookies.utm_source || ""
-        utmMedium = cookies.utm_medium || ""
-
-        if (utmSource || utmMedium) {
-          console.log("[UTM] Retrieved from cookies:", { utmSource, utmMedium })
-        }
-      }
+      const { applicationSource, jobUrl, utmSource, utmMedium } = resolveApplyContext()
 
       const applicationData: ApplicationFormData = {
         lastName: data.lastName,
         firstName: data.firstName,
         lastNameKana: data.lastNameKana,
         firstNameKana: data.firstNameKana,
-        birthDate,
+        birthDate: buildBirthDate(data.birthYear, data.birthMonth, data.birthDay),
         phone: data.phone,
         email: data.email,
         companyName: job?.companyName || "",
@@ -97,38 +64,21 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
         utmMedium,
       }
 
-      const payload = {
+      await postApplication({
         ...applicationData,
         jobId: job?.id ?? "",
         applyEmail: job?.applyEmail ?? "",
         applicationSource,
-      }
-
-      await fetch("/api/submit-application", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
       })
-      if (typeof window !== "undefined" && applicationSource === "standby" && !hasPushedStandbyCv.current) {
-        const win = window as typeof window & { 
-          dataLayer?: Record<string, unknown>[]
-          STANBY_CV?: { send: (siteCode: string, accountId: string) => void }
-        }
-        win.dataLayer = win.dataLayer ?? []
-        win.dataLayer.push({
-          event: "standby_cv_submit",
+
+      if (applicationSource === "standby" && !hasPushedStandbyCv.current) {
+        pushStandbyCv({
           jobId: job?.id ?? "",
           jobName: job?.jobName ?? "",
           companyName: job?.companyName ?? "",
           jobUrl,
           source: applicationSource,
         })
-        
-        // スタンバイCV送信
-        if (win.STANBY_CV && win.STANBY_CV.send) {
-          win.STANBY_CV.send('ridejob-jp', '2171143810634182656')
-        }
-        
         hasPushedStandbyCv.current = true
       }
       window.location.href = "https://ridejob.pmagent.jp/applicants/new"
