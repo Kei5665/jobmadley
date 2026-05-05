@@ -17,9 +17,9 @@ import {
   pushStandbyCv,
   resolveApplyContext,
 } from "@/features/application/lib/submitApplication"
-import { ApplicantFields } from "@/features/application/components/ApplicantFields"
-import { BirthDateSelect } from "@/features/application/components/BirthDateSelect"
-import { ConsentSection } from "@/features/application/components/ConsentSection"
+import { ApplicantFields } from "@/features/application/components/applicant-fields"
+import { BirthDateSelect } from "@/features/application/components/birth-date-select"
+import { ConsentSection } from "@/features/application/components/consent-section"
 
 export interface ApplicationFormProps {
   job: JobDetail | null

@@ -1,7 +1,7 @@
 import { Suspense } from "react"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import ApplicationForm from "@/features/application/components/ApplicationForm"
+import ApplicationForm from "@/features/application/components/application-form"
 import { getJob } from "@/features/jobs/api"
 import { AppError, ErrorType, withErrorHandling } from "@/shared/lib/error-handling"
 
