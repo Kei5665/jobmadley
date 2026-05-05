@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useRef, useState } from "react"
+import React, { useRef, useState } from "react"
 import Link from "next/link"
 import Script from "next/script"
 import { useForm } from "react-hook-form"
@@ -13,6 +13,7 @@ import SiteHeader from "@/shared/components/site-header"
 import SiteFooter from "@/shared/components/site-footer"
 import type { ApplicationFormData, JobDetail } from "@/shared/types"
 import { applicationFormSchema, type ApplicationFormValues } from "@/features/application/schema"
+import { useApplySourceCapture } from "@/features/application/hooks/useApplySourceCapture"
 
 export interface ApplicationFormPageProps {
   job: JobDetail | null
@@ -32,25 +33,7 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
   const [isLoading, setIsLoading] = useState(false)
   const hasPushedStandbyCv = useRef(false)
 
-  useEffect(() => {
-    if (typeof window === "undefined") return
-    try {
-      const searchParams = new URLSearchParams(window.location.search)
-      const stbUid = searchParams.get("stb_uid")
-      if (stbUid) {
-        window.localStorage.setItem("stb_uid", stbUid)
-      }
-      const rawSource = searchParams.get("source")
-      const normalizedSource = rawSource?.trim().toLowerCase()
-      if (normalizedSource && normalizedSource !== "unknown") {
-        window.localStorage.setItem("application_source", normalizedSource)
-      } else if (normalizedSource === "unknown") {
-        window.localStorage.removeItem("application_source")
-      }
-    } catch (_) {
-      // Ignore storage or URL parsing errors.
-    }
-  }, [])
+  useApplySourceCapture()
 
   const onSubmit = async (data: ApplicationFormValues) => {
     if (isLoading) return
