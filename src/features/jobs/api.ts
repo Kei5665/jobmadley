@@ -1,5 +1,29 @@
-import { buildJobFilters, fetchList } from "@/shared/microcms/fetcher"
-import type { Job } from "./types"
+import { buildJobFilters, fetchDetail, fetchList } from "@/shared/microcms/fetcher"
+import type { Job, JobDetail } from "./types"
+
+// =====================
+// 単一求人取得
+// =====================
+
+export type GetJobOptions = {
+  draftKey?: string
+}
+
+/** 単一の求人を ID で取得（depth=2 で参照情報も展開） */
+export const getJob = async (jobId: string, options: GetJobOptions = {}): Promise<JobDetail> => {
+  const queries: Record<string, string | number> = { depth: 2 }
+  if (options.draftKey) queries.draftKey = options.draftKey
+  return fetchDetail<JobDetail>({
+    endpoint: "jobs",
+    contentId: jobId,
+    queries,
+    context: "getJob",
+  })
+}
+
+// =====================
+// 求人一覧取得
+// =====================
 
 interface GetJobsParams {
   /** 都道府県 ID で絞り込み (optional) */

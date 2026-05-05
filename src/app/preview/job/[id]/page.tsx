@@ -7,7 +7,7 @@ import SiteFooter from "@/shared/components/site-footer"
 import JobBreadcrumb from "@/app/job/components/job-breadcrumb"
 import JobTitleActions from "@/app/job/components/job-title-actions"
 import JobDescription from "@/app/job/components/job-description"
-import { getJob } from "@/features/jobs/get-job"
+import { getJob } from "@/features/jobs/api"
 import { AppError, ErrorType, withErrorHandling } from "@/shared/lib/error-handling"
 
 export const revalidate = 0

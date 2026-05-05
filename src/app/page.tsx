@@ -1,7 +1,7 @@
 import { ChevronRight, Home } from "lucide-react"
 import type { Metadata } from "next"
 import { getPrefectureGroups } from "@/features/master/prefectures"
-import { getJobCount, getJobs } from "@/features/jobs/get-jobs"
+import { getJobCount, getJobs } from "@/features/jobs/api"
 import { getMediaArticles } from "@/features/media/api"
 import { withErrorHandling } from "@/shared/lib/error-handling"
 import SiteHeader from "@/shared/components/site-header"
