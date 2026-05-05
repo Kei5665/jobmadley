@@ -48,7 +48,7 @@
 
 ### 必要要件
 - Node.js 18.17 以上
-- pnpm (推奨)
+- npm
 
 ### インストール
 
@@ -58,7 +58,7 @@ git clone <repository-url>
 cd jobmedley
 
 # 依存関係をインストール
-pnpm install
+npm install
 ```
 
 ### 環境変数の設定
@@ -81,7 +81,7 @@ MICROCMS_API_KEY_2=your-media-api-key
 
 ```bash
 # 開発サーバーを起動
-pnpm dev
+npm run dev
 ```
 
 http://localhost:3000 でアプリケーションにアクセスできます。
@@ -139,10 +139,10 @@ jobmedley/
 
 ```bash
 # プロダクションビルド
-pnpm build
+npm run build
 
 # プロダクションサーバー起動
-pnpm start
+npm start
 ```
 
 ## 📱 主要ページ
@@ -203,16 +203,16 @@ pnpm start
 
 ```bash
 # 開発サーバー起動
-pnpm dev
+npm run dev
 
 # 型チェック
-pnpm type-check
+npx tsc --noEmit
 
 # リンター実行
-pnpm lint
+npm run lint
 
 # プロダクションビルド
-pnpm build
+npm run build
 ```
 
 ## 📝 開発メモ
