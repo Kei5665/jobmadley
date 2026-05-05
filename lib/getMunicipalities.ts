@@ -1,44 +1,22 @@
-import { microcmsClient } from "./microcms"
-import type { Municipality, MicroCMSListResponse } from "./types"
+import { fetchDetailOrNull, fetchList } from "./microcms/fetcher"
+import type { Municipality } from "./types"
 
-/**
- * 市区町村一覧を取得
- */
+/** 市区町村一覧を取得 */
 export const getMunicipalities = async (prefectureId?: string): Promise<Municipality[]> => {
-  const queries: any = { limit: 100 }
-  
-  if (prefectureId) {
-    queries.filters = `prefecture[equals]${prefectureId}`
-  }
-  
-  try {
-    const data = await microcmsClient.get<MicroCMSListResponse<Municipality>>({
-      endpoint: "municipalities",
-      queries,
-    })
-
-    return data.contents
-  } catch (error) {
-    console.error("[microCMS:getMunicipalities] Failed to fetch municipalities", {
-      prefectureId,
-      error,
-    })
-    throw error
-  }
+  const queries: Record<string, string | number> = { limit: 100 }
+  if (prefectureId) queries.filters = `prefecture[equals]${prefectureId}`
+  const data = await fetchList<Municipality>({
+    endpoint: "municipalities",
+    queries,
+    context: "getMunicipalities",
+  })
+  return data.contents
 }
 
-/**
- * 市区町村を ID で取得
- */
-export const getMunicipalityById = async (municipalityId: string): Promise<Municipality | null> => {
-  try {
-    const data = await microcmsClient.get<Municipality>({
-      endpoint: "municipalities",
-      contentId: municipalityId,
-    })
-    return data
-  } catch (error) {
-    console.error("Failed to fetch municipality:", error)
-    return null
-  }
-} 
+/** 市区町村を ID で取得（存在しなければ null） */
+export const getMunicipalityById = async (municipalityId: string): Promise<Municipality | null> =>
+  fetchDetailOrNull<Municipality>({
+    endpoint: "municipalities",
+    contentId: municipalityId,
+    context: "getMunicipalityById",
+  })

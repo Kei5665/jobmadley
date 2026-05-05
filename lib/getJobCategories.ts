@@ -1,35 +1,20 @@
-import { microcmsClient } from "./microcms"
-import type { JobCategory, MicroCMSListResponse } from "./types"
+import { fetchDetailOrNull, fetchList } from "./microcms/fetcher"
+import type { JobCategory } from "./types"
 
-/**
- * 職種カテゴリ一覧を取得
- */
+/** 職種カテゴリ一覧を取得 */
 export const getJobCategories = async (): Promise<JobCategory[]> => {
-  try {
-    const data = await microcmsClient.get<MicroCMSListResponse<JobCategory>>({
-      endpoint: "jobcategories",
-      queries: { limit: 100 },
-    })
-
-    return data.contents
-  } catch (error) {
-    console.error("[microCMS:getJobCategories] Failed to fetch job categories", { error })
-    throw error
-  }
+  const data = await fetchList<JobCategory>({
+    endpoint: "jobcategories",
+    queries: { limit: 100 },
+    context: "getJobCategories",
+  })
+  return data.contents
 }
 
-/**
- * 職種カテゴリを ID で取得
- */
-export const getJobCategoryById = async (jobCategoryId: string): Promise<JobCategory | null> => {
-  try {
-    const data = await microcmsClient.get<JobCategory>({
-      endpoint: "jobcategories",
-      contentId: jobCategoryId,
-    })
-    return data
-  } catch (error) {
-    console.error("Failed to fetch job category:", error)
-    return null
-  }
-} 
+/** 職種カテゴリを ID で取得（存在しなければ null） */
+export const getJobCategoryById = async (jobCategoryId: string): Promise<JobCategory | null> =>
+  fetchDetailOrNull<JobCategory>({
+    endpoint: "jobcategories",
+    contentId: jobCategoryId,
+    context: "getJobCategoryById",
+  })

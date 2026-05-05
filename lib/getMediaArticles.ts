@@ -1,31 +1,33 @@
-import { microcmsClient2 } from "@/lib/microcms"
+import { fetchList } from "@/lib/microcms/fetcher"
 import type { BlogArticle } from "@/lib/types"
 
+const fetchArticlesByCategory = async (categoryId: string): Promise<BlogArticle[]> => {
+  const data = await fetchList<BlogArticle>({
+    endpoint: "blogs",
+    queries: { filters: `category[equals]${categoryId}`, limit: 100, orders: "-publishedAt" },
+    context: `getMediaArticles:category=${categoryId}`,
+    client: "media",
+  })
+  return data.contents
+}
+
+const pickThreeRandom = (articles: BlogArticle[]): BlogArticle[] => {
+  const shuffled = [...articles]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled.slice(0, 3)
+}
+
 export async function getMediaArticles() {
-  const fetchArticles = async (categoryId: string) => {
-    const data = await microcmsClient2.get<{ contents: BlogArticle[] }>({
-      endpoint: "blogs",
-      queries: { filters: `category[equals]${categoryId}`, limit: 100, orders: "-publishedAt" },
-    })
-    return data.contents
-  }
-
   const [companyPool, voicePool] = await Promise.all([
-    fetchArticles("2"),
-    fetchArticles("3"),
+    fetchArticlesByCategory("2"),
+    fetchArticlesByCategory("3"),
   ])
-
-  const pickThreeRandom = (articles: BlogArticle[]) => {
-    const shuffled = [...articles]
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-    }
-    return shuffled.slice(0, 3)
-  }
 
   return {
     companyArticles: pickThreeRandom(companyPool),
     interviewArticles: pickThreeRandom(voicePool),
   }
-} 
+}

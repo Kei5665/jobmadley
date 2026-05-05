@@ -1,5 +1,5 @@
-import { microcmsClient } from "./microcms"
-import type { Job, MicroCMSListResponse } from "./types"
+import { buildJobFilters, fetchList } from "./microcms/fetcher"
+import type { Job } from "./types"
 
 interface GetJobsParams {
   /** 都道府県 ID で絞り込み (optional) */
@@ -18,154 +18,54 @@ interface GetJobsParams {
   orders?: string
 }
 
-/**
- * 求人一覧を microCMS から取得
- *
- * filters には [and] で条件を結合する
- * microCMS の `limit` は 100 以下にする
- */
-export const getJobs = async ({
-  prefectureId,
-  municipalityId,
-  tagIds = [],
-  jobCategoryId,
-  keyword,
-  limit = 100,
-  orders
-}: GetJobsParams): Promise<Job[]> => {
-  const filterParts: string[] = []
-  if (prefectureId) filterParts.push(`prefecture[equals]${prefectureId}`)
-  if (municipalityId) filterParts.push(`municipality[equals]${municipalityId}`)
-  if (tagIds.length > 0) {
-    tagIds.forEach((id) => {
-      filterParts.push(`tags[contains]${id}`)
-    })
-  }
-  if (jobCategoryId) filterParts.push(`jobCategory[equals]${jobCategoryId}`)
+const buildJobQueries = (
+  params: GetJobsParams & { offset?: number; limit: number; depth?: number },
+): Record<string, string | number> => {
+  const { prefectureId, municipalityId, tagIds, jobCategoryId, keyword, limit, orders, offset, depth } = params
+  const filters = buildJobFilters({ prefectureId, municipalityId, tagIds, jobCategoryId })
+  const queries: Record<string, string | number> = { limit }
+  if (depth !== undefined) queries.depth = depth
+  if (offset !== undefined) queries.offset = offset
+  if (keyword) queries.q = keyword
+  if (orders) queries.orders = orders
+  if (filters) queries.filters = filters
+  return queries
+}
 
-  const filters = filterParts.join("[and]")
-
-  try {
-    const data = await microcmsClient.get<MicroCMSListResponse<Job>>({
-      endpoint: "jobs",
-      queries: {
-        limit,
-        depth: 1, // タグの名前も取得
-        ...(keyword ? { q: keyword } : {}),
-        ...(orders ? { orders } : {}),
-        ...(filters ? { filters } : {}),
-      },
-    })
-
-    return data.contents
-  } catch (error) {
-    console.error("[microCMS:getJobs] Failed to fetch jobs", {
-      prefectureId,
-      municipalityId,
-      tagIds,
-      jobCategoryId,
-      keyword,
-      limit,
-      orders,
-      error,
-    })
-    throw error
-  }
+/** 求人一覧を microCMS から取得 */
+export const getJobs = async (params: GetJobsParams): Promise<Job[]> => {
+  const { limit = 100 } = params
+  const data = await fetchList<Job>({
+    endpoint: "jobs",
+    queries: buildJobQueries({ ...params, limit, depth: 1 }),
+    context: "getJobs",
+  })
+  return data.contents
 }
 
 /** 求人数だけを取得（limit=0） */
-export const getJobCount = async ({ 
-  prefectureId, 
-  municipalityId,
-  keyword 
-}: { 
-  prefectureId?: string; 
-  municipalityId?: string;
-  keyword?: string;
-}): Promise<number> => {
-  const filterParts: string[] = []
-  if (prefectureId) filterParts.push(`prefecture[equals]${prefectureId}`)
-  if (municipalityId) filterParts.push(`municipality[equals]${municipalityId}`)
-
-  const filters = filterParts.join("[and]")
-
-  try {
-    const data = await microcmsClient.get<MicroCMSListResponse<Job>>({
-      endpoint: "jobs",
-      queries: {
-        limit: 0, // 件数のみ取得
-        ...(keyword ? { q: keyword } : {}),
-        ...(filters ? { filters } : {}),
-      },
-    })
-
-    return data.totalCount
-  } catch (error) {
-    console.error("[microCMS:getJobCount] Failed to fetch job count", {
-      prefectureId,
-      municipalityId,
-      keyword,
-      error,
-    })
-    throw error
-  }
-}
-
-/**
- * ページネーション用: limit と offset を指定して求人を取得
- * microCMS の totalCount を併せて返す
- */
-export const getJobsPaged = async ({
+export const getJobCount = async ({
   prefectureId,
   municipalityId,
-  tagIds = [],
-  jobCategoryId,
   keyword,
-  limit = 10,
-  offset = 0,
-  orders,
-}: GetJobsParams & { offset?: number }): Promise<{
-  contents: Job[]
-  totalCount: number
-}> => {
-  const filterParts: string[] = []
-  if (prefectureId) filterParts.push(`prefecture[equals]${prefectureId}`)
-  if (municipalityId) filterParts.push(`municipality[equals]${municipalityId}`)
-  if (tagIds.length > 0) {
-    tagIds.forEach((id) => {
-      filterParts.push(`tags[contains]${id}`)
-    })
-  }
-  if (jobCategoryId) filterParts.push(`jobCategory[equals]${jobCategoryId}`)
+}: Pick<GetJobsParams, "prefectureId" | "municipalityId" | "keyword">): Promise<number> => {
+  const data = await fetchList<Job>({
+    endpoint: "jobs",
+    queries: buildJobQueries({ prefectureId, municipalityId, keyword, limit: 0 }),
+    context: "getJobCount",
+  })
+  return data.totalCount
+}
 
-  const filters = filterParts.join("[and]")
-
-  try {
-    const data = await microcmsClient.get<MicroCMSListResponse<Job>>({
-      endpoint: "jobs",
-      queries: {
-        limit,
-        offset,
-        depth: 1,
-        ...(keyword ? { q: keyword } : {}),
-        ...(orders ? { orders } : {}),
-        ...(filters ? { filters } : {}),
-      },
-    })
-
-    return { contents: data.contents, totalCount: data.totalCount }
-  } catch (error) {
-    console.error("[microCMS:getJobsPaged] Failed to fetch paged jobs", {
-      prefectureId,
-      municipalityId,
-      tagIds,
-      jobCategoryId,
-      keyword,
-      limit,
-      offset,
-      orders,
-      error,
-    })
-    throw error
-  }
+/** ページネーション用: limit と offset を指定して求人を取得 */
+export const getJobsPaged = async (
+  params: GetJobsParams & { offset?: number },
+): Promise<{ contents: Job[]; totalCount: number }> => {
+  const { limit = 10, offset = 0 } = params
+  const data = await fetchList<Job>({
+    endpoint: "jobs",
+    queries: buildJobQueries({ ...params, limit, offset, depth: 1 }),
+    context: "getJobsPaged",
+  })
+  return { contents: data.contents, totalCount: data.totalCount }
 }

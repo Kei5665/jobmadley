@@ -1,58 +1,32 @@
-import { microcmsClient } from "./microcms"
-import type { Prefecture, PrefectureGroup, MicroCMSListResponse } from "./types"
+import { fetchDetailOrNull, fetchList } from "./microcms/fetcher"
+import type { Prefecture, PrefectureGroup } from "./types"
 
-/**
- * 都道府県一覧を取得
- */
+/** 都道府県一覧を取得 */
 export const getPrefectures = async (): Promise<Prefecture[]> => {
-  try {
-    const data = await microcmsClient.get<MicroCMSListResponse<Prefecture>>({
-      endpoint: "prefectures",
-      queries: { limit: 100 },
-    })
-
-    return data.contents
-  } catch (error) {
-    console.error("[microCMS:getPrefectures] Failed to fetch prefectures", { error })
-    throw error
-  }
+  const data = await fetchList<Prefecture>({
+    endpoint: "prefectures",
+    queries: { limit: 100 },
+    context: "getPrefectures",
+  })
+  return data.contents
 }
 
-/**
- * 都道府県を地方別にグループ化
- */
+/** 都道府県を地方別にグループ化 */
 export const getPrefectureGroups = async (): Promise<PrefectureGroup> => {
   const prefectures = await getPrefectures()
-  
   const groups: PrefectureGroup = {}
-  
   prefectures.forEach((pref) => {
     const { area } = pref
-    if (!groups[area]) {
-      groups[area] = []
-    }
-    groups[area].push({
-      id: pref.id,
-      region: pref.region,
-      area: pref.area,
-    })
+    if (!groups[area]) groups[area] = []
+    groups[area].push({ id: pref.id, region: pref.region, area: pref.area })
   })
-  
   return groups
 }
 
-/**
- * 都道府県を ID で取得
- */
-export const getPrefectureById = async (prefectureId: string): Promise<Prefecture | null> => {
-  try {
-    const data = await microcmsClient.get<Prefecture>({
-      endpoint: "prefectures",
-      contentId: prefectureId,
-    })
-    return data
-  } catch (error) {
-    console.error("Failed to fetch prefecture:", error)
-    return null
-  }
-} 
+/** 都道府県を ID で取得（存在しなければ null） */
+export const getPrefectureById = async (prefectureId: string): Promise<Prefecture | null> =>
+  fetchDetailOrNull<Prefecture>({
+    endpoint: "prefectures",
+    contentId: prefectureId,
+    context: "getPrefectureById",
+  })
