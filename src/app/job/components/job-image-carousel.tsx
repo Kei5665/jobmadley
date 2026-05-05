@@ -3,8 +3,8 @@
 import { useState } from "react"
 import Image from "next/image"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { getJobImageUrl } from "@/lib/utils"
-import type { JobImage } from "@/lib/types"
+import { getJobImageUrl } from "@/shared/lib/utils"
+import type { JobImage } from "@/shared/types"
 
 interface JobImageCarouselProps {
   images?: JobImage[]

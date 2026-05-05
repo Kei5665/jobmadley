@@ -1,4 +1,4 @@
-import type { JobDetail } from "@/lib/types"
+import type { JobDetail } from "@/shared/types"
 import JobPhotoGrid from "./job-photo-grid"
 
 interface JobDescriptionProps {

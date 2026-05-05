@@ -1,5 +1,5 @@
-import { fetchDetail } from "./microcms/fetcher"
-import type { JobDetail } from "./types"
+import { fetchDetail } from "@/shared/microcms/fetcher"
+import type { JobDetail } from "@/shared/types"
 
 export type GetJobOptions = {
   draftKey?: string

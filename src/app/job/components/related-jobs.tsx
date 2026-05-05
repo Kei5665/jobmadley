@@ -1,5 +1,5 @@
-import JobCard from "@/components/job-card"
-import type { Job } from "@/lib/types"
+import JobCard from "@/features/jobs/components/job-card"
+import type { Job } from "@/shared/types"
 
 interface RelatedJobsProps {
   jobs: Job[]

@@ -2,8 +2,8 @@
 
 import Link from "next/link"
 import { MapPin, ChevronRight } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import type { PrefectureGroup } from "@/lib/types"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs"
+import type { PrefectureGroup } from "@/shared/types"
 
 interface PrefectureTabsSectionProps {
   prefectures: PrefectureGroup

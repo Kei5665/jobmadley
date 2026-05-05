@@ -1,8 +1,8 @@
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { isNew, formatSalary, formatDate } from "@/lib/utils"
-import type { JobDetail } from "@/lib/types"
+import { Button } from "@/shared/ui/button"
+import { Badge } from "@/shared/ui/badge"
+import { isNew, formatSalary, formatDate } from "@/shared/lib/utils"
+import type { JobDetail } from "@/shared/types"
 
 interface JobTitleActionsProps {
   job: JobDetail

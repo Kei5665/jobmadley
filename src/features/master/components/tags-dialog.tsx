@@ -8,11 +8,11 @@ import {
   DialogContent,
   DialogTitle,
   DialogClose,
-} from "@/components/ui/dialog"
-import { Card, CardContent } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
+} from "@/shared/ui/dialog"
+import { Card, CardContent } from "@/shared/ui/card"
+import { Checkbox } from "@/shared/ui/checkbox"
 import { Star } from "lucide-react"
-import type { Tag } from "@/lib/types"
+import type { Tag } from "@/shared/types"
 
 interface TagDialogProps {
   tags: Tag[]

@@ -1,6 +1,6 @@
 import type { MicroCMSQueries } from "microcms-js-sdk"
-import { microcmsClient, microcmsClient2 } from "../microcms"
-import type { MicroCMSListResponse } from "../types"
+import { microcmsClient, microcmsClient2 } from "@/shared/microcms/client"
+import type { MicroCMSListResponse } from "@/shared/types"
 
 type ClientKey = "primary" | "media"
 

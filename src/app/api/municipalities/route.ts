@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getMunicipalities } from "@/lib/getMunicipalities"
+import { getMunicipalities } from "@/features/master/municipalities"
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)

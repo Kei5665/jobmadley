@@ -7,11 +7,11 @@ import {
   DialogContent,
   DialogTitle,
   DialogClose,
-} from "@/components/ui/dialog"
-import { Card, CardContent } from "@/components/ui/card"
+} from "@/shared/ui/dialog"
+import { Card, CardContent } from "@/shared/ui/card"
 import { MapPin, ChevronRight } from "lucide-react"
 import { useEffect, useState } from "react"
-import type { Municipality } from "@/lib/types"
+import type { Municipality } from "@/shared/types"
 
 interface MunicipalityDialogProps {
   prefectureId: string

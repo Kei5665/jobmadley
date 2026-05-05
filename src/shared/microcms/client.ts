@@ -1,5 +1,5 @@
 import { createClient } from "microcms-js-sdk"
-import { microcmsEnv, microcmsMediaEnv } from "./config/env"
+import { microcmsEnv, microcmsMediaEnv } from "@/shared/config/env"
 
 // サーバーサイド専用 microCMS クライアント。
 // API キー漏洩を防ぐため NEXT_PUBLIC_ プレフィックスは付けない。

@@ -1,8 +1,8 @@
 import { AlertTriangle, RefreshCw, XCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { cn } from "@/lib/utils"
-import { ErrorType, getErrorMessage, getErrorType } from "@/lib/error-handling"
+import { Button } from "@/shared/ui/button"
+import { Alert, AlertDescription, AlertTitle } from "@/shared/ui/alert"
+import { cn } from "@/shared/lib/utils"
+import { ErrorType, getErrorMessage, getErrorType } from "@/shared/lib/error-handling"
 
 interface ErrorDisplayProps {
   error: unknown

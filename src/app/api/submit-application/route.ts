@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server"
-import { sendToLark } from "@/lib/lark/client"
+import { sendToLark } from "@/shared/lark/client"
 import {
   detectCpOne,
   detectMechanic,
   normalizeSource,
   resolveSubmitBaseWebhook,
   resolveSubmitNotificationWebhook,
-} from "@/lib/lark/routing"
+} from "@/shared/lark/routing"
 
 interface ApplicationPayload {
   lastName?: string

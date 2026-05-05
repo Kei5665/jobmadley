@@ -1,9 +1,9 @@
 import { Suspense } from "react"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import ApplicationFormPage from "@/components/application-form-page"
-import { getJob } from "@/lib/getJob"
-import { AppError, ErrorType, withErrorHandling } from "@/lib/error-handling"
+import ApplicationFormPage from "@/features/application/components/application-form-page"
+import { getJob } from "@/features/jobs/get-job"
+import { AppError, ErrorType, withErrorHandling } from "@/shared/lib/error-handling"
 
 interface ApplicationPageProps {
   params: Promise<{ id: string }>

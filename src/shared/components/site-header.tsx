@@ -1,8 +1,8 @@
 import Image from "next/image"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/shared/ui/button"
 import { Menu } from "lucide-react"
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/shared/ui/sheet"
 
 // サーバーコンポーネント
 export default function SiteHeader() {

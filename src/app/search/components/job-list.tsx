@@ -1,8 +1,8 @@
 "use client"
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import JobCard from "@/components/job-card"
-import type { Job } from "@/lib/types"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs"
+import JobCard from "@/features/jobs/components/job-card"
+import type { Job } from "@/shared/types"
 
 interface JobListProps {
   jobs: Job[]

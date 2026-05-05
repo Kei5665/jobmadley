@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
-import { larkEnv } from "@/lib/config/env"
-import { sendToLark } from "@/lib/lark/client"
+import { larkEnv } from "@/shared/config/env"
+import { sendToLark } from "@/shared/lark/client"
 
 interface ContactInput {
   company?: string

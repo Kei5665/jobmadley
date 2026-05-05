@@ -8,11 +8,11 @@ import {
   DialogContent,
   DialogTitle,
   DialogClose,
-} from "@/components/ui/dialog"
-import { Card, CardContent } from "@/components/ui/card"
-import { ScrollArea } from "@/components/ui/scroll-area"
+} from "@/shared/ui/dialog"
+import { Card, CardContent } from "@/shared/ui/card"
+import { ScrollArea } from "@/shared/ui/scroll-area"
 import { Briefcase } from "lucide-react"
-import type { JobCategory } from "@/lib/types"
+import type { JobCategory } from "@/shared/types"
 
 interface JobCategoryDialogProps {
   jobCategories: JobCategory[]

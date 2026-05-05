@@ -1,5 +1,5 @@
-import { fetchDetailOrNull, fetchList } from "./microcms/fetcher"
-import type { Prefecture, PrefectureGroup } from "./types"
+import { fetchDetailOrNull, fetchList } from "@/shared/microcms/fetcher"
+import type { Prefecture, PrefectureGroup } from "@/shared/types"
 
 /** 都道府県一覧を取得 */
 export const getPrefectures = async (): Promise<Prefecture[]> => {

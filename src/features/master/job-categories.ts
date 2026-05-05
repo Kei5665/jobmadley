@@ -1,5 +1,5 @@
-import { fetchDetailOrNull, fetchList } from "./microcms/fetcher"
-import type { JobCategory } from "./types"
+import { fetchDetailOrNull, fetchList } from "@/shared/microcms/fetcher"
+import type { JobCategory } from "@/shared/types"
 
 /** 職種カテゴリ一覧を取得 */
 export const getJobCategories = async (): Promise<JobCategory[]> => {

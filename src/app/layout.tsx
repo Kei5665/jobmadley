@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import { Suspense } from 'react'
 import './globals.css'
-import { baseMetadata } from '@/lib/metadata'
-import UTMCapture from '@/components/utm-capture'
+import { baseMetadata } from '@/shared/lib/metadata'
+import UTMCapture from '@/features/application/components/utm-capture'
 
 const inter = Inter({
   subsets: ['latin'],

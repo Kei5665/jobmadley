@@ -1,10 +1,10 @@
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
-import SiteHeader from "@/components/site-header"
-import SiteFooter from "@/components/site-footer"
-import { Button } from "@/components/ui/button"
-import ContactForm from "@/components/contact-form"
+import SiteHeader from "@/shared/components/site-header"
+import SiteFooter from "@/shared/components/site-footer"
+import { Button } from "@/shared/ui/button"
+import ContactForm from "@/features/contact/components/contact-form"
 
 type SymbolMarkProps = {
   type: "circle" | "triangle" | "cross"

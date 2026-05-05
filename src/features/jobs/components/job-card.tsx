@@ -1,9 +1,9 @@
 import Image from "next/image"
 import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent } from "@/shared/ui/card"
 import { Wallet, Briefcase, MapPin } from "lucide-react"
-import { formatSalary, formatAddress, getJobImageUrl, isNew } from "@/lib/utils"
-import type { JobCardProps } from "@/lib/types"
+import { formatSalary, formatAddress, getJobImageUrl, isNew } from "@/shared/lib/utils"
+import type { JobCardProps } from "@/shared/types"
 
 export default function JobCard({ job, horizontal = false }: JobCardProps) {
   const imageUrl = getJobImageUrl(job.images, job.imageUrl)

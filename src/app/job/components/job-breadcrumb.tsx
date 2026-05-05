@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { ChevronRight, Home } from "lucide-react"
-import type { JobDetail } from "@/lib/types"
+import type { JobDetail } from "@/shared/types"
 
 interface JobBreadcrumbProps {
   job: JobDetail

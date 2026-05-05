@@ -1,10 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogClose } from "@/components/ui/dialog"
-import { Card, CardContent } from "@/components/ui/card"
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogClose } from "@/shared/ui/dialog"
+import { Card, CardContent } from "@/shared/ui/card"
 import { MapPin } from "lucide-react"
-import type { PrefectureGroup } from "@/lib/types"
+import type { PrefectureGroup } from "@/shared/types"
 
 interface PrefectureDialogProps {
   groups: PrefectureGroup

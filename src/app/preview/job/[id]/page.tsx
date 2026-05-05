@@ -1,14 +1,14 @@
 import Link from "next/link"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import SiteHeader from "@/components/site-header"
-import SiteFooter from "@/components/site-footer"
+import { Button } from "@/shared/ui/button"
+import SiteHeader from "@/shared/components/site-header"
+import SiteFooter from "@/shared/components/site-footer"
 import JobBreadcrumb from "@/app/job/components/job-breadcrumb"
 import JobTitleActions from "@/app/job/components/job-title-actions"
 import JobDescription from "@/app/job/components/job-description"
-import { getJob } from "@/lib/getJob"
-import { AppError, ErrorType, withErrorHandling } from "@/lib/error-handling"
+import { getJob } from "@/features/jobs/get-job"
+import { AppError, ErrorType, withErrorHandling } from "@/shared/lib/error-handling"
 
 export const revalidate = 0
 export const metadata: Metadata = {

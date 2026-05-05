@@ -1,8 +1,8 @@
 import Image from "next/image"
 import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { microcmsClient2 } from "@/lib/microcms"
+import { Card, CardContent } from "@/shared/ui/card"
+import { Button } from "@/shared/ui/button"
+import { microcmsClient2 } from "@/shared/microcms/client"
 
 interface BlogArticle {
   id: string

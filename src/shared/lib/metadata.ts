@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import type { JobDetail, Job } from './types'
+import type { JobDetail, Job } from '@/shared/types'
 
 // =====================
 // メタデータ設定

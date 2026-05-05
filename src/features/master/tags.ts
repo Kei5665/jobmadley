@@ -1,5 +1,5 @@
-import { fetchList } from "./microcms/fetcher"
-import type { Tag } from "./types"
+import { fetchList } from "@/shared/microcms/fetcher"
+import type { Tag } from "@/shared/types"
 
 /** タグ一覧を取得 */
 export const getTags = async (): Promise<Tag[]> => {

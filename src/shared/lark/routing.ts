@@ -1,7 +1,7 @@
 // 求人種別／応募経路に応じた Webhook URL の選択ロジックを集約。
 // submit-application（内部フォーム）と applications（求人ボックス連携）で共通利用される。
 
-import { larkEnv } from "../config/env"
+import { larkEnv } from "@/shared/config/env"
 
 export interface JobClassification {
   /** 整備士求人かどうか（applyEmail で判定済み） */

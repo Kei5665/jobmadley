@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
-import SiteHeader from "@/components/site-header"
-import SiteFooter from "@/components/site-footer"
+import SiteHeader from "@/shared/components/site-header"
+import SiteFooter from "@/shared/components/site-footer"
 
 export const metadata: Metadata = {
   title: "プライバシーポリシー",

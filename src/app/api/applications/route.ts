@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server"
 import { appendFile } from "fs/promises"
 import path from "path"
-import { normalizeApplication, type NormalizedApplication } from "@/lib/normalize-application"
-import { microcmsClient } from "@/lib/microcms"
-import type { MicroCMSListResponse } from "@/lib/types"
-import { sendToLark } from "@/lib/lark/client"
+import { normalizeApplication, type NormalizedApplication } from "@/features/application/normalize"
+import { microcmsClient } from "@/shared/microcms/client"
+import type { MicroCMSListResponse } from "@/shared/types"
+import { sendToLark } from "@/shared/lark/client"
 import {
   detectCpOne,
   detectMechanic,
   resolveKyujinboxBaseWebhook,
   resolveKyujinboxNotificationWebhook,
-} from "@/lib/lark/routing"
+} from "@/shared/lark/routing"
 
 interface Applicant {
   firstName: string

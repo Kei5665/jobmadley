@@ -1,5 +1,5 @@
-import { fetchList } from "@/lib/microcms/fetcher"
-import type { BlogArticle } from "@/lib/types"
+import { fetchList } from "@/shared/microcms/fetcher"
+import type { BlogArticle } from "@/shared/types"
 
 const fetchArticlesByCategory = async (categoryId: string): Promise<BlogArticle[]> => {
   const data = await fetchList<BlogArticle>({
