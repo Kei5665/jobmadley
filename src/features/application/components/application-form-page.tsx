@@ -5,7 +5,6 @@ import Link from "next/link"
 import Script from "next/script"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
 import { Button } from "@/shared/ui/button"
 import { Input } from "@/shared/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select"
@@ -13,22 +12,7 @@ import { Checkbox } from "@/shared/ui/checkbox"
 import SiteHeader from "@/shared/components/site-header"
 import SiteFooter from "@/shared/components/site-footer"
 import type { ApplicationFormData, JobDetail } from "@/shared/types"
-
-// 応募フォームのバリデーションスキーマ
-const schema = z.object({
-  lastName: z.string().min(1, "姓を入力してください"),
-  firstName: z.string().min(1, "名を入力してください"),
-  lastNameKana: z.string().min(1, "姓（カナ）を入力してください"),
-  firstNameKana: z.string().min(1, "名（カナ）を入力してください"),
-  birthYear: z.string().min(1, "生年月日を入力してください"),
-  birthMonth: z.string().min(1, "生年月日を入力してください"),
-  birthDay: z.string().min(1, "生年月日を入力してください"),
-  phone: z.string().min(1, "電話番号を入力してください"),
-  email: z.string().email("有効なメールアドレスを入力してください"),
-  agreement: z.boolean().refine((val) => val === true, "利用規約に同意してください"),
-})
-
-type FormData = z.infer<typeof schema>
+import { applicationFormSchema, type ApplicationFormValues } from "@/features/application/schema"
 
 export interface ApplicationFormPageProps {
   job: JobDetail | null
@@ -40,8 +24,8 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
     handleSubmit,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<FormData>({
-    resolver: zodResolver(schema),
+  } = useForm<ApplicationFormValues>({
+    resolver: zodResolver(applicationFormSchema),
   })
 
   const [agreement, setAgreement] = useState(false)
@@ -68,7 +52,7 @@ export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
     }
   }, [])
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: ApplicationFormValues) => {
     if (isLoading) return
 
     setIsLoading(true)
