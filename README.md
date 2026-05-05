@@ -88,28 +88,42 @@ http://localhost:3000 でアプリケーションにアクセスできます。
 
 ## 🗂️ プロジェクト構成
 
+ソースは `src/` 配下に集約され、ドメイン単位の vertical slice (`features/`) と
+横断的な共通基盤 (`shared/`) に分かれています。
+
 ```
 jobmedley/
-├── app/                     # App Router ページ
-│   ├── api/                 # API Routes
-│   ├── apply/[id]/         # 応募ページ
-│   ├── job/[id]/           # 求人詳細ページ
-│   ├── search/             # 求人検索ページ
-│   └── components/         # ページ固有コンポーネント
-├── components/             # 共通コンポーネント
-│   ├── ui/                 # shadcn/ui コンポーネント
-│   └── ...                # その他コンポーネント
-├── lib/                    # ユーティリティ・データ取得
-│   ├── microcms.ts        # microCMS クライアント
-│   ├── types.ts           # TypeScript 型定義
-│   ├── getJobs.ts         # 求人データ取得（フリーワード検索対応）
-│   └── ...                # その他ライブラリ
-├── public/                # 静的ファイル
-└── doc/                   # ドキュメント
-    ├── jobmedley-service.md  # 求人サービス技術仕様
-    ├── search-feature.md     # フリーワード検索機能詳細
-    └── README.md            # メディアサービス技術仕様
+├── src/
+│   ├── app/                     # App Router (ルーティングのみ薄く保つ)
+│   │   ├── api/                 # API Routes (applications, contact, ...)
+│   │   ├── apply/[id]/          # 応募ページ
+│   │   ├── job/[id]/            # 求人詳細ページ
+│   │   ├── search/              # 求人検索ページ
+│   │   └── components/          # ページ固有 sections (hero, latest-jobs, ...)
+│   ├── features/                # ドメイン単位の垂直スライス
+│   │   ├── jobs/                # 求人 (get-job, get-jobs, JobCard, ...)
+│   │   ├── application/         # 応募 (normalize, ApplicationForm, ...)
+│   │   ├── contact/             # 問い合わせフォーム
+│   │   ├── master/              # 都道府県/市区町村/タグ/職種カテゴリ
+│   │   └── media/               # ブログ記事
+│   ├── shared/                  # 横断インフラ
+│   │   ├── microcms/            # microCMS クライアント + fetcher
+│   │   ├── lark/                # Lark Webhook 送信 + 求人種別ルーティング
+│   │   ├── config/              # 環境変数アクセス
+│   │   ├── lib/                 # utils, error-handling, metadata, ...
+│   │   ├── ui/                  # shadcn/ui
+│   │   ├── components/          # SiteHeader, SiteFooter, theme-provider
+│   │   ├── hooks/               # use-mobile, use-toast
+│   │   └── types.ts             # 共通型定義
+│   └── middleware.ts            # Next.js middleware (検索URL正規化)
+├── public/                      # 静的ファイル
+├── tests/                       # テスト用 fixtures
+├── doc/ , docs/                 # 技術仕様・運用ドキュメント
+├── tsconfig.json                # paths "@/*" → "./src/*"
+└── components.json              # shadcn/ui エイリアス設定
 ```
+
+import は全て `@/...` エイリアス経由（`@/features/*`, `@/shared/*`, `@/app/*`）。
 
 ## 📊 データ構造
 

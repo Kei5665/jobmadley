@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
-import { normalizeSearchParams, toSearchQueryString } from "@/lib/search-params"
+import { normalizeSearchParams, toSearchQueryString } from "@/shared/lib/search-params"
 
 export function middleware(request: NextRequest) {
   if (request.nextUrl.pathname !== "/search") {
