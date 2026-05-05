@@ -20,11 +20,11 @@ import { ApplicantFields } from "@/features/application/components/ApplicantFiel
 import { BirthDateSelect } from "@/features/application/components/BirthDateSelect"
 import { ConsentSection } from "@/features/application/components/ConsentSection"
 
-export interface ApplicationFormPageProps {
+export interface ApplicationFormProps {
   job: JobDetail | null
 }
 
-export default function ApplicationFormPage({ job }: ApplicationFormPageProps) {
+export default function ApplicationForm({ job }: ApplicationFormProps) {
   const {
     register,
     handleSubmit,

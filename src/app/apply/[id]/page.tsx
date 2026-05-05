@@ -1,7 +1,7 @@
 import { Suspense } from "react"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import ApplicationFormPage from "@/features/application/components/application-form-page"
+import ApplicationForm from "@/features/application/components/ApplicationForm"
 import { getJob } from "@/features/jobs/get-job"
 import { AppError, ErrorType, withErrorHandling } from "@/shared/lib/error-handling"
 
@@ -38,7 +38,7 @@ export default async function ApplicationPage({ params }: ApplicationPageProps) 
 
   return (
     <Suspense fallback={<div>読み込み中...</div>}>
-      <ApplicationFormPage job={job} />
+      <ApplicationForm job={job} />
     </Suspense>
   )
 }
