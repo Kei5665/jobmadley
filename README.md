@@ -95,26 +95,25 @@ http://localhost:3000 でアプリケーションにアクセスできます。
 jobmedley/
 ├── src/
 │   ├── app/                     # App Router (ルーティングのみ薄く保つ)
-│   │   ├── api/                 # API Routes (applications, contact, ...)
+│   │   ├── api/                 # API Routes (applications, submit-application, contact, municipalities, preview)
 │   │   ├── apply/[id]/          # 応募ページ
 │   │   ├── job/[id]/            # 求人詳細ページ
 │   │   ├── search/              # 求人検索ページ
 │   │   └── components/          # ページ固有 sections (hero, latest-jobs, ...)
-│   ├── features/                # ドメイン単位の垂直スライス
-│   │   ├── jobs/                # 求人 (get-job, get-jobs, JobCard, ...)
-│   │   ├── application/         # 応募 (normalize, ApplicationForm, ...)
+│   ├── features/                # ドメイン単位の垂直スライス (各 feature に api.ts / types.ts / components/ を持つ)
+│   │   ├── jobs/                # 求人 (api.ts: getJob/getJobs/getJobCount/getJobsPaged, JobCard, types.ts)
+│   │   ├── application/         # 応募 (schema, normalize, ApplicationForm, hooks/, lib/submitApplication, types.ts)
 │   │   ├── contact/             # 問い合わせフォーム
-│   │   ├── master/              # 都道府県/市区町村/タグ/職種カテゴリ
-│   │   └── media/               # ブログ記事
+│   │   ├── master/              # 都道府県/市区町村/タグ/職種カテゴリ + types.ts
+│   │   └── media/               # ブログ記事 (api.ts, types.ts)
 │   ├── shared/                  # 横断インフラ
-│   │   ├── microcms/            # microCMS クライアント + fetcher
+│   │   ├── microcms/            # microCMS クライアント + fetcher + types
 │   │   ├── lark/                # Lark Webhook 送信 + 求人種別ルーティング
 │   │   ├── config/              # 環境変数アクセス
 │   │   ├── lib/                 # utils, error-handling, metadata, ...
 │   │   ├── ui/                  # shadcn/ui
 │   │   ├── components/          # SiteHeader, SiteFooter, theme-provider
-│   │   ├── hooks/               # use-mobile, use-toast
-│   │   └── types.ts             # 共通型定義
+│   │   └── hooks/               # use-mobile, use-toast
 │   └── middleware.ts            # Next.js middleware (検索URL正規化)
 ├── public/                      # 静的ファイル
 ├── tests/                       # テスト用 fixtures
@@ -140,14 +139,22 @@ import は全て `@/...` エイリアス経由（`@/features/*`, `@/shared/*`, `
 
 ## 🔍 API エンドポイント
 
-### 内部API
-- `GET /api/municipalities` - 都道府県に応じた市区町村取得
-- `POST /api/submit-application` - 応募フォームデータ送信
+### 内部 API ルート (`src/app/api/*`)
 
-### microCMS API
-- 求人検索・詳細取得
-- メディア記事取得
-- マスタデータ取得
+| メソッド | パス | 用途 |
+|---|---|---|
+| `POST` | `/api/submit-application` | 自社応募フォーム送信。求人種別 (CP One / 整備士 / スタンバイ / 求人ボックス) を判定し Lark Webhook へ通知 |
+| `POST` | `/api/applications` | 外部経由 (スタンバイ等) の flat 応募データ受信。重複チェック後 Lark へ通知 |
+| `POST` | `/api/contact` | 採用担当者向け問い合わせフォーム。Lark へ通知 |
+| `GET` | `/api/municipalities?prefecture=<id>` | 都道府県 ID から市区町村一覧を返す (応募/検索フォームのクライアント側絞り込みで利用) |
+| `GET` | `/api/preview?secret=&type=&id=&draftKey=` | microCMS プレビュー用。secret 一致時に draftMode 有効化 → 詳細ページへ redirect |
+
+求人種別ごとの Webhook 振り分けは `src/shared/lark/routing.ts` に集約。
+
+### microCMS API (外部)
+- 求人検索・詳細取得 (jobs)
+- メディア記事取得 (blogs)
+- マスタデータ取得 (prefectures, municipalities, tag, jobcategories)
 
 ## 🚀 デプロイメント
 
