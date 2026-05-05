@@ -2,7 +2,7 @@ import Link from "next/link"
 import { Button } from "@/shared/ui/button"
 import { Badge } from "@/shared/ui/badge"
 import { isNew, formatSalary, formatDate } from "@/shared/lib/utils"
-import type { JobDetail } from "@/shared/types"
+import type { JobDetail } from "@/features/jobs/types"
 
 interface JobTitleActionsProps {
   job: JobDetail

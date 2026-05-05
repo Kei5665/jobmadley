@@ -1,5 +1,5 @@
 import { buildJobFilters, fetchList } from "@/shared/microcms/fetcher"
-import type { Job } from "@/shared/types"
+import type { Job } from "./types"
 
 interface GetJobsParams {
   /** 都道府県 ID で絞り込み (optional) */

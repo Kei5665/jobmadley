@@ -4,7 +4,7 @@ import { useState } from "react"
 import Image from "next/image"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { getJobImageUrl } from "@/shared/lib/utils"
-import type { JobImage } from "@/shared/types"
+import type { JobImage } from "@/features/jobs/types"
 
 interface JobImageCarouselProps {
   images?: JobImage[]

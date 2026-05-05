@@ -2,10 +2,9 @@
 
 import MunicipalityDialog from "@/features/master/components/municipality-dialog"
 import PrefectureDialog from "@/features/master/components/prefecture-dialog"
-import type { PrefectureGroup } from "@/shared/types"
+import type { PrefectureGroup, Tag, JobCategory } from "@/features/master/types"
 import TagDialog from "@/features/master/components/tags-dialog"
 import JobCategoryDialog from "@/features/jobs/components/job-category-dialog"
-import type { Tag, JobCategory } from "@/shared/types"
 import KeywordInput from "./keyword-input"
 
 interface SearchOptionsProps {

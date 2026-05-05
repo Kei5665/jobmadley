@@ -2,7 +2,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs"
 import JobCard from "@/features/jobs/components/job-card"
-import type { Job } from "@/shared/types"
+import type { Job } from "@/features/jobs/types"
 
 interface JobListProps {
   jobs: Job[]

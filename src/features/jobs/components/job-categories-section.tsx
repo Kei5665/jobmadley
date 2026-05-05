@@ -1,5 +1,5 @@
 import Link from "next/link"
-import type { JobCategory } from "@/shared/types"
+import type { JobCategory } from "@/features/master/types"
 
 interface JobCategoriesSectionProps {
   categories: JobCategory[]

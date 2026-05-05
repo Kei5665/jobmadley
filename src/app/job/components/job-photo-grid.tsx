@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Image from "next/image"
-import type { JobImage } from "@/shared/types"
+import type { JobImage } from "@/features/jobs/types"
 
 interface JobPhotoGridProps {
   images: JobImage[]

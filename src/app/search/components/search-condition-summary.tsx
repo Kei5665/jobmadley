@@ -1,4 +1,4 @@
-import type { Tag, JobCategory, Municipality } from "@/shared/types"
+import type { Tag, JobCategory, Municipality } from "@/features/master/types"
 
 interface SearchConditionSummaryProps {
   keyword?: string

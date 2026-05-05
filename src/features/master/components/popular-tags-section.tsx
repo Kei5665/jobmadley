@@ -1,5 +1,5 @@
 import Link from "next/link"
-import type { Tag } from "@/shared/types"
+import type { Tag } from "@/features/master/types"
 
 interface PopularTagsSectionProps {
   tags: Tag[]

@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next"
 import { SITE_URL } from "@/shared/lib/metadata"
 import { microcmsClient } from "@/shared/microcms/client"
-import type { Job, MicroCMSListResponse } from "@/shared/types"
+import type { Job } from "@/features/jobs/types"
+import type { MicroCMSListResponse } from "@/shared/microcms/types"
 
 const JOB_PAGE_SIZE = 100
 

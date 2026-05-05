@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogClose } from "@/shared/ui/dialog"
 import { Card, CardContent } from "@/shared/ui/card"
 import { MapPin } from "lucide-react"
-import type { PrefectureGroup } from "@/shared/types"
+import type { PrefectureGroup } from "@/features/master/types"
 
 interface PrefectureDialogProps {
   groups: PrefectureGroup

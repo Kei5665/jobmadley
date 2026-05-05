@@ -1,5 +1,5 @@
 import Link from "next/link"
-import type { PrefectureGroup } from "@/shared/types"
+import type { PrefectureGroup } from "@/features/master/types"
 
 interface RegionSearchSectionProps {
   prefectures: PrefectureGroup

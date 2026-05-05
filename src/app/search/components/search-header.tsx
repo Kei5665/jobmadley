@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ChevronRight, Home } from "lucide-react"
-import type { Municipality } from "@/shared/types"
+import type { Municipality } from "@/features/master/types"
 
 interface SearchHeaderProps {
   jobCategoryName: string

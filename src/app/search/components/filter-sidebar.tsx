@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import SearchOptions from "./search-options"
-import type { Tag, JobCategory, PrefectureGroup } from "@/shared/types"
+import type { Tag, JobCategory, PrefectureGroup } from "@/features/master/types"
 
 interface FilterSidebarProps {
   keyword?: string

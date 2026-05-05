@@ -11,7 +11,7 @@ import {
 import { Card, CardContent } from "@/shared/ui/card"
 import { MapPin, ChevronRight } from "lucide-react"
 import { useEffect, useState } from "react"
-import type { Municipality } from "@/shared/types"
+import type { Municipality } from "@/features/master/types"
 
 interface MunicipalityDialogProps {
   prefectureId: string

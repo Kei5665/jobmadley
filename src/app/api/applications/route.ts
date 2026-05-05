@@ -3,7 +3,7 @@ import { appendFile } from "fs/promises"
 import path from "path"
 import { normalizeApplication, type NormalizedApplication } from "@/features/application/normalize"
 import { microcmsClient } from "@/shared/microcms/client"
-import type { MicroCMSListResponse } from "@/shared/types"
+import type { MicroCMSListResponse } from "@/shared/microcms/types"
 import { sendToLark } from "@/shared/lark/client"
 import {
   detectCpOne,

@@ -1,4 +1,4 @@
-import type { ApplicationFormData } from "@/shared/types"
+import type { ApplicationFormData } from "@/features/application/types"
 
 export type ApplyContext = {
   applicationSource: string

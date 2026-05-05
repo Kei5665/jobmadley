@@ -2,7 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/shared/ui/button"
 import { ChevronRight } from "lucide-react"
-import type { BlogArticle } from "@/shared/types"
+import type { BlogArticle } from "@/features/media/types"
 
 interface MediaSectionProps {
   companyArticles: BlogArticle[]

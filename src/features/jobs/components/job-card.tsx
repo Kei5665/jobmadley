@@ -3,7 +3,12 @@ import Link from "next/link"
 import { Card, CardContent } from "@/shared/ui/card"
 import { Wallet, Briefcase, MapPin } from "lucide-react"
 import { formatSalary, formatAddress, getJobImageUrl, isNew } from "@/shared/lib/utils"
-import type { JobCardProps } from "@/shared/types"
+import type { Job } from "@/features/jobs/types"
+
+interface JobCardProps {
+  job: Job
+  horizontal?: boolean
+}
 
 export default function JobCard({ job, horizontal = false }: JobCardProps) {
   const imageUrl = getJobImageUrl(job.images, job.imageUrl)
