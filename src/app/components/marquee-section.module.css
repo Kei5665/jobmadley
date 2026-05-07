@@ -1,0 +1,45 @@
+.marquee {
+  --ink:    #0d1530;
+  --yellow: #ffd233;
+  --orange: #f0651f;
+  --font-eng: "Archivo Black", "Zen Maru Gothic", sans-serif;
+
+  background: var(--ink);
+  color: var(--yellow);
+  border-top: 3px solid var(--ink);
+  border-bottom: 3px solid var(--ink);
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 12px 0;
+  font-family: var(--font-eng);
+  letter-spacing: 0.05em;
+  font-size: 18px;
+}
+
+.track {
+  display: inline-flex;
+  gap: 40px;
+  animation: marquee 30s linear infinite;
+  will-change: transform;
+}
+.track > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 40px;
+}
+.dot {
+  color: var(--orange);
+  font-size: 22px;
+  font-style: normal;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+  }
+}

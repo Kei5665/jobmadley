@@ -48,7 +48,11 @@ export default function RootLayout({
         {/* Preconnect for critical resources */}
         <link rel="preconnect" href="//fonts.googleapis.com" />
         <link rel="preconnect" href="//fonts.gstatic.com" crossOrigin="anonymous" />
-        
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Zen+Maru+Gothic:wght@500;700;900&family=Archivo+Black&display=swap"
+        />
+
         {/* Critical resource hints */}
         <link rel="preload" href="/images/logo-ridejob.png" as="image" type="image/png" />
         
@@ -56,6 +60,9 @@ export default function RootLayout({
         <link rel="icon" href="/images/favicon.png" sizes="any" />
         <link rel="apple-touch-icon" href="/images/favicon.png" />
         
+        {/* Disable browser auto-dark-mode (light theme only) */}
+        <meta name="color-scheme" content="only light" />
+
         {/* Performance and Security */}
         <meta httpEquiv="X-Content-Type-Options" content="nosniff" />
         <meta httpEquiv="X-Frame-Options" content="DENY" />

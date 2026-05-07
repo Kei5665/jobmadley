@@ -7,7 +7,9 @@ import { withErrorHandling } from "@/shared/lib/error-handling"
 import SiteHeader from "@/shared/components/site-header"
 import SiteFooter from "@/shared/components/site-footer"
 import RegionSearchSection from "@/features/master/components/prefecture-region-section"
-import HeroSection from "./components/hero-section"
+import ComicHeroSection from "./components/comic-hero-section"
+import MarqueeSection from "./components/marquee-section"
+import ValueStripSection from "./components/value-strip-section"
 import LatestJobsSection from "./components/latest-jobs-section"
 import MediaSection from "./components/media-section"
 import { getTags } from "@/features/master/tags"
@@ -61,7 +63,9 @@ export default async function HomePage() {
         </div>
       </div>
 
-      <HeroSection />
+      <ComicHeroSection />
+      <MarqueeSection />
+      <ValueStripSection />
       <RegionSearchSection prefectures={prefectures} countMap={countMap} />
       <PopularTagsSection tags={tags} />
       <JobCategoriesSection categories={jobCategories} />

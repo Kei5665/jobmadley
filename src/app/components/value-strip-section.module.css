@@ -1,0 +1,70 @@
+.section {
+  --blue-700: #0a2c75;
+  --yellow:   #ffd233;
+  --ink:      #0d1530;
+  --font-display: "Zen Maru Gothic", "Zen Kaku Gothic New", system-ui, sans-serif;
+  --font-body:    "Zen Kaku Gothic New", system-ui, sans-serif;
+  --font-eng:     "Archivo Black", "Zen Maru Gothic", sans-serif;
+  --shadow-pop: 6px 6px 0 var(--ink);
+
+  background: var(--blue-700);
+  color: white;
+  padding: 60px 40px;
+  font-family: var(--font-body);
+}
+.grid {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+.card {
+  background: white;
+  color: var(--ink);
+  border-radius: 20px;
+  padding: 28px 22px;
+  border: 3px solid var(--ink);
+  box-shadow: var(--shadow-pop);
+  position: relative;
+  transition: transform .2s, box-shadow .2s;
+}
+.card:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0 var(--ink);
+}
+.num {
+  position: absolute;
+  top: -18px;
+  left: 18px;
+  background: var(--yellow);
+  color: var(--ink);
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-eng);
+  font-size: 18px;
+}
+.title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 20px;
+  margin: 8px 0;
+}
+.text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #4a546e;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .grid { grid-template-columns: 1fr; }
+  .section { padding: 50px 20px; }
+}
