@@ -5,8 +5,8 @@ import type { JobDetail, Job } from '@/features/jobs/types'
 // メタデータ設定
 // =====================
 
-const SITE_NAME = 'ライドジョブ | タクシー運転手の求人・転職サイト'
-const SITE_DESCRIPTION = 'ドライバー・運転職の求人情報サイト。タクシー運転手、配送ドライバー、介護ドライバーなど、あなたにぴったりの運転職求人を見つけよう。'
+const SITE_NAME = 'ライドジョブ | タクシードライバー・自動車整備士・デリバリーの求人・転職サイト'
+const SITE_DESCRIPTION = 'タクシードライバー、自動車整備士、フードデリバリー営業など、暮らしと街を支える仕事の求人情報サイト。あなたにぴったりの転職先を見つけよう。'
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://ridejob.jp'
 const OGP_IMAGE = '/images/OGP.png'
 
@@ -21,12 +21,16 @@ export const baseMetadata: Metadata = {
   description: SITE_DESCRIPTION,
   keywords: [
     'タクシー運転手',
-    '配送ドライバー',
+    'タクシードライバー',
+    '自動車整備士',
+    '整備士',
+    'フードデリバリー',
+    'デリバリー',
     'ドライバー求人',
-    '運転職',
     '転職',
     '求人',
     'RIDE JOB',
+    'ライドジョブ',
   ],
   authors: [{ name: SITE_NAME }],
   creator: SITE_NAME,
@@ -76,13 +80,13 @@ export const baseMetadata: Metadata = {
  * トップページのメタデータ
  */
 export const generateHomeMetadata = (): Metadata => ({
-  title: `${SITE_NAME} - ドライバー・運転職の求人情報`,
+  title: SITE_NAME,
   description: SITE_DESCRIPTION,
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: `${SITE_NAME} - ドライバー・運転職の求人情報`,
+    title: SITE_NAME,
     description: SITE_DESCRIPTION,
     url: '/',
     images: [OGP_IMAGE],
@@ -104,7 +108,7 @@ export const generateSearchMetadata = (params: {
     ? `${municipalityName}（${prefectureName}）`
     : prefectureName || '全国'
   
-  const jobText = jobCategoryName || 'ドライバー・運転職'
+  const jobText = jobCategoryName || 'ドライバー・整備士・デリバリー'
   const title = `${locationText}の${jobText}求人一覧`
   const description = `${locationText}の${jobText}求人情報。${totalCount ? `${totalCount}件の求人` : '多数の求人'}を掲載中。あなたにぴったりの求人を見つけよう。`
   

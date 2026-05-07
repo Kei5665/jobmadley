@@ -27,11 +27,6 @@ export default function SiteHeader() {
                 求人情報を見る
               </Button>
             </Link>
-            <Link href="/about">
-              <Button className="bg-[#1600FF] hover:bg-[#0E00D1] text-white px-4 py-2 text-sm rounded">
-                法人向けのご案内
-              </Button>
-            </Link>
           </div>
 
           {/* Mobile Menu */}
@@ -55,11 +50,6 @@ export default function SiteHeader() {
                   <Link href="/search">
                     <Button className="w-full bg-[#1600FF] hover:bg-[#0E00D1] text-white mt-4">
                       求人情報を見る
-                    </Button>
-                  </Link>
-                  <Link href="/about">
-                    <Button className="w-full bg-[#1600FF] hover:bg-[#0E00D1] text-white">
-                      法人向けのご案内
                     </Button>
                   </Link>
                 </div>
