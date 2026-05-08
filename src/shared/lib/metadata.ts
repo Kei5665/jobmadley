@@ -5,8 +5,8 @@ import type { JobDetail, Job } from '@/features/jobs/types'
 // メタデータ設定
 // =====================
 
-const SITE_NAME = 'ライドジョブ | タクシードライバー・自動車整備士・デリバリーの求人・転職サイト'
-const SITE_DESCRIPTION = 'タクシードライバー、自動車整備士、フードデリバリー営業など、暮らしと街を支える仕事の求人情報サイト。あなたにぴったりの転職先を見つけよう。'
+export const SITE_NAME = 'ライドジョブ | タクシードライバー・自動車整備士・デリバリーの求人・転職サイト'
+export const SITE_DESCRIPTION = 'タクシードライバー、自動車整備士、フードデリバリー営業など、暮らしと街を支える仕事の求人情報サイト。あなたにぴったりの転職先を見つけよう。'
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://ridejob.jp'
 const OGP_IMAGE = '/images/OGP.png'
 

@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ChevronRight } from "lucide-react"
+import { SITE_DESCRIPTION } from "@/shared/lib/metadata"
 import styles from "./site-footer.module.css"
 
 export default function SiteFooter() {
@@ -18,10 +19,7 @@ export default function SiteFooter() {
                 className={styles.logoImage}
               />
             </div>
-            <p className={styles.description}>
-              ドライバーの求人をお探しならライドジョブ。あなたにぴったりの求人が見つかります。ドライバー運転・整備・現場職に携わる方々の、転職・就職を支援する求人サイトです。
-              求人の応募から入職まで専任のキャリアが転職をサポートします。転職・就職なら「ライドジョブ」にお任せください。
-            </p>
+            <p className={styles.description}>{SITE_DESCRIPTION}</p>
           </div>
 
           <div className={styles.ctaCard}>

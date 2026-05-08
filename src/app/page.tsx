@@ -1,4 +1,3 @@
-import { ChevronRight, Home } from "lucide-react"
 import type { Metadata } from "next"
 import { getPrefectureGroups } from "@/features/master/prefectures"
 import { getJobCount, getJobs } from "@/features/jobs/api"
@@ -53,15 +52,6 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen bg-white">
       <SiteHeader />
-
-      {/* Breadcrumb */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex items-center text-sm text-gray-600">
-          <Home className="w-4 h-4 mr-1" />
-          <ChevronRight className="w-4 h-4 mx-1" />
-          <span>トップページ</span>
-        </div>
-      </div>
 
       <ComicHeroSection />
       <MarqueeSection />
