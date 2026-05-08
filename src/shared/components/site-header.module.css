@@ -14,7 +14,7 @@
   --shadow-pop-sm: 3px 3px 0 var(--ink);
 
   position: relative;
-  background: var(--yellow-2);
+  background: white;
   border-bottom: 3px solid var(--ink);
   font-family: var(--font-body);
 }
