@@ -1,0 +1,122 @@
+.header {
+  --blue-50:  #eaf3ff;
+  --blue-600: #0a3f9c;
+  --blue-700: #0a2c75;
+  --orange:   #f0651f;
+  --yellow:   #ffd233;
+  --yellow-2: #ffe066;
+  --ink:      #0d1530;
+
+  --font-display: var(--font-display, "Zen Maru Gothic"), system-ui, sans-serif;
+  --font-body:    var(--font-body, "Zen Kaku Gothic New"), system-ui, sans-serif;
+
+  --shadow-pop: 6px 6px 0 var(--ink);
+  --shadow-pop-sm: 3px 3px 0 var(--ink);
+
+  position: relative;
+  background: var(--yellow-2);
+  border-bottom: 3px solid var(--ink);
+  font-family: var(--font-body);
+}
+
+.inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+}
+
+.logoLink {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+.logoImage {
+  height: 36px;
+  width: auto;
+  display: block;
+}
+
+.actions {
+  display: none;
+  align-items: stretch;
+  gap: 12px;
+}
+@media (min-width: 768px) {
+  .actions { display: inline-flex; }
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  padding: 10px 18px;
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  box-shadow: var(--shadow-pop-sm);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+  white-space: nowrap;
+}
+.btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--ink);
+}
+.btnPrimary {
+  background: var(--orange);
+  color: white;
+}
+.btnSecondary {
+  background: var(--blue-700);
+  color: white;
+}
+
+.menuButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: white;
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  box-shadow: var(--shadow-pop-sm);
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+}
+.menuButton:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--ink);
+}
+@media (min-width: 768px) {
+  .mobileWrap { display: none; }
+}
+
+.mobileMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 24px;
+}
+.mobileMenu .btn {
+  width: 100%;
+  font-size: 16px;
+  padding: 14px 18px;
+}
+
+@media (max-width: 480px) {
+  .row { height: 64px; }
+  .inner { padding: 0 16px; }
+  .logoImage { height: 32px; }
+}

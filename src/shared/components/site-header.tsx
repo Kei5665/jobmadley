@@ -1,56 +1,56 @@
 import Image from "next/image"
 import Link from "next/link"
-import { Button } from "@/shared/ui/button"
 import { Menu } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/shared/ui/sheet"
+import styles from "./site-header.module.css"
 
-// サーバーコンポーネント
 export default function SiteHeader() {
   return (
-    <header className="bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <Image src="/images/logo-ridejob.png" alt="RIDE JOB" width={120} height={32} />
+    <header className={styles.header}>
+      <div className={styles.inner}>
+        <div className={styles.row}>
+          <Link href="/" className={styles.logoLink}>
+            <Image
+              src="/images/logo-ridejob.png"
+              alt="RIDE JOB"
+              width={160}
+              height={42}
+              className={styles.logoImage}
+              priority
+            />
           </Link>
 
-          {/* Nav + CTA (Desktop) */}
-          <div className="hidden md:flex space-x-3 items-center">
-            <a href="https://ridejob.pmagent.jp/" target="_blank" rel="noopener noreferrer">
-              <Button className="bg-[#05AADB] hover:bg-[#0399C6] text-white px-4 py-2 text-sm rounded">
-                まずお話を聞く
-              </Button>
+          <div className={styles.actions}>
+            <a href="https://ridejob.pmagent.jp/" target="_blank" rel="noopener noreferrer" className={`${styles.btn} ${styles.btnSecondary}`}>
+              まずお話を聞く
             </a>
-            <Link href="/search">
-              <Button className="bg-[#1600FF] hover:bg-[#0E00D1] text-white px-4 py-2 text-sm rounded">
-                求人情報を見る
-              </Button>
+            <Link href="/search" className={`${styles.btn} ${styles.btnPrimary}`}>
+              求人情報を見る
             </Link>
           </div>
 
-          {/* Mobile Menu */}
-          <div className="md:hidden">
+          <div className={styles.mobileWrap}>
             <Sheet>
               <SheetTrigger asChild>
-                <Button aria-label="メニュー" variant="outline" size="icon" className="h-9 w-9">
-                  <Menu className="h-5 w-5" />
-                </Button>
+                <button type="button" aria-label="メニュー" className={styles.menuButton}>
+                  <Menu className="h-5 w-5" strokeWidth={2.5} color="#0d1530" />
+                </button>
               </SheetTrigger>
               <SheetContent side="right" className="p-6">
                 <SheetHeader>
                   <SheetTitle className="sr-only">メニュー</SheetTitle>
                 </SheetHeader>
-                <div className="space-y-4 mt-8">
-                  <a href="https://ridejob.pmagent.jp/" target="_blank" rel="noopener noreferrer">
-                    <Button className="w-full bg-[#05AADB] hover:bg-[#0399C6] text-white">
-                      まずお話を聞く
-                    </Button>
+                <div className={styles.mobileMenu}>
+                  <a
+                    href="https://ridejob.pmagent.jp/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`${styles.btn} ${styles.btnSecondary}`}
+                  >
+                    まずお話を聞く
                   </a>
-                  <Link href="/search">
-                    <Button className="w-full bg-[#1600FF] hover:bg-[#0E00D1] text-white mt-4">
-                      求人情報を見る
-                    </Button>
+                  <Link href="/search" className={`${styles.btn} ${styles.btnPrimary}`}>
+                    求人情報を見る
                   </Link>
                 </div>
               </SheetContent>
@@ -60,4 +60,4 @@ export default function SiteHeader() {
       </div>
     </header>
   )
-} 
+}
