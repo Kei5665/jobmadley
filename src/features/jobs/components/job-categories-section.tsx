@@ -1,31 +1,37 @@
 import Link from "next/link"
 import type { JobCategory } from "@/features/master/types"
+import styles from "./job-categories-section.module.css"
 
 interface JobCategoriesSectionProps {
   categories: JobCategory[]
 }
 
+const TILE_VARIANTS = [styles.tile0, styles.tile1, styles.tile2, styles.tile3] as const
+
 export default function JobCategoriesSection({ categories }: JobCategoriesSectionProps) {
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-12">
-      <h2 className="text-xl md:text-3xl font-bold mb-6 flex items-center">
-        <span className="inline-block w-1.5 h-6 bg-blue-600 mr-3 rounded" />
-        職種から探す
-      </h2>
+    <section className={styles.section} aria-label="職種から探す">
+      <div className={styles.inner}>
+        <div className={styles.header}>
+          <h2 className={styles.title}>
+            <span className={styles.titleBar} aria-hidden="true" />
+            職種から探す
+          </h2>
+          <span className={styles.sticker}>JOB</span>
+        </div>
 
-      <div className="flex flex-wrap gap-3 pt-2">
-        {categories.map((c) => (
-          <Link
-            key={c.id}
-            href={`/search?jobCategory=${encodeURIComponent(c.id)}`}
-            className="px-4 py-2 text-sm md:text-base rounded-md border border-blue-600 bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors"
-          >
-            {c.name}
-          </Link>
-        ))}
+        <div className={styles.grid}>
+          {categories.map((c, i) => (
+            <Link
+              key={c.id}
+              href={`/search?jobCategory=${encodeURIComponent(c.id)}`}
+              className={`${styles.tile} ${TILE_VARIANTS[i % TILE_VARIANTS.length]}`}
+            >
+              {c.name}
+            </Link>
+          ))}
+        </div>
       </div>
     </section>
   )
 }
-
-

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Zen_Maru_Gothic, Zen_Kaku_Gothic_New, Archivo_Black } from 'next/font/google'
 import { Suspense } from 'react'
 import './globals.css'
 import { baseMetadata } from '@/shared/lib/metadata'
@@ -9,6 +9,27 @@ const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   preload: true,
+})
+
+const zenMaruGothic = Zen_Maru_Gothic({
+  subsets: ['latin'],
+  weight: ['500', '700', '900'],
+  display: 'swap',
+  variable: '--font-display',
+})
+
+const zenKakuGothicNew = Zen_Kaku_Gothic_New({
+  subsets: ['latin'],
+  weight: ['500', '700', '900'],
+  display: 'swap',
+  variable: '--font-body',
+})
+
+const archivoBlack = Archivo_Black({
+  subsets: ['latin'],
+  weight: '400',
+  display: 'swap',
+  variable: '--font-eng',
 })
 
 export const metadata: Metadata = baseMetadata
@@ -30,7 +51,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ja" className={inter.className}>
+    <html lang="ja" className={`${inter.className} ${zenMaruGothic.variable} ${zenKakuGothicNew.variable} ${archivoBlack.variable}`}>
       <head>
         {/* Google Tag Manager */}
         <script
@@ -44,14 +65,6 @@ export default function RootLayout({
         {/* DNS Prefetch for external domains */}
         <link rel="dns-prefetch" href="//images.microcms-assets.io" />
         <link rel="dns-prefetch" href="//ridejob.jp" />
-        
-        {/* Preconnect for critical resources */}
-        <link rel="preconnect" href="//fonts.googleapis.com" />
-        <link rel="preconnect" href="//fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Zen+Maru+Gothic:wght@500;700;900&family=Archivo+Black&display=swap"
-        />
 
         {/* Critical resource hints */}
         <link rel="preload" href="/images/logo-ridejob.png" as="image" type="image/png" />
