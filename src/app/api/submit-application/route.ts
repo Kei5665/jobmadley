@@ -4,9 +4,12 @@ import {
   detectCpOne,
   detectMechanic,
   normalizeSource,
-  resolveSubmitBaseWebhook,
+  resolveBaseTarget,
   resolveSubmitNotificationWebhook,
 } from "@/shared/lark/routing"
+import { createBitableRecord } from "@/shared/lark/bitable"
+import { buildFieldsForService, type ApplicationFields } from "@/shared/lark/bitable-schema"
+import { notifyBaseRegistrationError } from "@/shared/lark/alert"
 
 interface ApplicationPayload {
   lastName?: string
@@ -101,27 +104,28 @@ const buildInternalLarkCard = (input: ApplicationPayload, c: ClassifiedApplicati
   }
 }
 
-const buildBaseRegistrationPayload = (input: ApplicationPayload, c: ClassifiedApplication) => {
-  const appliedAt = new Date().toISOString()
-  const payload: Record<string, unknown> = {
-    lastName: input.lastName ?? "",
-    firstName: input.firstName ?? "",
-    lastNameKana: input.lastNameKana ?? "",
-    firstNameKana: input.firstNameKana ?? "",
-    birthDate: input.birthDate ?? "",
-    phone: input.phone ?? "",
-    email: input.email ?? "",
-    companyName: input.companyName ?? "",
-    jobName: input.jobName ?? "",
-    jobUrl: input.jobUrl ?? (input.jobId ? `https://ridejob.jp/job/${input.jobId}` : ""),
-    jobId: input.jobId ?? "",
-    applicationSource: input.applicationSource ?? "",
-    utmSource: input.utmSource ?? "",
-    utmMedium: input.utmMedium ?? "",
-    appliedAt,
+const buildBitableFields = (input: ApplicationPayload, c: ClassifiedApplication): ApplicationFields => {
+  const extraNotes: string[] = []
+  if (c.isStandby) extraNotes.push("流入チャネル: スタンバイ")
+  if (c.isKyujinbox) extraNotes.push("流入チャネル: 求人ボックス")
+  return {
+    lastName: input.lastName,
+    firstName: input.firstName,
+    lastNameKana: input.lastNameKana,
+    firstNameKana: input.firstNameKana,
+    birthDate: input.birthDate,
+    phone: input.phone,
+    email: input.email,
+    jobId: input.jobId,
+    jobName: input.jobName,
+    jobUrl: input.jobUrl ?? (input.jobId ? `https://ridejob.jp/job/${input.jobId}` : undefined),
+    companyName: input.companyName,
+    applicationSource: input.applicationSource,
+    utmSource: input.utmSource,
+    utmMedium: input.utmMedium,
+    appliedAtMillis: Date.now(),
+    extraNotes,
   }
-  if (c.isMechanic) payload.isStandby = c.isStandby
-  return payload
 }
 
 /** URL中の source クエリで applicationSource / jobUrl を補完 */
@@ -197,40 +201,53 @@ export async function POST(request: Request) {
     }
     console.log(`[INFO] Using ${notification.type} for notification`)
 
-    // Base登録Webhook選択（任意）
-    const base = resolveSubmitBaseWebhook(classification)
-    if (base.url) {
-      console.log(`[INFO] Using ${base.type} for base registration`)
-    } else {
-      console.log(`[INFO] ${base.type} is not configured, skipping base registration`)
-    }
+    // Base登録は bitable API へ
+    const baseTarget = resolveBaseTarget(classification)
+    console.log(`[INFO] Base registration target: service=${baseTarget.service} table=${baseTarget.tableId}`)
+    const bitableInput = buildFieldsForService(baseTarget.service, buildBitableFields(incoming, classification))
 
-    // 並列送信
-    const tasks: Promise<{ name: "notification" | "base_registration"; ok: boolean }>[] = []
-
-    tasks.push(
-      sendToLark(notification.url, buildInternalLarkCard(incoming, classification), "submit-application:notification").then(
-        (r) => ({ name: "notification", ok: r.ok }),
-      ),
-    )
-    if (base.url) {
-      tasks.push(
-        sendToLark(base.url, buildBaseRegistrationPayload(incoming, classification), `submit-application:${base.type}`).then(
-          (r) => ({ name: "base_registration", ok: r.ok }),
-        ),
-      )
-    }
-
-    const results = await Promise.all(tasks)
+    // 通知 (Webhook) と Base登録 (bitable API) を並列実行
+    const [notifyResult, baseResult] = await Promise.all([
+      sendToLark(notification.url, buildInternalLarkCard(incoming, classification), "submit-application:notification"),
+      createBitableRecord({
+        service: baseTarget.service,
+        tableId: baseTarget.tableId,
+        fields: bitableInput,
+      }).catch((error: unknown): { ok: false; status: number; message: string } => ({
+        ok: false,
+        status: 0,
+        message: error instanceof Error ? error.message : "bitable error",
+      })),
+    ])
 
     // 通知失敗は致命的、Base登録失敗は非致命
-    const notifyResult = results.find((r) => r.name === "notification")
-    if (notifyResult && !notifyResult.ok) {
+    if (!notifyResult.ok) {
       return NextResponse.json({ success: false, message: "Failed to send notification to Lark" }, { status: 502 })
     }
-    const baseResult = results.find((r) => r.name === "base_registration")
-    if (baseResult && !baseResult.ok) {
-      console.warn("[WARNING] Base registration failed, but proceeding with success response")
+    if (!baseResult.ok) {
+      console.warn(
+        `[WARNING] Base registration failed (service=${baseTarget.service}): status=${baseResult.status} message=${baseResult.message}`,
+      )
+      await notifyBaseRegistrationError({
+        route: "submit-application",
+        service: baseTarget.service,
+        tableId: baseTarget.tableId,
+        status: baseResult.status,
+        code: "code" in baseResult ? baseResult.code : undefined,
+        message: baseResult.message,
+        applicant: {
+          name: `${incoming.lastName ?? ""} ${incoming.firstName ?? ""}`.trim() || undefined,
+          phone: incoming.phone,
+          email: incoming.email,
+        },
+        job: {
+          id: incoming.jobId,
+          name: incoming.jobName,
+          url: incoming.jobUrl,
+        },
+      }).catch((error) => console.error("[alert] notifyBaseRegistrationError failed", error))
+    } else {
+      console.log(`[INFO] Base registration succeeded (service=${baseTarget.service})`)
     }
 
     return NextResponse.json({ success: true })
