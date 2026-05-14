@@ -1,9 +1,7 @@
-// 求人種別／応募経路に応じた Lark 連携先の選択ロジックを集約。
+// 求人種別／応募経路に応じた Webhook URL の選択ロジックを集約。
 // submit-application（内部フォーム）と applications（求人ボックス連携）で共通利用される。
-// 通知は Webhook、Base 登録は bitable API に振り分ける。
 
-import { larkEnv, type LarkServiceId } from "@/shared/config/env"
-import { SERVICE_TABLES } from "@/shared/lark/bitable-schema"
+import { larkEnv } from "@/shared/config/env"
 
 export interface JobClassification {
   /** 整備士求人かどうか（applyEmail で判定済み） */
@@ -36,25 +34,7 @@ export const normalizeSource = (
   return undefined
 }
 
-/** 求人分類から Base 登録先サービスを決定 (CP One > 整備士 > デフォルト) */
-export const resolveBaseService = ({ isCpOne, isMechanic }: JobClassification): LarkServiceId => {
-  if (isCpOne) return "liftjob"
-  if (isMechanic) return "mechanic"
-  return "ridejob"
-}
-
-export interface BaseTarget {
-  service: LarkServiceId
-  tableId: string
-}
-
-/** 求人分類から Base 登録先 (service + tableId) を返す */
-export const resolveBaseTarget = (classification: JobClassification): BaseTarget => {
-  const service = resolveBaseService(classification)
-  return { service, tableId: SERVICE_TABLES[service].tableId }
-}
-
-// === 通知 Webhook（既存ロジックを維持）===
+// === submit-application（内部フォーム）用 ===
 
 /**
  * 通知Webhook URL を選択（内部フォーム）。
@@ -70,6 +50,32 @@ export const resolveSubmitNotificationWebhook = ({
 }
 
 /**
+ * Base登録Webhook URL を選択（内部フォーム）。
+ * CP One/整備士 × スタンバイ の組み合わせを考慮。
+ */
+export const resolveSubmitBaseWebhook = ({
+  isCpOne,
+  isMechanic,
+  isStandby,
+}: JobClassification): { url: string | undefined; type: string } => {
+  if (isCpOne) {
+    if (isStandby && larkEnv.baseCpOneStandby()) {
+      return { url: larkEnv.baseCpOneStandby(), type: "LARK_WEBHOOK_BASE_CPONE_STANDBY" }
+    }
+    return { url: larkEnv.baseCpOne(), type: "LARK_WEBHOOK_BASE_CPONE" }
+  }
+  if (isMechanic && isStandby) {
+    return { url: larkEnv.baseMechanicStandby(), type: "LARK_WEBHOOK_BASE_MECHANIC_STANDBY" }
+  }
+  if (isMechanic) {
+    return { url: larkEnv.baseMechanic(), type: "LARK_WEBHOOK_BASE_MECHANIC" }
+  }
+  return { url: larkEnv.base(), type: "LARK_WEBHOOK_BASE" }
+}
+
+// === applications（求人ボックス連携）用 ===
+
+/**
  * 通知Webhook URL を選択（求人ボックス連携）。
  * 優先順: CP One(求人ボックス用) > 整備士 > デフォルト
  */
@@ -80,4 +86,14 @@ export const resolveKyujinboxNotificationWebhook = ({
   if (isCpOne && larkEnv.notificationCpOneKyujinbox()) return larkEnv.notificationCpOneKyujinbox()
   if (isMechanic && larkEnv.notificationMechanic()) return larkEnv.notificationMechanic()
   return larkEnv.notification()
+}
+
+/** Base登録Webhook URL を選択（求人ボックス連携）。 */
+export const resolveKyujinboxBaseWebhook = ({
+  isCpOne,
+  isMechanic,
+}: JobClassification): string | undefined => {
+  if (isCpOne && larkEnv.baseCpOneKyujinbox()) return larkEnv.baseCpOneKyujinbox()
+  if (isMechanic && larkEnv.baseMechanicKyujin()) return larkEnv.baseMechanicKyujin()
+  return larkEnv.baseLegacy()
 }
