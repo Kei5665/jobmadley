@@ -8,9 +8,12 @@ import { sendToLark } from "@/shared/lark/client"
 import {
   detectCpOne,
   detectMechanic,
+  detectPmAgent,
   resolveKyujinboxBaseWebhook,
   resolveKyujinboxNotificationWebhook,
 } from "@/shared/lark/routing"
+import { sendMail } from "@/shared/mail/gmail"
+import { buildApplicantAutoReply, isValidEmail } from "@/shared/mail/applicantAutoReply"
 
 interface Applicant {
   firstName: string
@@ -371,6 +374,25 @@ export async function POST(request: Request) {
       )
     }
     console.log("[applications] Successfully sent to Lark", { body: notifyResult.body })
+
+    // 応募者向け自動返信（非致命。email 不正時はスキップ。生データ/求人未存在は既に return 済み）
+    if (isValidEmail(normalized.applicant.email)) {
+      const mail = buildApplicantAutoReply(
+        { isCpOne, isMechanic, isPmAgent: detectPmAgent(companyName) },
+        {
+          email: normalized.applicant.email,
+          name: `${normalized.applicant.lastName ?? ""} ${normalized.applicant.firstName ?? ""}`.trim(),
+          companyName: normalized.job.companyName,
+          jobName: normalized.job.title,
+        },
+      )
+      const mailResult = await sendMail(mail, "applications:applicant")
+      if (!mailResult.ok && !mailResult.skipped) {
+        console.warn("[applications] Applicant auto-reply mail failed, but proceeding")
+      }
+    } else {
+      console.log("[applications] applicant email missing or invalid, skipping auto-reply")
+    }
 
     // Base登録（任意）
     const baseWebhookUrl = resolveKyujinboxBaseWebhook({ isCpOne, isMechanic })

@@ -3,10 +3,13 @@ import { sendToLark } from "@/shared/lark/client"
 import {
   detectCpOne,
   detectMechanic,
+  detectPmAgent,
   normalizeSource,
   resolveSubmitBaseWebhook,
   resolveSubmitNotificationWebhook,
 } from "@/shared/lark/routing"
+import { sendMail } from "@/shared/mail/gmail"
+import { buildApplicantAutoReply, isValidEmail } from "@/shared/mail/applicantAutoReply"
 
 interface ApplicationPayload {
   lastName?: string
@@ -30,6 +33,7 @@ interface ApplicationPayload {
 interface ClassifiedApplication {
   isMechanic: boolean
   isCpOne: boolean
+  isPmAgent: boolean
   isStandby: boolean
   isKyujinbox: boolean
 }
@@ -181,10 +185,12 @@ export async function POST(request: Request) {
     // 求人種別の分類
     const isMechanic = detectMechanic(incoming.applyEmail)
     const isCpOne = detectCpOne(incoming.companyName)
+    const isPmAgent = detectPmAgent(incoming.companyName)
     const source = normalizeSource(incoming.applicationSource, incoming.jobUrl)
     const classification: ClassifiedApplication = {
       isMechanic,
       isCpOne,
+      isPmAgent,
       isStandby: source === "standby",
       isKyujinbox: source === "kyujinbox",
     }
@@ -206,7 +212,7 @@ export async function POST(request: Request) {
     }
 
     // 並列送信
-    const tasks: Promise<{ name: "notification" | "base_registration"; ok: boolean }>[] = []
+    const tasks: Promise<{ name: "notification" | "base_registration" | "applicant_mail"; ok: boolean }>[] = []
 
     tasks.push(
       sendToLark(notification.url, buildInternalLarkCard(incoming, classification), "submit-application:notification").then(
@@ -221,6 +227,21 @@ export async function POST(request: Request) {
       )
     }
 
+    // 応募者向け自動返信（非致命。email 不正時はスキップ）
+    if (isValidEmail(incoming.email)) {
+      const mail = buildApplicantAutoReply(classification, {
+        email: incoming.email,
+        name: `${incoming.lastName ?? ""} ${incoming.firstName ?? ""}`.trim(),
+        companyName: incoming.companyName,
+        jobName: incoming.jobName,
+      })
+      tasks.push(
+        sendMail(mail, "submit-application:applicant").then((r) => ({ name: "applicant_mail", ok: r.ok })),
+      )
+    } else {
+      console.log("[INFO] applicant email missing or invalid, skipping auto-reply")
+    }
+
     const results = await Promise.all(tasks)
 
     // 通知失敗は致命的、Base登録失敗は非致命
@@ -231,6 +252,10 @@ export async function POST(request: Request) {
     const baseResult = results.find((r) => r.name === "base_registration")
     if (baseResult && !baseResult.ok) {
       console.warn("[WARNING] Base registration failed, but proceeding with success response")
+    }
+    const mailResult = results.find((r) => r.name === "applicant_mail")
+    if (mailResult && !mailResult.ok) {
+      console.warn("[WARNING] Applicant auto-reply mail failed, but proceeding with success response")
     }
 
     return NextResponse.json({ success: true })

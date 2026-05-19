@@ -47,6 +47,21 @@ export const larkEnv = {
   contact: () => requireEnv("LARK_CONTACT_WEBHOOK"),
 }
 
+// Gmail API（応募者向け自動返信。サービスアカウント + ドメインワイド委任）
+// すべて任意。未設定時はメール送信をスキップする（応募処理は継続）。
+export const gmailEnv = {
+  /** サービスアカウントの client_email */
+  clientEmail: () => read("GMAIL_SA_CLIENT_EMAIL"),
+  /** サービスアカウントの private_key（PEM。改行は \n エスケープ可） */
+  privateKey: () => {
+    const raw = read("GMAIL_SA_PRIVATE_KEY")
+    return raw ? raw.replace(/\\n/g, "\n") : undefined
+  },
+  // From / impersonate 先はメール種別ごとにプロファイルで指定する（applicantAutoReply.ts）。
+  /** 設定が揃っているか（送信可否の判定に使用） */
+  isConfigured: () => Boolean(read("GMAIL_SA_CLIENT_EMAIL") && read("GMAIL_SA_PRIVATE_KEY")),
+}
+
 // その他
 export const previewSecret = () => read("MICROCMS_PREVIEW_SECRET")
 export const siteUrl = () => read("NEXT_PUBLIC_SITE_URL")

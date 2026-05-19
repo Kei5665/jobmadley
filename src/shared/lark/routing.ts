@@ -8,6 +8,8 @@ export interface JobClassification {
   isMechanic: boolean
   /** CP One Japan 合同会社の求人かどうか（companyName で判定） */
   isCpOne: boolean
+  /** PM Agent の求人かどうか（companyName で判定。メール文面の出し分けで使用） */
+  isPmAgent?: boolean
   /** 応募経路がスタンバイか（applicationSource または jobUrl から判定） */
   isStandby?: boolean
   /** 応募経路が求人ボックスか */
@@ -17,6 +19,10 @@ export interface JobClassification {
 /** companyName から CP One 判定 */
 export const detectCpOne = (companyName: string | undefined | null): boolean =>
   typeof companyName === "string" && companyName.includes("CP One Japan")
+
+/** companyName から PM Agent 判定 */
+export const detectPmAgent = (companyName: string | undefined | null): boolean =>
+  typeof companyName === "string" && companyName.includes("PM Agent")
 
 /** applyEmail から整備士判定 */
 export const MECHANIC_APPLY_EMAIL = "ridejob.mechanic@pmagent.jp"
