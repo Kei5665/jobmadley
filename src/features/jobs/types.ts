@@ -21,7 +21,7 @@ export interface JobBase {
   jobCategory?: JobCategory
   salaryMin?: number
   salaryMax?: number
-  employmentType?: string
+  employmentType?: string[]
   // microCMS メタデータ
   createdAt?: string
   updatedAt?: string
@@ -41,9 +41,9 @@ export interface JobDetail extends JobBase {
   addressPrefMuni?: string
   addressLine?: string
   addressBuilding?: string
-  wageType?: string
+  wageType?: string[]
   workStyle?: string
-  avgScheduledHour?: number
+  avgScheduledHours?: number
   socialInsurance?: string
   ssReason?: string
   salaryNote?: string

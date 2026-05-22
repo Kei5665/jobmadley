@@ -49,10 +49,10 @@ export default function JobCard({ job, horizontal = false }: JobCardProps) {
             <Wallet className={styles.metaIcon} />
             <span>{salaryText}</span>
           </li>
-          {job.employmentType && (
+          {job.employmentType && job.employmentType.length > 0 && (
             <li className={styles.metaItem}>
               <Briefcase className={styles.metaIcon} />
-              <span>{job.employmentType}</span>
+              <span>{job.employmentType.join(" / ")}</span>
             </li>
           )}
         </ul>
