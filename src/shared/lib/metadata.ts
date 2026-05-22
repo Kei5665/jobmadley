@@ -213,6 +213,7 @@ export const generateJobPostingStructuredData = (job: JobDetail) => {
       '@type': 'Place',
       address: {
         '@type': 'PostalAddress',
+        addressCountry: 'JP',
         addressRegion: job.prefecture?.region,
         addressLocality: job.municipality?.name,
         postalCode: job.addressZip,
