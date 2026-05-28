@@ -13,7 +13,7 @@ interface JobCardProps {
 export default function JobCard({ job, horizontal = false }: JobCardProps) {
   const imageUrl = getJobImageUrl(job.images, job.imageUrl)
   const isNewJob = isNew(job.publishedAt, job.createdAt)
-  const salaryText = formatSalary(job.salaryMin, job.salaryMax)
+  const salaryText = formatSalary(job.salaryMin, job.salaryMax, job.wageType)
   const addressText = formatAddress(job.municipality?.name, job.prefecture?.region)
 
   const cardClass = horizontal

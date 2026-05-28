@@ -11,16 +11,22 @@ export function cn(...inputs: ClassValue[]) {
 
 /**
  * 給与情報を整形して表示用文字列を生成
+ * wageType (microCMS の給与形態) が未指定の場合は「月給」にフォールバック
  */
-export const formatSalary = (min?: number, max?: number): string => {
+export const formatSalary = (
+  min?: number,
+  max?: number,
+  wageType?: string[],
+): string => {
+  const label = wageType?.[0]?.trim() || "月給"
   if (min && max) {
-    return `月給 ${min.toLocaleString()}円 ~ ${max.toLocaleString()}円`
+    return `${label} ${min.toLocaleString()}円 ~ ${max.toLocaleString()}円`
   }
   if (min) {
-    return `月給 ${min.toLocaleString()}円〜`
+    return `${label} ${min.toLocaleString()}円〜`
   }
   if (max) {
-    return `月給 〜${max.toLocaleString()}円`
+    return `${label} 〜${max.toLocaleString()}円`
   }
   return "給与情報なし"
 }

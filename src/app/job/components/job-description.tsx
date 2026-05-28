@@ -1,4 +1,5 @@
 import type { JobDetail } from "@/features/jobs/types"
+import { formatSalary } from "@/shared/lib/utils"
 import JobPhotoGrid from "./job-photo-grid"
 
 interface JobDescriptionProps {
@@ -23,11 +24,7 @@ export default function JobDescription({ job }: JobDescriptionProps) {
         <div className="border-t pt-8">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">給与</h3>
           <div className="text-gray-700">
-            {job.salaryMin && job.salaryMax ? 
-              `${job.salaryMin.toLocaleString()}円 ～ ${job.salaryMax.toLocaleString()}円` :
-              job.salaryMin ? `${job.salaryMin.toLocaleString()}円～` :
-              job.salaryMax ? `～${job.salaryMax.toLocaleString()}円` : ''
-            }
+            {formatSalary(job.salaryMin, job.salaryMax, job.wageType)}
           </div>
           {job.salaryNote && (
             <p className="text-gray-600 text-sm mt-2 whitespace-pre-wrap">{job.salaryNote}</p>

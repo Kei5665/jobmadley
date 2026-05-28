@@ -12,7 +12,7 @@ interface JobTitleActionsProps {
 
 export default function JobTitleActions({ job, applyUrl, showApplyButton = true }: JobTitleActionsProps) {
   const isNewJob = isNew(job.publishedAt, job.createdAt)
-  const salaryText = formatSalary(job.salaryMin, job.salaryMax)
+  const salaryText = formatSalary(job.salaryMin, job.salaryMax, job.wageType)
 
   return (
     <div className="mb-8">
