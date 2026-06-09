@@ -62,6 +62,24 @@ export const gmailEnv = {
   isConfigured: () => Boolean(read("GMAIL_SA_CLIENT_EMAIL") && read("GMAIL_SA_PRIVATE_KEY")),
 }
 
+// SMS（応募者向け自動SMS。CPaaS NOW を直送し、eeasy /api/sms/log に記録）
+// すべて任意。CPAASNOW_API_TOKEN 未設定時は送信スキップ（応募処理は継続）。
+// SMS_LOG_SECRET 未設定時は送信のみ行い eeasy への記録はスキップする。
+export const smsEnv = {
+  /** CPaaS NOW APIトークン（未設定なら送信しない） */
+  cpaasToken: () => read("CPAASNOW_API_TOKEN"),
+  /** CPaaS NOW エンドポイント（未設定ならサンドボックス＝実SMSは飛ばない） */
+  cpaasBaseUrl: () => read("CPAASNOW_BASE_URL") ?? "https://sandbox.cpaasnow.com",
+  /** 予約URLの基盤（?ref で送信→予約を突合） */
+  bookingBaseUrl: () => read("SMS_BOOKING_BASE_URL") ?? "https://leomeet.pmagent.jp",
+  /** eeasy 本体（送信ログ /api/sms/log の宛先） */
+  eeasyBaseUrl: () => read("EEASY_BASE_URL") ?? "https://leomeet.pmagent.jp",
+  /** eeasy /api/sms/log 用 Bearer（未設定なら記録スキップ） */
+  logSecret: () => read("SMS_LOG_SECRET"),
+  /** 送信可否（トークンが揃っているか） */
+  isConfigured: () => Boolean(read("CPAASNOW_API_TOKEN")),
+}
+
 // その他
 export const previewSecret = () => read("MICROCMS_PREVIEW_SECRET")
 export const siteUrl = () => read("NEXT_PUBLIC_SITE_URL")

@@ -14,6 +14,7 @@ import {
 } from "@/shared/lark/routing"
 import { sendMail } from "@/shared/mail/gmail"
 import { buildApplicantAutoReply, isValidEmail } from "@/shared/mail/applicantAutoReply"
+import { sendApplicantSms, type SmsChannel } from "@/shared/sms/applicantSms"
 
 interface Applicant {
   firstName: string
@@ -392,6 +393,21 @@ export async function POST(request: Request) {
       }
     } else {
       console.log("[applications] applicant email missing or invalid, skipping auto-reply")
+    }
+
+    // 応募者向け自動SMS（非致命。電話不正/トークン未設定時はスキップ）
+    const smsChannel: SmsChannel = isMechanic ? "mechanic" : "ridejob"
+    const smsResult = await sendApplicantSms(
+      {
+        phone: normalized.applicant.phone,
+        channel: smsChannel,
+        applicantName: `${normalized.applicant.lastName ?? ""} ${normalized.applicant.firstName ?? ""}`.trim(),
+        media: "kyujinbox",
+      },
+      "applications:applicant",
+    )
+    if (!smsResult.ok && !smsResult.skipped) {
+      console.warn("[applications] Applicant SMS failed, but proceeding")
     }
 
     // Base登録（任意）

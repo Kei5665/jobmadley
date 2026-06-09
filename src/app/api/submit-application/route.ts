@@ -10,6 +10,7 @@ import {
 } from "@/shared/lark/routing"
 import { sendMail } from "@/shared/mail/gmail"
 import { buildApplicantAutoReply, isValidEmail } from "@/shared/mail/applicantAutoReply"
+import { sendApplicantSms, type SmsChannel } from "@/shared/sms/applicantSms"
 
 interface ApplicationPayload {
   lastName?: string
@@ -212,7 +213,10 @@ export async function POST(request: Request) {
     }
 
     // 並列送信
-    const tasks: Promise<{ name: "notification" | "base_registration" | "applicant_mail"; ok: boolean }>[] = []
+    const tasks: Promise<{
+      name: "notification" | "base_registration" | "applicant_mail" | "applicant_sms"
+      ok: boolean
+    }>[] = []
 
     tasks.push(
       sendToLark(notification.url, buildInternalLarkCard(incoming, classification), "submit-application:notification").then(
@@ -242,6 +246,20 @@ export async function POST(request: Request) {
       console.log("[INFO] applicant email missing or invalid, skipping auto-reply")
     }
 
+    // 応募者向け自動SMS（非致命。電話不正/トークン未設定時はスキップ）
+    const smsChannel: SmsChannel = classification.isMechanic ? "mechanic" : "ridejob"
+    tasks.push(
+      sendApplicantSms(
+        {
+          phone: incoming.phone,
+          channel: smsChannel,
+          applicantName: `${incoming.lastName ?? ""} ${incoming.firstName ?? ""}`.trim(),
+          media: incoming.utmSource || incoming.applicationSource || "meta",
+        },
+        "submit-application:applicant",
+      ).then((r) => ({ name: "applicant_sms" as const, ok: r.ok })),
+    )
+
     const results = await Promise.all(tasks)
 
     // 通知失敗は致命的、Base登録失敗は非致命
@@ -256,6 +274,10 @@ export async function POST(request: Request) {
     const mailResult = results.find((r) => r.name === "applicant_mail")
     if (mailResult && !mailResult.ok) {
       console.warn("[WARNING] Applicant auto-reply mail failed, but proceeding with success response")
+    }
+    const smsResult = results.find((r) => r.name === "applicant_sms")
+    if (smsResult && !smsResult.ok) {
+      console.warn("[WARNING] Applicant SMS not sent (failed or skipped), but proceeding with success response")
     }
 
     return NextResponse.json({ success: true })
