@@ -64,6 +64,11 @@ export default function SiteFooter() {
                   お問い合わせ
                 </Link>
               </li>
+              <li>
+                <Link href="/about" className={styles.link}>
+                  採用企業はこちら
+                </Link>
+              </li>
             </ul>
           </div>
 
