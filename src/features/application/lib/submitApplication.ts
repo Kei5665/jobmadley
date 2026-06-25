@@ -61,6 +61,7 @@ export async function postApplication(payload: ApplicationFormData & {
   jobId: string
   applyEmail: string
   applicationSource: string
+  metaEventId?: string
 }): Promise<void> {
   await fetch("/api/submit-application", {
     method: "POST",

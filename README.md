@@ -73,6 +73,11 @@ MICROCMS_API_KEY=your-api-key
 # メディアサービス（ブログ）
 NEXT_PUBLIC_MICROCMS_SERVICE_DOMAIN_2=your-media-service-domain
 MICROCMS_API_KEY_2=your-media-api-key
+
+# Meta 計測（直ピクセル + Conversions API）
+NEXT_PUBLIC_META_PIXEL_ID=1945615652686189      # 統合ピクセル「タクシー」（公開値・ページに埋め込まれる）
+META_CAPI_ACCESS_TOKEN=your-capi-access-token   # Events Manager > 設定で発行・サーバー専用・秘匿
+META_TEST_EVENT_CODE=                            # 検証時のみ設定（Events Manager > テストイベント）。本番は空
 ```
 
 > **注意**: API キーは `NEXT_PUBLIC_` を付けずに設定し、クライアントサイドに漏洩しないようにしてください。
