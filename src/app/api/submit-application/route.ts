@@ -11,6 +11,7 @@ import {
 import { sendMail } from "@/shared/mail/gmail"
 import { buildApplicantAutoReply, isValidEmail } from "@/shared/mail/applicantAutoReply"
 import { sendApplicantSms, type SmsChannel } from "@/shared/sms/applicantSms"
+import { sendMetaCapiLead } from "@/shared/meta/capi"
 
 interface ApplicationPayload {
   lastName?: string
@@ -28,6 +29,7 @@ interface ApplicationPayload {
   utmSource?: string
   utmMedium?: string
   applyEmail?: string
+  metaEventId?: string
   [key: string]: unknown
 }
 
@@ -173,6 +175,12 @@ const logRequestContext = (request: Request, timestamp: string): void => {
   console.log(sep)
 }
 
+/** Cookie ヘッダから指定名の値を取り出す（_fbp / _fbc 用）。 */
+const readCookie = (cookieHeader: string, name: string): string | undefined => {
+  const target = cookieHeader.split("; ").find((c) => c.startsWith(`${name}=`))
+  return target ? decodeURIComponent(target.slice(name.length + 1)) : undefined
+}
+
 export async function POST(request: Request) {
   try {
     logRequestContext(request, new Date().toISOString())
@@ -214,7 +222,7 @@ export async function POST(request: Request) {
 
     // 並列送信
     const tasks: Promise<{
-      name: "notification" | "base_registration" | "applicant_mail" | "applicant_sms"
+      name: "notification" | "base_registration" | "applicant_mail" | "applicant_sms" | "meta_capi"
       ok: boolean
     }>[] = []
 
@@ -260,6 +268,27 @@ export async function POST(request: Request) {
       ).then((r) => ({ name: "applicant_sms" as const, ok: r.ok })),
     )
 
+    // Meta Conversions API（Lead）— 非致命。eventId が無ければスキップ
+    if (typeof incoming.metaEventId === "string" && incoming.metaEventId) {
+      const cookieHeader = request.headers.get("cookie") ?? ""
+      const clientIp = (request.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || undefined
+      tasks.push(
+        sendMetaCapiLead({
+          eventId: incoming.metaEventId,
+          eventSourceUrl: incoming.jobUrl,
+          email: incoming.email,
+          phone: incoming.phone,
+          fbp: readCookie(cookieHeader, "_fbp"),
+          fbc: readCookie(cookieHeader, "_fbc"),
+          clientIpAddress: clientIp,
+          clientUserAgent: request.headers.get("user-agent") ?? undefined,
+          contentIds: incoming.jobId ? [incoming.jobId] : undefined,
+          value: 0,
+          currency: "JPY",
+        }).then((r) => ({ name: "meta_capi" as const, ok: r.ok })),
+      )
+    }
+
     const results = await Promise.all(tasks)
 
     // 通知失敗は致命的、Base登録失敗は非致命
@@ -278,6 +307,10 @@ export async function POST(request: Request) {
     const smsResult = results.find((r) => r.name === "applicant_sms")
     if (smsResult && !smsResult.ok) {
       console.warn("[WARNING] Applicant SMS not sent (failed or skipped), but proceeding with success response")
+    }
+    const capiResult = results.find((r) => r.name === "meta_capi")
+    if (capiResult && !capiResult.ok) {
+      console.warn("[WARNING] Meta CAPI Lead not sent (failed or skipped), but proceeding with success response")
     }
 
     return NextResponse.json({ success: true })

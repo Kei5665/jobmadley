@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Script from "next/script"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -17,6 +17,7 @@ import {
   pushStandbyCv,
   resolveApplyContext,
 } from "@/features/application/lib/submitApplication"
+import { genEventId, trackMeta } from "@/shared/lib/meta-pixel"
 import { ApplicantFields } from "@/features/application/components/applicant-fields"
 import { BirthDateSelect } from "@/features/application/components/birth-date-select"
 import { ConsentSection } from "@/features/application/components/consent-section"
@@ -41,6 +42,18 @@ export default function ApplicationForm({ job }: ApplicationFormProps) {
 
   useApplySourceCapture()
 
+  // 応募フォーム表示時に Meta AddToCart（応募開始）を発火
+  useEffect(() => {
+    if (job?.id) {
+      trackMeta("AddToCart", {
+        contentIds: [job.id],
+        contentName: job.jobName ?? undefined,
+        value: 0,
+        currency: "JPY",
+      })
+    }
+  }, [job?.id, job?.jobName])
+
   const onSubmit = async (data: ApplicationFormValues) => {
     if (isLoading) return
 
@@ -64,12 +77,26 @@ export default function ApplicationForm({ job }: ApplicationFormProps) {
         utmMedium,
       }
 
+      const metaEventId = genEventId()
       await postApplication({
         ...applicationData,
         jobId: job?.id ?? "",
         applyEmail: job?.applyEmail ?? "",
         applicationSource,
+        metaEventId,
       })
+
+      // 送信成功時に Meta Lead を発火（サーバーCAPIと同一 eventId で重複排除）
+      trackMeta(
+        "Lead",
+        {
+          contentIds: job?.id ? [job.id] : undefined,
+          contentName: job?.jobName ?? undefined,
+          value: 0,
+          currency: "JPY",
+        },
+        metaEventId,
+      )
 
       if (applicationSource === "standby" && !hasPushedStandbyCv.current) {
         pushStandbyCv({

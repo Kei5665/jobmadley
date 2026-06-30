@@ -13,6 +13,7 @@ import JobDescription from "../components/job-description"
 import RelatedJobs from "../components/related-jobs"
 import { getMediaArticles } from "@/features/media/api"
 import { generateBreadcrumbStructuredData, generateJobMetadata, generateJobPostingStructuredData } from "@/shared/lib/metadata"
+import JobViewTracker from "../components/job-view-tracker"
 
 interface JobPageProps {
   params: Promise<{ id: string }>
@@ -91,6 +92,7 @@ export default async function JobPage({ params }: JobPageProps) {
 
   return (
     <div className="min-h-screen bg-white">
+      <JobViewTracker id={job.id} name={job.jobName ?? job.title ?? undefined} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jobPostingStructuredData).replace(/</g, "\\u003c") }}
