@@ -11,6 +11,25 @@ export function buildBirthDate(year: string, month: string, day: string): string
   return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`
 }
 
+// 整備士求人の応募先メール。@/shared/lark/routing の MECHANIC_APPLY_EMAIL と一致させること。
+// （routing.ts は larkEnv を import するためクライアントに持ち込まず、値のみ複製している）
+const MECHANIC_APPLY_EMAIL = "ridejob.mechanic@pmagent.jp"
+const APPLICANTS_BASE = "https://ridejob.pmagent.jp"
+
+/**
+ * 応募完了ページのURLを求人種別で出し分ける。
+ * - 整備士求人: /mechanic/applicants/new（メカニック予約 mec を埋め込み）
+ * - それ以外:   /applicants/new（汎用=RIDEJOB予約 ride を埋め込み）
+ * 判定は submit-application 側 detectMechanic と同一基準（完全一致）に合わせ、
+ * 完了ページの予約導線を SMS/自動返信メールの種別と一致させる。
+ */
+export function resolveApplicationCompleteUrl(applyEmail: string | undefined | null): string {
+  const isMechanic = applyEmail === MECHANIC_APPLY_EMAIL
+  return isMechanic
+    ? `${APPLICANTS_BASE}/mechanic/applicants/new`
+    : `${APPLICANTS_BASE}/applicants/new`
+}
+
 /**
  * 応募送信時のブラウザ依存コンテキスト（source, jobUrl, UTM）を解決する。
  * URL から source が無く localStorage に有効値がある場合は URL を書き戻す。

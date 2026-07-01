@@ -15,6 +15,7 @@ import {
   buildBirthDate,
   postApplication,
   pushStandbyCv,
+  resolveApplicationCompleteUrl,
   resolveApplyContext,
 } from "@/features/application/lib/submitApplication"
 import { genEventId, trackMeta } from "@/shared/lib/meta-pixel"
@@ -108,7 +109,7 @@ export default function ApplicationForm({ job }: ApplicationFormProps) {
         })
         hasPushedStandbyCv.current = true
       }
-      window.location.href = "https://ridejob.pmagent.jp/applicants/new"
+      window.location.href = resolveApplicationCompleteUrl(job?.applyEmail)
     } catch (err) {
       alert("応募送信に失敗しました")
     } finally {
