@@ -277,27 +277,62 @@ function toTSV(rows: Record<string, string>[]): string {
   return lines.join('\n')
 }
 
+// ===== 確認用（軽量）フィード =====
+// Meta配信には使わない。人が Google Sheets の IMPORTDATA で中身を確認するための軽量版。
+// 本フィードは説明文を全文含み8MB超→IMPORTDATAのサイズ上限で読めないため、
+// 説明を先頭120字に切り、確認に必要な列だけを日本語ヘッダで出力（1MB未満）。
+const REVIEW_HEADERS = [
+  'id', '職種', '雇用形態', '県', '給与帯', 'タイトル', '会社', '市区町村', '在庫', '画像URL', 'リンク', '説明(先頭120字)',
+] as const
+
+function toReviewTSV(rows: Record<string, string>[]): string {
+  const esc = (v: string) => String(v ?? '').replace(/[\t\r\n]+/g, ' ')
+  const lines = [REVIEW_HEADERS.join('\t')]
+  for (const r of rows) {
+    lines.push([
+      r['id'],
+      r['custom_label_0'],
+      r['custom_label_1'],
+      r['custom_label_2'],
+      r['custom_label_3'],
+      r['title'],
+      r['brand'],
+      r['address.city'],
+      r['availability'],
+      r['image_link'],
+      r['link'],
+      clip(r['description'], 120),
+    ].map(esc).join('\t'))
+  }
+  return lines.join('\n')
+}
+
 // ===== main =====
 async function main() {
   const jobs = await fetchAllJobs()
   const rows = jobs.map(toRow).filter((r): r is Record<string, string> => r !== null)
   const tsv = toTSV(rows)
+  const reviewTsv = toReviewTSV(rows)
   const excluded = jobs.length - rows.length
   console.log(`[catalog-feed] 取得=${jobs.length}件 / 収録=${rows.length}件 / 除外=${excluded}件`)
 
   if (BLOB_TOKEN) {
-    const { url } = await put('catalog/ridejob-feed.tsv', tsv, {
-      access: 'public',
-      addRandomSuffix: false, // 固定URL（Metaデータソースに登録）
+    const blobOpts = {
+      access: 'public' as const,
+      addRandomSuffix: false, // 固定URL
       allowOverwrite: true,
       contentType: 'text/tab-separated-values; charset=utf-8',
       token: BLOB_TOKEN,
-    })
+    }
+    const { url } = await put('catalog/ridejob-feed.tsv', tsv, blobOpts) // Metaデータソース用
     console.log(`[catalog-feed] published: ${url}`)
+    const review = await put('catalog/ridejob-feed-review.tsv', reviewTsv, blobOpts) // Sheets確認用（軽量）
+    console.log(`[catalog-feed] published(review): ${review.url}`)
   } else {
     const fs = await import('node:fs/promises')
     await fs.writeFile('catalog-feed.tsv', tsv, 'utf-8')
-    console.log('[catalog-feed] BLOB_READ_WRITE_TOKEN 未設定 → catalog-feed.tsv にローカル出力')
+    await fs.writeFile('catalog-feed-review.tsv', reviewTsv, 'utf-8')
+    console.log('[catalog-feed] BLOB_READ_WRITE_TOKEN 未設定 → ローカル出力(catalog-feed.tsv / catalog-feed-review.tsv)')
   }
 }
 
